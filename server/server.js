@@ -1,24 +1,25 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
-import path from 'path';
 
 const app  = express();
 const port = process.env.PORT || 3000;
 
-// CORS konfigurieren: nur deinen Dev-Host erlauben
+// CORS erlauben – in Produktion setzt du hier deine Static-Site-URL
 app.use(cors({
-  origin: 'http://localhost:5173',  // oder '*' für alle Origins
-  credentials: true                 // falls du später Cookies/Session brauchst
+  origin: process.env.CORS_ORIGIN || '*',  
+  credentials: true
 }));
 
-// JSON-Parsing (falls du POST-Endpunkte hast)
+// JSON-Parsing (falls benötigt)
 app.use(express.json());
 
-// Dein bestehender Code bleibt unverändert:
+// API-Route für HeyGen-Token
 app.get('/api/get-access-token', async (_req, res) => {
   const apiKey = process.env.HEYGEN_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'HEYGEN_API_KEY fehlt' });
+  if (!apiKey) {
+    return res.status(500).json({ error: 'HEYGEN_API_KEY fehlt' });
+  }
 
   try {
     const response = await fetch(
@@ -26,9 +27,14 @@ app.get('/api/get-access-token', async (_req, res) => {
       { method: 'POST', headers: { 'x-api-key': apiKey } }
     );
     const json = await response.json();
+
     if (!response.ok || !json?.data?.token) {
-      return res.status(500).json({ error: 'Token konnte nicht erstellt werden', details: json });
+      return res.status(500).json({
+        error:   'Token konnte nicht erstellt werden',
+        details: json
+      });
     }
+
     return res.json({ token: json.data.token });
   } catch (err) {
     console.error('❌ Token-Request-Error:', err);
@@ -36,17 +42,9 @@ app.get('/api/get-access-token', async (_req, res) => {
   }
 });
 
-// Statics und SPA-Fallback...
-const clientDist = path.resolve(process.cwd(), 'client/dist');
-app.use(express.static(clientDist));
-app.use((req, res) => {
-  if (req.method === 'GET') {
-    res.sendFile(path.join(clientDist, 'index.html'));
-  } else {
-    res.status(404).end();
-  }
-});
+// Falls andere Routen aufgerufen werden:
+app.use((_req, res) => res.status(404).json({ error: 'Nicht gefunden' }));
 
 app.listen(port, () => {
-  console.log(`🚀 Server läuft auf http://localhost:${port}`);
+  console.log(`🚀 API-Server läuft auf http://localhost:${port}`);
 });
