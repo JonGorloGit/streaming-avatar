@@ -1,70 +1,42 @@
-import StreamingAvatar, {
-  AvatarQuality,
-  StreamingEvents
-} from "@heygen/streaming-avatar";
+import './style.css';
+type Mode='avatar'|'chat';
+const avatarUI=document.getElementById('avatar-ui')!;
+const chatUI  =document.getElementById('chat-ui')!;
 
-const API_BASE = import.meta.env.VITE_API_BASE as string;
+let current:Mode|null=null;
+let cleanup:()=>Promise<void>|void=()=>{};
 
-const videoElement = document.getElementById("avatarVideo") as HTMLVideoElement;
-const startButton  = document.getElementById("startSession")  as HTMLButtonElement;
-const endButton    = document.getElementById("endSession")    as HTMLButtonElement;
-const speakButton  = document.getElementById("speakButton")   as HTMLButtonElement;
-const userInput    = document.getElementById("userInput")     as HTMLInputElement;
+window.addEventListener('DOMContentLoaded',()=>{
+  const p=new URLSearchParams(location.search);
+  const initial=(p.get('mode')??'avatar') as Mode;
+  (document.querySelector<HTMLInputElement>(`input[name=mode][value=${initial}]`)!).checked=true;
+  setMode(initial);
+});
 
-let avatar: StreamingAvatar | null = null;
+document.querySelectorAll('input[name=mode]').forEach(rb=>{
+  rb.addEventListener('change',ev=>{
+    const mode=(ev.target as HTMLInputElement).value as Mode;
+    history.pushState({},'',`?mode=${mode}`);
+    setMode(mode);
+  });
+});
 
-async function fetchAccessToken(): Promise<string> {
-  const res = await fetch(`${API_BASE}/api/get-access-token`);
-  if (!res.ok) {
-    const txt = await res.text();
-    console.error("❌ Token-Fehler:", txt);
-    throw new Error("Token konnte nicht geladen werden");
+async function setMode(mode:Mode){
+  if(mode===current) return;
+  await cleanup();
+
+  if(mode==='chat'){
+    avatarUI.classList.add('hidden');
+    chatUI  .classList.remove('hidden');
+
+    const mod=await import('./features/chatbot');
+    cleanup=mod.stopChatbot; mod.startChatbot();
+  }else{
+    chatUI  .classList.add('hidden');
+    avatarUI.classList.remove('hidden');
+
+    const mod=await import('./features/avatar');
+    cleanup=mod.stopAvatar; mod.startAvatar();
   }
-  const { token } = await res.json();
-  return token;
+  current=mode;
 }
-
-async function initializeAvatarSession() {
-  try {
-    const token = await fetchAccessToken();
-    avatar = new StreamingAvatar({ token });
-    avatar.on(StreamingEvents.STREAM_READY, handleStreamReady);
-    await avatar.createStartAvatar({
-      quality: AvatarQuality.High,
-      avatarName: "June_HR_public",
-      language: "de-DE",
-    });
-    startButton.disabled = true;
-    endButton.disabled   = false;
-  } catch (err) {
-    console.error("❌ Initialisierung fehlgeschlagen:", err);
-  }
-}
-
-function handleStreamReady(event: any) {
-  if (event.detail) {
-    videoElement.srcObject = event.detail as MediaStream;
-    videoElement.onloadedmetadata = () => videoElement.play().catch(console.error);
-  }
-}
-
-async function terminateAvatarSession() {
-  if (avatar) {
-    await avatar.stopAvatar();
-    videoElement.srcObject = null;
-    startButton.disabled = false;
-    endButton.disabled   = true;
-    avatar = null;
-  }
-}
-
-async function handleSpeak() {
-  if (avatar && userInput.value) {
-    await avatar.speak({ text: userInput.value });
-    userInput.value = "";
-  }
-}
-
-startButton.addEventListener("click", initializeAvatarSession);
-endButton.addEventListener("click", terminateAvatarSession);
-speakButton.addEventListener("click", handleSpeak);

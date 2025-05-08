@@ -1,222 +1,349 @@
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                               Farb-Variablen (Palette)                               */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/* ─────────────────────────  Farb-Variablen  ───────────────────────── */
 :root {
-  /* Primärfarben */
-  --cws-deep-blue: #002733;
-  --cws-green: #00806e;
-  --cws-neon: #c2fe06;
-  --grey-6: #626364;
-  --grey-7: #727475;
-  --grey-9: #929495;
-  --grey-e: #e5e5e5;
-  --black-10p: rgba(0, 0, 0, 0.1);
-  --black-30p: rgba(0, 0, 0, 0.3);
+  /* Primär */
+  --cws-deep-blue:#002733;
+  --cws-green:#00806e;
+  --cws-neon:#c2fe06;
+  --grey-6:#626364;
+  --grey-7:#727475;
+  --grey-9:#929495;
+  --grey-e:#e5e5e5;
+  --black-10p:rgba(0,0,0,.1);
+  --black-30p:rgba(0,0,0,.3);
 
-  /* Semantische Farben */
-  --text-contrast-color: var(--cws-green);
-  --pale-text-color: var(--grey-7);
-  --list-bullet-color: var(--cws-green);
-  --button-background-color: var(--cws-neon);
-  --button-color: var(--cws-deep-blue);
-  --button-background-hover-color: var(--cws-green);
-  --button-hover-color: var(--cws-neon);
-  --button-secondary-background-color: transparent;
-  --button-secondary-hover-color: var(--cws-green);
-  --button-disabled-background-color: var(--grey-e);
-  --backdrop-color: var(--black-30p);
-  --scrollbar-thumb-color: var(--grey-9);
-  --scrollbar-track-color: var(--grey-e);
-  --text-link-color: var(--cws-green);
-  --text-link-decoration-color: var(--cws-green);
-  --text-link-hover-color: var(--cws-deep-blue);
-  --text-link-decoration-hover-color: var(--cws-green);
-}
+  /* Semantik / Typografie */
+  --text-contrast-color:var(--cws-green);
+  --pale-text-color:var(--grey-7);
+  --list-bullet-color:var(--cws-green);
 
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                                 Global Reset                                          */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+  /* Buttons */
+  --button-bg:var(--cws-neon);
+  --button-fg:var(--cws-deep-blue);
+  --button-bg-hover:var(--cws-green);
+  --button-fg-hover:var(--cws-neon);
+  --button-bg-disabled:var(--grey-e);
+  --button-bg-sec:transparent;
+  --button-bg-sec-hover:var(--cws-green);
+
+  /* Scrollbar */
+  --scrollbar-thumb:var(--grey-9);
+  --scrollbar-track:var(--grey-e);
+
+  /* Links */
+  --link:var(--cws-green);
+  --link-hover:var(--cws-deep-blue);
 }
 
-html,
-body {
-  height: 100%;
+/* ─────────────────────────  Reset  ───────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+
+body{
+  font-family:system-ui,Avenir,Helvetica,Arial,sans-serif;
+  line-height:1.5;
+  background:#fff;
+  color:var(--text-contrast-color);
+  display:flex;align-items:center;justify-content:center;
+  overflow-x:hidden;
+  padding:1rem;
 }
 
-body {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  background-color: white;       /* Heller Body-Hintergrund */
-  color: var(--text-contrast-color);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow-x: hidden;
-  padding: 1rem;
+/* ─────────────────────────  Links & Listen  ───────────────────────── */
+a{color:var(--link);text-decoration:underline var(--link);transition:color .2s}
+a:hover{color:var(--link-hover);text-decoration-color:var(--link)}
+ul{list-style:none}
+li::before{content:'› ';color:var(--list-bullet-color)}
+
+/* ─────────────────────────  Glass-Card  (Avatar-UI) ───────────────────────── */
+.glass-card{
+  width:100%;max-width:920px;padding:2rem;margin:2rem auto;text-align:center;
+  background:var(--cws-deep-blue);
+  border:1px solid var(--button-bg);
+  border-radius:24px;
+  box-shadow:0 4px 30px var(--button-bg);
+  backdrop-filter:blur(20px);
 }
 
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                                Link & Listen Styling                                  */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-a {
-  color: var(--text-link-color);
-  text-decoration: underline var(--text-link-decoration-color);
-  transition: color 0.2s ease;
-}
-a:hover {
-  color: var(--text-link-hover-color);
-  text-decoration-color: var(--text-link-decoration-hover-color);
+/* ─────────────────────────  Headings  ───────────────────────── */
+h1{font-size:clamp(1.5rem,6vw,2.5rem);margin-bottom:1.5rem;color:#fff}
+
+/* ─────────────────────────  Video  ───────────────────────── */
+video{display:block;margin:0 auto 1.5rem;width:100%;max-width:600px;background:var(--grey-9);border-radius:12px}
+
+/* ─────────────────────────  Form Controls  ───────────────────────── */
+section[role='group']{
+  display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-bottom:1.5rem
 }
 
-ul {
-  list-style: none;
+input[type='text'],
+textarea#chat-input{
+  flex:1;min-width:150px;padding:.75rem 1rem;border:1px solid var(--cws-green);
+  border-radius:12px;background:var(--grey-e);color:var(--cws-deep-blue);
+  backdrop-filter:blur(10px);transition:border-color .2s;text-align:center
 }
-li::before {
-  content: "› ";
-  color: var(--list-bullet-color);
+textarea#chat-input{resize:vertical;min-height:2.5rem;font-family:inherit;line-height:1.4}
+input::placeholder,textarea::placeholder{color:var(--pale-text-color)}
+input:focus,textarea:focus{border-color:var(--cws-neon);outline:0}
+
+/* ───────── Buttons ───────── */
+button{
+  min-width:50px;padding:.75rem 1.5rem;font-size:1rem;cursor:pointer;
+  border:1px solid var(--button-bg);border-radius:12px;
+  background:var(--button-bg);color:var(--button-fg);
+  transition:background .2s,color .2s,box-shadow .2s,border-color .2s;
+  backdrop-filter:blur(10px);
+}
+button:hover:not(:disabled){
+  background:var(--button-bg-hover);color:var(--button-fg-hover);
+  border-color:var(--button-fg-hover);box-shadow:0 0 20px var(--button-fg-hover)
+}
+button:disabled{
+  background:var(--button-bg-disabled);color:var(--pale-text-color);
+  cursor:not-allowed;opacity:.7
+}
+.btn-secondary{
+  background:var(--button-bg-sec);color:var(--button-bg);
+  border:1px solid var(--button-bg)
+}
+.btn-secondary:hover:not(:disabled){
+  background:var(--button-bg-sec-hover);color:var(--button-fg-hover);
+  border-color:var(--button-fg-hover)
 }
 
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                                    Glass-Card                                        */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-.glass-card {
-  width: 100%;
-  max-width: 920px;
-  padding: 2rem;
-  margin: 2rem auto;
-  text-align: center;
+/* ─────────────────────────  Umschalt-Helfer  ───────────────────────── */
+form label{margin-right:.75rem;font-weight:600;color:var(--cws-green)}
+input[type='radio']{accent-color:var(--cws-green)}
+.hidden{display:none!important}
 
-  background: var(--cws-deep-blue);
-  border: 1px solid var(--button-background-color);
-  border-radius: 24px;
-  box-shadow: 0 4px 30px var(--button-background-color);
-  backdrop-filter: blur(20px);
+/* ─────────────────────────  Chatbot UI  ───────────────────────── */
+/* Karten-Container */
+.chatbot-card{
+  display:flex;flex-direction:column;
+  width:clamp(280px,90vw,520px);
+  height:clamp(460px,90vh,720px);
+  margin:auto;
+  border:1px solid var(--button-bg);
+  border-radius:20px;
+  background:var(--cws-deep-blue);
+  color:#fff;
+  box-shadow:0 0 25px var(--button-bg);
+  overflow:hidden;
 }
+/* Header */
+.chatbot-header{
+  flex:0 0 64px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.35rem;font-weight:600;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 60%);
+}
+/* Nachrichtenliste */
+.chatbot-body{
+  flex:1 1 auto;
+  padding:1rem .75rem;
+  overflow-y:auto;
+  display:flex;flex-direction:column;gap:.5rem;
+  scroll-behavior:smooth;
+}
+.message{
+  max-width:85%;
+  padding:.5rem .75rem;
+  border-radius:12px;
+  font-size:.95rem;line-height:1.35;
+  word-break:break-word;
+  box-shadow:0 2px 4px rgba(0,0,0,.12);
+}
+.message.user{align-self:flex-end;background:#d0ebff;color:#00406f}
+.message.bot {align-self:flex-start;background:#f1f3f5;color:#222}
+/* Eingabezeile */
+.chatbot-input{
+  flex:0 0 auto;
+  display:flex;gap:.75rem;align-items:center;
+  padding:.75rem 1rem;
+  border-top:1px solid rgba(255,255,255,.08);
+  background:rgba(0,0,0,.08);
+}
+.chatbot-input textarea{
+  flex:1 1 auto;min-height:2.4rem;max-height:6rem;
+  resize:vertical;
+  border:1px solid var(--cws-green);
+  border-radius:10px;
+  background:var(--grey-e);
+  padding:.65rem .8rem;font-family:inherit;font-size:.95rem;line-height:1.35;
+  color:#00352d;
+  transition:border-color .2s;
+}
+.chatbot-input textarea:focus{outline:none;border-color:var(--button-bg)}
+.chatbot-input button{
+  flex:0 0 110px;
+  padding:.7rem 1rem;border-radius:10px;border:none;
+  background:var(--button-bg);color:#002733;font-weight:600;cursor:pointer;
+  transition:background .2s,transform .15s;
+}
+.chatbot-input button:hover{background:var(--button-bg-hover);color:var(--button-fg-hover)}
+.chatbot-input button:active{transform:scale(.96)}
+.chatbot-input button:disabled{opacity:.45;cursor:not-allowed}
 
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                                  Überschriften                                        */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-h1 {
-  /* responsiv: schrumpft auf kleinen Bildschirmen */
-  font-size: clamp(1.5rem, 6vw, 2.5rem);
-  margin-bottom: 1.5rem;
-  color: white;
-}
+/* Scrollbar in Chat */
+.chatbot-body::-webkit-scrollbar{width:10px}
+.chatbot-body::-webkit-scrollbar-track{background:transparent}
+.chatbot-body::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:10px}
 
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                                 Video-Styling                                        */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-video {
-  display: block;
-  margin: 0 auto 1.5rem;
-  width: 100%;
-  max-width: 600px;
-  background-color: var(--grey-9);
-  border-radius: 12px;
-}
-
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                            Formularfelder & Buttons                                  */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-section[role="group"] {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-input[type="text"] {
-  flex: 1;
-  min-width: 150px;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--cws-green);
-  border-radius: 12px;
-  background: var(--grey-e);
-  color: var(--cws-deep-blue);
-  text-align: center;  /* zentriert den Input-Text */
-  backdrop-filter: blur(10px);
-  transition: border-color 0.2s ease;
-}
-input[type="text"]::placeholder {
-  color: var(--pale-text-color);
-}
-input[type="text"]:focus {
-  border-color: var(--cws-neon);
-  outline: none;
-}
-
-button {
-  padding: 0.75rem 1.5rem;
-  border: 1px solid var(--button-background-color);
-  border-radius: 12px;
-  background: var(--button-background-color);
-  color: var(--button-color);
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.2s ease,
-              color 0.2s ease,
-              box-shadow 0.2s ease,
-              border-color 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-
-button:hover:not(:disabled) {
-  background: var(--button-background-hover-color);
-  color: var(--button-hover-color);
-  border-color: var(--button-hover-color);
-  box-shadow: 0 0 20px var(--button-hover-color);
+/* ─────────────────────────  Mobile  ───────────────────────── */
+@media(max-width:480px){
+  .glass-card{padding:1.5rem}
+  section[role='group']{gap:.5rem}
+  .chatbot-card{height:90vh;border-radius:0}
+  .chatbot-header{font-size:1.15rem}
+  .chatbot-input button{flex:0 0 88px;font-size:.9rem}
 }
 
-button:disabled {
-  background: var(--button-disabled-background-color);
-  color: var(--pale-text-color);
-  cursor: not-allowed;
-  opacity: 0.7;
+/* ─────────────────────────  Dark-Mode  ───────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Grund­palette umkehren / abdunkeln */
+    --text-contrast-color: #c2fe06;     /* Neon-Akzent als Haupttext */
+    --pale-text-color:      #8ba0a4;
+    --button-bg:            #00806e;
+    --button-fg:            #c2fe06;
+    --button-bg-hover:      #00a985;
+    --button-fg-hover:      #002733;
+    --button-bg-sec-hover:  #00a985;
+
+    --scrollbar-thumb: #465357;
+    --scrollbar-track: #1e2a2f;
+
+    --link:        #c2fe06;
+    --link-hover:  #00dbac;
+  }
+
+  /* Seiten­hintergrund & Standard­schrift */
+  body {
+    background: var(--cws-deep-blue);
+    color:       var(--text-contrast-color);
+  }
+
+  /* Avatar- & Chat-Karten sollen dunkler wirken */
+  .glass-card,
+  .chatbot-card {
+    background: #001d26;
+    box-shadow: 0 0 25px rgba(0,0,0,.45);
+  }
+
+  /* Chat-Bubbles */
+  .message.user { background:#005a4c;color:#c2fe06; }
+  .message.bot  { background:#0b3441;color:#e5e5e5;  }
+
+  /* Eingabe­felder */
+  input[type='text'],
+  textarea#chat-input,
+  .chatbot-input textarea {
+    background:#0f2b35;
+    border-color:#00a985;
+    color:#c2fe06;
+  }
+
+  /* Video-Platzhalter dunkler */
+  video { background:#0b3441; }
+
+  /* Scrollbar in Chat noch dunkler */
+  .chatbot-body::-webkit-scrollbar-thumb { background:#2a3a3f; }
 }
 
-/* Sekundär-Klasse für sekundäre Buttons */
-.btn-secondary {
-  background: var(--button-secondary-background-color);
-  color: var(--button-background-color);
-  border: 1px solid var(--button-background-color);
-}
-.btn-secondary:hover:not(:disabled) {
-  background: var(--button-secondary-hover-color);
-  color: var(--button-hover-color);
-  border-color: var(--button-hover-color);
+/* ───────── Auto-Grow Textarea bis ⅓ der Karte ───────── */
+.chatbot-input textarea {
+  max-height: calc(90vh / 3);   /* ⅓ der card-Höhe (card = 90vh) */
+  overflow-y: auto;             /* erst dann Scroll-Bar */
+  resize: none;                 /* Eckgriff ausblenden, JS übernimmt */
 }
 
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                                Scrollbar–Styling                                     */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-::-webkit-scrollbar-track {
-  background: var(--scrollbar-track-color);
-}
-::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb-color);
-  border-radius: 12px;
-  border: 1px solid var(--scrollbar-track-color);
+/* ───────── Desktop-Layout (ab 481 px) ───────── */
+@media (min-width: 481px) {
+  .chatbot-input {
+    flex-direction: row;
+    gap: .75rem;
+    padding: .75rem 1rem;
+  }
+  .chatbot-input textarea {
+    flex: 1 1 auto;
+    min-height: 2.4rem;
+    max-height: 30vh;            /* wächst bis ⅓ Karte */
+    overflow-y: auto;
+    resize: none;
+    padding-right: 1rem;         /* Luft rechts */
+  }
+  .chatbot-input button {
+    flex: 0 0 160px;             /* rechteckig wie Enter-Taste */
+    border-radius: 12px;
+    font-size: 1.1rem;
+  }
 }
 
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
-/*                            Mobile-spezifische Anpassungen                            */
-/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/* ───────── Mobile-Layout (bis 480 px) ───────── */
 @media (max-width: 480px) {
-  .glass-card {
-    padding: 1.5rem;
+  .chatbot-input {
+    flex-direction: column;
+    gap: .75rem;
+    padding: .75rem 1rem;
   }
-  section[role="group"] {
-    gap: 0.5rem;
+  .chatbot-input textarea {
+    width: 100%;
+    max-height: 30vh;
+    overflow-y: auto;
+    resize: none;
+  }
+  .chatbot-input button {
+    width: 100%;                 /* gleiche Breite wie Textarea */
+    height: 50px;
+    border-radius: 12px;
+    font-size: 1.1rem;
   }
 }
+
+/* allgemeine Button-Optik (Pfeil nach oben bleibt) */
+.chatbot-input button::before {
+  content: \"\\25B2\";           /* ▲ */
+  font-family: inherit;
+}
+
+/* ───────── ISO-Enter-Taste (Desktop) ───────── */
+@media (min-width: 481px) {
+  .chatbot-input button{
+    position: relative;
+    flex: 0 0 50px;        /* breiter als vorher */
+    height: 90%;           /* zweistufige Taste */
+    max-height: 120px;
+    background: var(--button-bg);
+    color: var(--button-fg);
+    border-radius: 8px;
+    font-size: 0;            /* Text ausblenden, wir nutzen ::before */
+    overflow: hidden;
+  }
+
+  /* Beschriftung + Pfeil */
+  .chatbot-input button::before{
+    content: '⮐';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-60%);    /* etwas nach oben versetzen */
+    font-size: 1.05rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .chatbot-input button::after{
+    content: \"\\25B2\";       /* ↵ (Return-Pfeil) */
+    position: absolute;
+    top: 57%; right: 20%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+  }
+
+  /* Hover / Active unverändert */
+  .chatbot-input button:hover{
+    background: var(--button-bg-hover); color: var(--button-fg-hover);
+  }
+  .chatbot-input button:active{transform: translateY(1px);}
+}
+
+
+

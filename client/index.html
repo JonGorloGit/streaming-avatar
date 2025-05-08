@@ -1,42 +1,54 @@
-<!-- index.html -->
-<!DOCTYPE html>
-<html lang="de" data-theme="light">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Interactive Avatar Demo</title>
-    <link rel="icon" href="/vite.svg" type="image/svg+xml" />
-    <!-- eigenes Stylesheet statt Pico.css -->
-    <link rel="stylesheet" href="src/style.css" />
-  </head>
-  <body>
-    <div class="glass-card">
-      <h1>HR-Beratungscenter</h1>
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <title>HeyGen / OpenAI Demo</title>
+</head>
 
-      <!-- Video Section -->
-      <article>
-        <video id="avatarVideo" autoplay playsinline></video>
-      </article>
+<body>
 
-      <!-- Controls Section -->
-      <section>
-        <section role="group">
-          <button id="startSession">Start Session</button>
-          <button id="endSession" disabled>End Session</button>
-        </section>
+  <!-- Umschalten zwischen Avatar & Chat -->
+  <form style="margin-bottom:1rem">
+    <label><input type="radio" name="mode" value="avatar"> Avatar</label>
+    <label><input type="radio" name="mode" value="chat"> Chat</label>
+  </form>
 
-        <section role="group">
-          <input
-            type="text"
-            id="userInput"
-            placeholder="Tippe etwas, um mit dem Avatar zu sprechen…"
-            aria-label="User input"
-          />
-          <button id="speakButton">Speak</button>
-        </section>
-      </section>
+  <!-- ───────────── AVATAR UI ───────────── -->
+  <section id="avatar-ui" class="glass-card hidden">
+    <h1>HR-Beratungscenter</h1>
+
+    <video id="avatarVideo" autoplay playsinline></video>
+
+    <section role="group">
+      <input id="userInput" type="text" placeholder="Nachricht …" />
+      <button id="startSession">Start</button>
+      <button id="endSession" disabled class="btn-secondary">Stop</button>
+      <button id="speakButton">Speak</button>
+    </section>
+  </section>
+
+  <!-- ───────────── CHAT UI (neues Layout) ───────────── -->
+  <section id="chat-ui" class="hidden">
+    <div class="chatbot-card">
+
+      <!-- Kopfzeile -->
+      <header class="chatbot-header">HR-Beratungscenter</header>
+
+      <!-- Nachrichtenliste -->
+      <section class="chatbot-body" id="chatbot-body"></section>
+
+      <!-- Eingabe -->
+      <footer class="chatbot-input">
+        <textarea id="chat-input" placeholder="Nachricht …" rows="1"></textarea>
+        <button id="chat-send" title="Senden (Strg+Enter)">
+          ▲
+        </button>
+      </footer>
+
     </div>
+  </section>
 
-    <script type="module" src="/src/main.ts"></script>
-  </body>
+  <!-- Vite Entry -->
+  <script type="module" src="/src/main.ts"></script>
+</body>
 </html>
