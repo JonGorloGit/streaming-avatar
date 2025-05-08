@@ -32,6 +32,7 @@ async function initializeAvatarSession() {
     await avatar.createStartAvatar({
       quality: AvatarQuality.High,
       avatarName: "June_HR_public",
+      language: "de-DE",
     });
     startButton.disabled = true;
     endButton.disabled   = false;

@@ -1,96 +1,222 @@
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                               Farb-Variablen (Palette)                               */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+  /* Primärfarben */
+  --cws-deep-blue: #002733;
+  --cws-green: #00806e;
+  --cws-neon: #c2fe06;
+  --grey-6: #626364;
+  --grey-7: #727475;
+  --grey-9: #929495;
+  --grey-e: #e5e5e5;
+  --black-10p: rgba(0, 0, 0, 0.1);
+  --black-30p: rgba(0, 0, 0, 0.3);
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  /* Semantische Farben */
+  --text-contrast-color: var(--cws-green);
+  --pale-text-color: var(--grey-7);
+  --list-bullet-color: var(--cws-green);
+  --button-background-color: var(--cws-neon);
+  --button-color: var(--cws-deep-blue);
+  --button-background-hover-color: var(--cws-green);
+  --button-hover-color: var(--cws-neon);
+  --button-secondary-background-color: transparent;
+  --button-secondary-hover-color: var(--cws-green);
+  --button-disabled-background-color: var(--grey-e);
+  --backdrop-color: var(--black-30p);
+  --scrollbar-thumb-color: var(--grey-9);
+  --scrollbar-track-color: var(--grey-e);
+  --text-link-color: var(--cws-green);
+  --text-link-decoration-color: var(--cws-green);
+  --text-link-hover-color: var(--cws-deep-blue);
+  --text-link-decoration-hover-color: var(--cws-green);
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                                 Global Reset                                          */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
-a:hover {
-  color: #535bf2;
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  margin: 0;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  background-color: white;       /* Heller Body-Hintergrund */
+  color: var(--text-contrast-color);
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  padding: 1rem;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                                Link & Listen Styling                                  */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+a {
+  color: var(--text-link-color);
+  text-decoration: underline var(--text-link-decoration-color);
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--text-link-hover-color);
+  text-decoration-color: var(--text-link-decoration-hover-color);
 }
 
-#app {
-  max-width: 1280px;
-  margin: 0 auto;
+ul {
+  list-style: none;
+}
+li::before {
+  content: "› ";
+  color: var(--list-bullet-color);
+}
+
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                                    Glass-Card                                        */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+.glass-card {
+  width: 100%;
+  max-width: 920px;
   padding: 2rem;
+  margin: 2rem auto;
   text-align: center;
+
+  background: var(--cws-deep-blue);
+  border: 1px solid var(--button-background-color);
+  border-radius: 24px;
+  box-shadow: 0 4px 30px var(--button-background-color);
+  backdrop-filter: blur(20px);
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                                  Überschriften                                        */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+h1 {
+  /* responsiv: schrumpft auf kleinen Bildschirmen */
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  margin-bottom: 1.5rem;
+  color: white;
 }
 
-.card {
-  padding: 2em;
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                                 Video-Styling                                        */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+video {
+  display: block;
+  margin: 0 auto 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  background-color: var(--grey-9);
+  border-radius: 12px;
 }
 
-.read-the-docs {
-  color: #888;
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                            Formularfelder & Buttons                                  */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+section[role="group"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 150px;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--cws-green);
+  border-radius: 12px;
+  background: var(--grey-e);
+  color: var(--cws-deep-blue);
+  text-align: center;  /* zentriert den Input-Text */
+  backdrop-filter: blur(10px);
+  transition: border-color 0.2s ease;
+}
+input[type="text"]::placeholder {
+  color: var(--pale-text-color);
+}
+input[type="text"]:focus {
+  border-color: var(--cws-neon);
+  outline: none;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid var(--button-background-color);
+  border-radius: 12px;
+  background: var(--button-background-color);
+  color: var(--button-color);
+  font-size: 1rem;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: background 0.2s ease,
+              color 0.2s ease,
+              box-shadow 0.2s ease,
+              border-color 0.2s ease;
+  backdrop-filter: blur(10px);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+button:hover:not(:disabled) {
+  background: var(--button-background-hover-color);
+  color: var(--button-hover-color);
+  border-color: var(--button-hover-color);
+  box-shadow: 0 0 20px var(--button-hover-color);
+}
+
+button:disabled {
+  background: var(--button-disabled-background-color);
+  color: var(--pale-text-color);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Sekundär-Klasse für sekundäre Buttons */
+.btn-secondary {
+  background: var(--button-secondary-background-color);
+  color: var(--button-background-color);
+  border: 1px solid var(--button-background-color);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--button-secondary-hover-color);
+  color: var(--button-hover-color);
+  border-color: var(--button-hover-color);
+}
+
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                                Scrollbar–Styling                                     */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track-color);
+}
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb-color);
+  border-radius: 12px;
+  border: 1px solid var(--scrollbar-track-color);
+}
+
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+/*                            Mobile-spezifische Anpassungen                            */
+/*––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––*/
+@media (max-width: 480px) {
+  .glass-card {
+    padding: 1.5rem;
   }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
+  section[role="group"] {
+    gap: 0.5rem;
   }
 }
