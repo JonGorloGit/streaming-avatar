@@ -43,11 +43,12 @@ export function startChatbot(selectedStyle: Style) {
 
   // Begrüßung je nach Stil
   const welcomeMessage = style === 'soc'
-    ? '👋 Hallo! Ich bin dein HR-Assistent. Was kann ich für dich tun?'
+    ? 'Hallo! Ich bin dein HR-Assistent. Was kann ich für dich tun?'
     : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
 
-  showTypingMessage(welcomeMessage, 1000); // 1 Sekunde Verzögerung
-  conversation.push({ role: 'assistant', content: welcomeMessage });
+    showTypingMessage(welcomeMessage); // jetzt korrekt getimt & gestoppt
+    conversation.push({ role: 'assistant', content: welcomeMessage });
+
 }
 
 export function stopChatbot() {
@@ -83,84 +84,91 @@ function onKeyPress(ev: KeyboardEvent) {
 /* =========================================================
    Senden + Bot-Antwort mit animiertem „Tippen…“
    ========================================================= */
-async function onSend() {
-  const txt = inputEl.value.trim();
-  if (!txt) return;
-
-  append('user', txt);
-  inputEl.value = '';
-  autoResize();
-  inputEl.focus();
-  sendBtn.disabled = true;
-
-  // Tippanimation sofort starten
-  const typingEl = startTypingAnimation();
-
-  try {
-    const { response } = await fetch(`${API_BASE}/api/message`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        message : txt,
-        history : conversation,
-        style,
-      }),
-    }).then(r => r.json());
-
-    // Animation stoppen & echte Antwort einsetzen
-    stopTypingAnimation(typingEl, response);
-
-    conversation.push({ role: 'user',      content: txt });
-    conversation.push({ role: 'assistant', content: response });
-
-    if (conversation.length > 10) {
-      conversation.splice(0, conversation.length - 10);
+   async function onSend() {
+    const txt = inputEl.value.trim();
+    if (!txt) return;
+  
+    append('user', txt);
+    inputEl.value = '';
+    autoResize();
+    inputEl.focus();
+    sendBtn.disabled = true;
+  
+    // Tippanimation sofort starten
+    const [typingEl, stopTyping] = startTypingAnimation();
+    const minDelay = new Promise(res => setTimeout(res, 2000)); // min. 2s
+  
+    try {
+      // Parallel: Antwort + Mindestzeit
+      const [response] = await Promise.all([
+        fetch(`${API_BASE}/api/message`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ message: txt, history: conversation, style }),
+        }).then(r => r.json()).then(r => r.response),
+        minDelay,
+      ]);
+  
+      stopTyping(); // Animation beenden
+      stopTypingAnimation(typingEl, response);
+  
+      conversation.push({ role: 'user', content: txt });
+      conversation.push({ role: 'assistant', content: response });
+      if (conversation.length > 10) conversation.splice(0, conversation.length - 10);
+    } catch (err) {
+      console.error(err);
+      stopTyping();
+      stopTypingAnimation(typingEl, '⚠️ Server-Fehler');
+    } finally {
+      sendBtn.disabled = false;
     }
-  } catch (err) {
-    console.error(err);
-    stopTypingAnimation(typingEl, '⚠️ Server-Fehler');
-  } finally {
-    sendBtn.disabled = false;
   }
-}
+  
 
 /* =========================================================
    Tippanimationen (Bot tippt: … → .. → . → …)
    ========================================================= */
-function startTypingAnimation(): HTMLElement {
-  const el = document.createElement('article');
-  el.className = 'message bot typing';
-  el.textContent = '.';
-  bodyEl.appendChild(el);
-  bodyEl.scrollTop = bodyEl.scrollHeight;
+function startTypingAnimation(): [HTMLElement, () => void] {
+    const el = document.createElement('article');
+    el.className = 'message bot typing';
+    el.textContent = '•'; // ruhigerer Typindikator
+    bodyEl.appendChild(el);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+  
+    const symbols = ['•  ', '•• ', '•••'];
+    let i = 0;
+  
+    const interval = setInterval(() => {
+      el.textContent = symbols[i % symbols.length];
+      i++;
+    }, 300); // weicher Rhythmus
+  
+    const stop = () => clearInterval(interval);
+    return [el, stop];
+  }
+  
+  
 
-  let dots = 1;
-  const interval = setInterval(() => {
-    dots = (dots % 3) + 1;
-    el.textContent = '.'.repeat(dots);
-  }, 300); // ~1,5s für den gesamten Durchlauf
-
-  // Stop-Funktion als Eigenschaft speichern
-  (el as any)._stopTyping = () => clearInterval(interval);
-  return el;
-}
-
-function stopTypingAnimation(el: HTMLElement, finalText: string) {
-  (el as any)._stopTyping?.();
-  el.classList.remove('typing');
-  el.textContent = finalText;
-}
+  function stopTypingAnimation(el: HTMLElement, finalText: string) {
+    el.classList.remove('typing');
+    el.textContent = finalText;
+    el.classList.add('fade-in');
+  }
+  
 
 /* =========================================================
    Initiale Begrüßung mit Delay und Animation
    ========================================================= */
-function showTypingMessage(finalText: string, delay = 1000) {
-  const el = startTypingAnimation();
-  setTimeout(() => {
-    stopTypingAnimation(el, finalText);
-  }, delay);
-}
+   function showTypingMessage(finalText: string, delay = 2000) {
+    const [el, stopTyping] = startTypingAnimation();
+    setTimeout(() => {
+      stopTyping();
+      stopTypingAnimation(el, finalText);
+    }, delay);
+  }
+  
+  
 
 function append(sender: Role, text: string) {
     const el = document.createElement('article');

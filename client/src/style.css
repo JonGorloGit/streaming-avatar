@@ -382,6 +382,20 @@ section#avatar-ui textarea#userInput:focus {
   }
 }
 
+.message.bot.fading-out {
+  opacity: 0.6;
+  transition: opacity 0.05s ease;
+}
+
+.message.bot.fading-in {
+  animation: fadeInText 0.05s ease forwards;
+}
+
+@keyframes fadeInText {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 
 
 
