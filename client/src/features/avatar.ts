@@ -1,42 +1,44 @@
 import StreamingAvatar, {
-  AvatarQuality,
-  StreamingEvents,
-} from '@heygen/streaming-avatar';
-
+    AvatarQuality,
+    StreamingEvents,
+  } from '@heygen/streaming-avatar';
   
   let avatar: StreamingAvatar | null = null;
   const video = document.getElementById('avatarVideo') as HTMLVideoElement;
+  
+  // ✅ Dynamischer API-Basis-URL je nach Umgebung
+  const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
   
   /**
    * Startet den Avatar
    * @param style 'soc' (empathisch) | 'ins' (formal)
    */
-
   export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
     const startBtn = document.getElementById('startSession') as HTMLButtonElement;
     const stopBtn  = document.getElementById('endSession')  as HTMLButtonElement;
     const speakBtn = document.getElementById('speakButton') as HTMLButtonElement;
-    const input = document.getElementById('userInput') as HTMLTextAreaElement;
-
+    const input    = document.getElementById('userInput')   as HTMLTextAreaElement;
+  
+    // Auto-Resize für Eingabefeld
     input.addEventListener('input', () => {
-        input.style.height = 'auto';
-        input.style.height = Math.min(input.scrollHeight, window.innerHeight * 0.3) + 'px';
-      });
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, window.innerHeight * 0.3) + 'px';
+    });
+  
+    // Enter zum Senden, Shift+Enter = Zeilenumbruch
+    input.addEventListener('keydown', ev => {
+      if (ev.key === 'Enter' && !ev.shiftKey) {
+        ev.preventDefault();
+        speakBtn.click();
+      }
+    });
   
     /* ---------- Session starten ---------- */
     startBtn.onclick = async () => {
-        input.addEventListener('keydown', ev => {
-            if (ev.key === 'Enter' && !ev.shiftKey) {
-              ev.preventDefault();
-              speakBtn.click();
-            }
-            // Shift + Enter erlaubt Zeilenumbruch
-          });
-
       try {
         const [{ token }, { knowledgeBase }] = await Promise.all([
-          fetch('/api/get-access-token').then(r => r.json()),
-          fetch(`/api/hr-prompt?style=${style}`).then(r => r.json()),
+          fetch(`${API_BASE}/api/get-access-token`).then(r => r.json()),
+          fetch(`${API_BASE}/api/hr-prompt?style=${style}`).then(r => r.json()),
         ]);
   
         avatar = new StreamingAvatar({ token });
@@ -50,14 +52,14 @@ import StreamingAvatar, {
           quality      : AvatarQuality.High,
           avatarName   : 'June_HR_public',
           language     : 'de-DE',
-          knowledgeBase,                       // Prompt aus Server
+          knowledgeBase,
         });
-
-        // Direkt nach dem Start begrüßen (stilabhängig)
+  
+        // Stilabhängige Begrüßung
         const greeting = style === 'soc'
-            ? 'Hallo! Schön, dass Sie da sind. Wie kann ich Ihnen helfen?'
-            : 'Willkommen. Was ist Ihr Anliegen?';
-
+          ? 'Hallo! Schön, dass Sie da sind. Wie kann ich Ihnen helfen?'
+          : 'Willkommen. Was ist Ihr Anliegen?';
+  
         await avatar.speak({ text: greeting });
   
         startBtn.disabled = true;
@@ -72,19 +74,24 @@ import StreamingAvatar, {
   
     /* ---------- Text sprechen ---------- */
     speakBtn.onclick = async () => {
-      if (avatar && input.value.trim()) {
-        await avatar.speak({ text: input.value.trim() });
+      const text = input.value.trim();
+      if (avatar && text) {
+        await avatar.speak({ text });
         input.value = '';
+        input.style.height = 'auto'; // zurücksetzen
       }
     };
   }
   
-  /* Beendet laufende Avatar-Session */
+  /**
+   * Beendet laufende Avatar-Session
+   */
   export async function stopAvatar() {
     if (avatar) {
       await avatar.stopAvatar();
       avatar = null;
     }
+  
     (document.getElementById('startSession') as HTMLButtonElement).disabled = false;
     (document.getElementById('endSession')   as HTMLButtonElement).disabled = true;
     video.srcObject = null;
