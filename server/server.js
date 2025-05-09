@@ -58,10 +58,9 @@ app.post('/api/message', async (req, res) => {
 
   try {
     const completion = await openai.chat.completions.create({
-      model   : 'gpt-3.5-turbo',      // ersatzweise gpt-3.5-turbo
+      model   : 'gpt-3.5-turbo',      // ersatzweise gpt-4o
       messages,
     });
-
     const answer = completion.choices[0]?.message?.content?.trim() ?? '';
     return res.json({ response: answer });
   } catch (err) {

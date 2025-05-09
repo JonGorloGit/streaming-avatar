@@ -2,7 +2,7 @@
  * Chat-Frontend für den HR-Bot
  * ---------------------------
  * – speichert den Dialog im Browser (conversation[])
- * – schickt Verlauf + Stil bei jedem Aufruf an /api/message
+ * – zeigt Tippanimation für alle Bot-Antworten
  * – passt Eingabefeld automatisch an
  */
 
@@ -41,12 +41,13 @@ export function startChatbot(selectedStyle: Style) {
 
   autoResize();
 
+  // Begrüßung je nach Stil
   const welcomeMessage = style === 'soc'
-  ? 'Hallo! Herzlich Wilkommen! Ich bin dein HR-Assistent. Was kann ich für dich tun?'
-  : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
+    ? '👋 Hallo! Ich bin dein HR-Assistent. Was kann ich für dich tun?'
+    : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
 
-    append('assistant', welcomeMessage);
-    conversation.push({ role: 'assistant', content: welcomeMessage });
+  showTypingMessage(welcomeMessage, 1000); // 1 Sekunde Verzögerung
+  conversation.push({ role: 'assistant', content: welcomeMessage });
 }
 
 export function stopChatbot() {
@@ -73,14 +74,15 @@ function autoResize() {
 }
 
 function onKeyPress(ev: KeyboardEvent) {
-    if (ev.key === 'Enter' && !ev.shiftKey) {
-      ev.preventDefault();        // verhindert Zeilenumbruch
-      sendBtn.click();            // löst Senden aus
-    }
-    // Shift + Enter → normaler Zeilenumbruch (kein preventDefault)
-  }  
-  
+  if (ev.key === 'Enter' && !ev.shiftKey) {
+    ev.preventDefault();
+    sendBtn.click();
+  }
+}
 
+/* =========================================================
+   Senden + Bot-Antwort mit animiertem „Tippen…“
+   ========================================================= */
 async function onSend() {
   const txt = inputEl.value.trim();
   if (!txt) return;
@@ -91,37 +93,80 @@ async function onSend() {
   inputEl.focus();
   sendBtn.disabled = true;
 
+  // Tippanimation sofort starten
+  const typingEl = startTypingAnimation();
+
   try {
-    /* Verlauf ohne aktuelle Frage schicken */
     const { response } = await fetch(`${API_BASE}/api/message`, {
-      method      : 'POST',
-      headers     : { 'Content-Type': 'application/json' },
-      credentials : 'include',            // falls Cross-Origin
-      body        : JSON.stringify({
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
         message : txt,
         history : conversation,
         style,
       }),
     }).then(r => r.json());
 
-    append('assistant', response);
+    // Animation stoppen & echte Antwort einsetzen
+    stopTypingAnimation(typingEl, response);
 
-    /* Verlauf updaten und ggf. begrenzen */
-    conversation.push({ role: 'user',      content: txt      });
+    conversation.push({ role: 'user',      content: txt });
     conversation.push({ role: 'assistant', content: response });
-    if (conversation.length > 10) conversation.splice(0, conversation.length - 10);
+
+    if (conversation.length > 10) {
+      conversation.splice(0, conversation.length - 10);
+    }
   } catch (err) {
     console.error(err);
-    append('assistant', '⚠️ Server-Fehler');
+    stopTypingAnimation(typingEl, '⚠️ Server-Fehler');
   } finally {
     sendBtn.disabled = false;
   }
 }
 
-function append(sender: Role, text: string) {
+/* =========================================================
+   Tippanimationen (Bot tippt: … → .. → . → …)
+   ========================================================= */
+function startTypingAnimation(): HTMLElement {
   const el = document.createElement('article');
-  el.className = `message ${sender === 'assistant' ? 'bot' : 'user'}`; // für CSS
-  el.textContent = text;
+  el.className = 'message bot typing';
+  el.textContent = '.';
   bodyEl.appendChild(el);
   bodyEl.scrollTop = bodyEl.scrollHeight;
+
+  let dots = 1;
+  const interval = setInterval(() => {
+    dots = (dots % 3) + 1;
+    el.textContent = '.'.repeat(dots);
+  }, 300); // ~1,5s für den gesamten Durchlauf
+
+  // Stop-Funktion als Eigenschaft speichern
+  (el as any)._stopTyping = () => clearInterval(interval);
+  return el;
 }
+
+function stopTypingAnimation(el: HTMLElement, finalText: string) {
+  (el as any)._stopTyping?.();
+  el.classList.remove('typing');
+  el.textContent = finalText;
+}
+
+/* =========================================================
+   Initiale Begrüßung mit Delay und Animation
+   ========================================================= */
+function showTypingMessage(finalText: string, delay = 1000) {
+  const el = startTypingAnimation();
+  setTimeout(() => {
+    stopTypingAnimation(el, finalText);
+  }, delay);
+}
+
+function append(sender: Role, text: string) {
+    const el = document.createElement('article');
+    el.className = `message ${sender === 'assistant' ? 'bot' : 'user'}`;
+    el.textContent = text;
+    bodyEl.appendChild(el);
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+  }
+  

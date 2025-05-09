@@ -79,7 +79,7 @@ input[type='text'],
 textarea#chat-input{
   flex:1;min-width:150px;padding:.75rem 1rem;border:1px solid var(--cws-green);
   border-radius:12px;background:var(--grey-e);color:var(--cws-deep-blue);
-  backdrop-filter:blur(10px);transition:border-color .2s;text-align:center
+  backdrop-filter:blur(10px);transition:border-color .2s;text-align:left;
 }
 textarea#chat-input{resize:vertical;min-height:2.5rem;font-family:inherit;line-height:1.4}
 input::placeholder,textarea::placeholder{color:var(--pale-text-color)}
@@ -174,6 +174,7 @@ input[type='radio']{accent-color:var(--cws-green)}
   padding:.65rem .8rem;font-family:inherit;font-size:.95rem;line-height:1.35;
   color:#00352d;
   transition:border-color .2s;
+  text-align: left;
 }
 .chatbot-input textarea:focus{outline:none;border-color:var(--button-bg)}
 .chatbot-input button{
@@ -362,6 +363,7 @@ section#avatar-ui textarea#userInput {
   line-height: 1.35;
   color: #00352d;
   transition: border-color .2s;
+  text-align: left;
 }
 section#avatar-ui textarea#userInput:focus {
   outline: none;
@@ -379,7 +381,6 @@ section#avatar-ui textarea#userInput:focus {
     border-color: var(--button-bg-hover);
   }
 }
-
 
 
 
