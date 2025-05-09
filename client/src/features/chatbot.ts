@@ -40,6 +40,13 @@ export function startChatbot(selectedStyle: Style) {
   sendBtn.onclick = onSend;
 
   autoResize();
+
+  const welcomeMessage = style === 'soc'
+  ? 'Hallo! Herzlich Wilkommen! Ich bin dein HR-Assistent. Was kann ich für dich tun?'
+  : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
+
+    append('assistant', welcomeMessage);
+    conversation.push({ role: 'assistant', content: welcomeMessage });
 }
 
 export function stopChatbot() {
@@ -66,11 +73,13 @@ function autoResize() {
 }
 
 function onKeyPress(ev: KeyboardEvent) {
-  if ((ev.key === 'Enter' || ev.key === 'Return') && (ev.ctrlKey || ev.metaKey)) {
-    ev.preventDefault();
-    sendBtn.click();
-  }
-}
+    if (ev.key === 'Enter' && !ev.shiftKey) {
+      ev.preventDefault();        // verhindert Zeilenumbruch
+      sendBtn.click();            // löst Senden aus
+    }
+    // Shift + Enter → normaler Zeilenumbruch (kein preventDefault)
+  }  
+  
 
 async function onSend() {
   const txt = inputEl.value.trim();
@@ -100,7 +109,7 @@ async function onSend() {
     /* Verlauf updaten und ggf. begrenzen */
     conversation.push({ role: 'user',      content: txt      });
     conversation.push({ role: 'assistant', content: response });
-    if (conversation.length > 40) conversation.splice(0, conversation.length - 40);
+    if (conversation.length > 10) conversation.splice(0, conversation.length - 10);
   } catch (err) {
     console.error(err);
     append('assistant', '⚠️ Server-Fehler');

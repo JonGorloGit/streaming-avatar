@@ -72,7 +72,7 @@ video{display:block;margin:0 auto 1.5rem;width:100%;max-width:600px;background:v
 
 /* ─────────────────────────  Form Controls  ───────────────────────── */
 section[role='group']{
-  display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;margin-bottom:1.5rem
+  display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;
 }
 
 input[type='text'],
@@ -88,6 +88,8 @@ input:focus,textarea:focus{border-color:var(--cws-neon);outline:0}
 /* ───────── Buttons ───────── */
 button{
   min-width:50px;padding:.75rem 1.5rem;font-size:1rem;cursor:pointer;
+  max-height: 80px;
+  align-self: center;
   border:1px solid var(--button-bg);border-radius:12px;
   background:var(--button-bg);color:var(--button-fg);
   transition:background .2s,color .2s,box-shadow .2s,border-color .2s;
@@ -119,7 +121,7 @@ input[type='radio']{accent-color:var(--cws-green)}
 /* Karten-Container */
 .chatbot-card{
   display:flex;flex-direction:column;
-  width:clamp(280px,90vw,520px);
+  width:clamp(280px,90vw,620px);
   height:clamp(460px,90vh,720px);
   margin:auto;
   border:1px solid var(--button-bg);
@@ -193,7 +195,7 @@ input[type='radio']{accent-color:var(--cws-green)}
 @media(max-width:480px){
   .glass-card{padding:1.5rem}
   section[role='group']{gap:.5rem}
-  .chatbot-card{height:90vh;border-radius:0}
+  .chatbot-card{height:90vh;border-radius:12}
   .chatbot-header{font-size:1.15rem}
   .chatbot-input button{flex:0 0 88px;font-size:.9rem}
 }
@@ -294,7 +296,7 @@ input[type='radio']{accent-color:var(--cws-green)}
   }
   .chatbot-input button {
     width: 100%;                 /* gleiche Breite wie Textarea */
-    height: 50px;
+    max-height: 50px;
     border-radius: 12px;
     font-size: 1.1rem;
   }
@@ -344,6 +346,41 @@ input[type='radio']{accent-color:var(--cws-green)}
   }
   .chatbot-input button:active{transform: translateY(1px);}
 }
+
+section#avatar-ui textarea#userInput {
+  flex: 1 1 auto;
+  min-height: 2.4rem;
+  max-height: 15vh;                     /* wächst nach unten bis max. 30% Viewport */
+  overflow-y: auto;
+  resize: none;
+  border: 1px solid var(--cws-green);
+  border-radius: 10px;
+  background: var(--grey-e);
+  padding: .65rem .8rem;
+  font-family: inherit;
+  font-size: .95rem;
+  line-height: 1.35;
+  color: #00352d;
+  transition: border-color .2s;
+}
+section#avatar-ui textarea#userInput:focus {
+  outline: none;
+  border-color: var(--button-bg);
+}
+
+@media (prefers-color-scheme: dark) {
+  section#avatar-ui textarea#userInput {
+    background: #0f2b35;
+    border-color: #00a985;
+    color: #c2fe06;
+  }
+
+  section#avatar-ui textarea#userInput:focus {
+    border-color: var(--button-bg-hover);
+  }
+}
+
+
 
 
 

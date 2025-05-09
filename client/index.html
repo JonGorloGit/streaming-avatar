@@ -2,13 +2,14 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <title>HeyGen / OpenAI</title>
+  <title>HR-Service</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
 
   <!-- Umschalten zwischen Avatar & Chat -->
-  <form id="controls" style="margin-bottom:1rem">
+  <form id="controls" style="margin-bottom:1rem" hidden>
     <!-- --- Modus --- -->
     <label><input type="radio" name="mode"  value="avatar"> Avatar</label>
     <label><input type="radio" name="mode"  value="chat">   Chat</label>
@@ -25,7 +26,7 @@
     <video id="avatarVideo" autoplay playsinline></video>
 
     <section role="group">
-      <input id="userInput" type="text" placeholder="Nachricht …" />
+      <textarea id="userInput" rows="1" placeholder="Nachricht …"></textarea>
       <button id="startSession">Start</button>
       <button id="endSession" disabled class="btn-secondary">Stop</button>
       <button id="speakButton">Sprechen</button>
