@@ -1,58 +1,117 @@
+/**
+ * Chat-Frontend für den HR-Bot
+ * ---------------------------
+ * – speichert den Dialog im Browser (conversation[])
+ * – schickt Verlauf + Stil bei jedem Aufruf an /api/message
+ * – passt Eingabefeld automatisch an
+ */
+
 const API_BASE = import.meta.env.VITE_API_BASE || '';
 
-let sendBtn: HTMLButtonElement;
-let inputEl: HTMLTextAreaElement;
-let bodyEl: HTMLElement;
+type Style = 'soc' | 'ins';
+type Role  = 'user' | 'assistant';
 
-export function startChatbot() {
+interface ChatMsg {
+  role   : Role;
+  content: string;
+}
+
+/* ---------- Modul-Scoped Variablen ---------- */
+let sendBtn : HTMLButtonElement;
+let inputEl : HTMLTextAreaElement;
+let bodyEl  : HTMLElement;
+
+let style       : Style;
+let conversation: ChatMsg[] = [];
+
+/* =========================================================
+   Public API
+   ========================================================= */
+export function startChatbot(selectedStyle: Style) {
+  style        = selectedStyle;
+  conversation = [];                           // Verlauf leeren
+
   sendBtn = document.getElementById('chat-send')  as HTMLButtonElement;
   inputEl = document.getElementById('chat-input') as HTMLTextAreaElement;
   bodyEl  = document.getElementById('chatbot-body')!;
 
   inputEl.addEventListener('input', autoResize);
+  inputEl.addEventListener('keydown', onKeyPress);
+  sendBtn.onclick = onSend;
 
-    function autoResize() {
-        inputEl.style.height = 'auto';                // zurücksetzen
-        inputEl.style.height = Math.min(
-        inputEl.scrollHeight,
-        window.innerHeight * 0.3                    // 30 % von Viewport ≈ ⅓ Card
-    ) + 'px';
-}
-
-  sendBtn.onclick = async () => {
-    const txt = inputEl.value.trim();
-    if (!txt) return;
-
-    append('user', txt);
-    inputEl.value = '';
-    inputEl.focus();
-    sendBtn.disabled = true;
-
-    try {
-      const { response } = await fetch(`${API_BASE}/api/message`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: txt }),
-      }).then(r => r.json());
-
-      append('bot', response);
-    } catch {
-      append('bot', 'Fehler beim Server');
-    } finally {
-      sendBtn.disabled = false;
-    }
-  };
+  autoResize();
 }
 
 export function stopChatbot() {
   if (sendBtn) sendBtn.onclick = null;
-  if (inputEl) inputEl.value = '';
-  if (bodyEl)  bodyEl.innerHTML = '';
+
+  if (inputEl) {
+    inputEl.value = '';
+    inputEl.removeEventListener('input',   autoResize);
+    inputEl.removeEventListener('keydown', onKeyPress);
+  }
+
+  if (bodyEl) bodyEl.innerHTML = '';
+
+  conversation = [];
 }
 
-function append(sender: 'user' | 'bot', text: string) {
+/* =========================================================
+   Internals
+   ========================================================= */
+function autoResize() {
+  inputEl.style.height = 'auto';
+  inputEl.style.height =
+    Math.min(inputEl.scrollHeight, window.innerHeight * 0.3) + 'px';
+}
+
+function onKeyPress(ev: KeyboardEvent) {
+  if ((ev.key === 'Enter' || ev.key === 'Return') && (ev.ctrlKey || ev.metaKey)) {
+    ev.preventDefault();
+    sendBtn.click();
+  }
+}
+
+async function onSend() {
+  const txt = inputEl.value.trim();
+  if (!txt) return;
+
+  append('user', txt);
+  inputEl.value = '';
+  autoResize();
+  inputEl.focus();
+  sendBtn.disabled = true;
+
+  try {
+    /* Verlauf ohne aktuelle Frage schicken */
+    const { response } = await fetch(`${API_BASE}/api/message`, {
+      method      : 'POST',
+      headers     : { 'Content-Type': 'application/json' },
+      credentials : 'include',            // falls Cross-Origin
+      body        : JSON.stringify({
+        message : txt,
+        history : conversation,
+        style,
+      }),
+    }).then(r => r.json());
+
+    append('assistant', response);
+
+    /* Verlauf updaten und ggf. begrenzen */
+    conversation.push({ role: 'user',      content: txt      });
+    conversation.push({ role: 'assistant', content: response });
+    if (conversation.length > 40) conversation.splice(0, conversation.length - 40);
+  } catch (err) {
+    console.error(err);
+    append('assistant', '⚠️ Server-Fehler');
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+function append(sender: Role, text: string) {
   const el = document.createElement('article');
-  el.className = `message ${sender}`;
+  el.className = `message ${sender === 'assistant' ? 'bot' : 'user'}`; // für CSS
   el.textContent = text;
   bodyEl.appendChild(el);
   bodyEl.scrollTop = bodyEl.scrollHeight;

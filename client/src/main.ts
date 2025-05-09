@@ -1,42 +1,61 @@
 import './style.css';
-type Mode='avatar'|'chat';
-const avatarUI=document.getElementById('avatar-ui')!;
-const chatUI  =document.getElementById('chat-ui')!;
 
-let current:Mode|null=null;
-let cleanup:()=>Promise<void>|void=()=>{};
+type Mode  = 'avatar'|'chat';
+type Style = 'soc'|'ins';                     // <-- neu
 
-window.addEventListener('DOMContentLoaded',()=>{
-  const p=new URLSearchParams(location.search);
-  const initial=(p.get('mode')??'avatar') as Mode;
-  (document.querySelector<HTMLInputElement>(`input[name=mode][value=${initial}]`)!).checked=true;
-  setMode(initial);
+const avatarUI = document.getElementById('avatar-ui')!;
+const chatUI   = document.getElementById('chat-ui')!;
+
+let currentMode : Mode  | null = null;
+let currentStyle: Style | null = null;
+let cleanup: () => Promise<void> | void = () => {};
+
+/* ─────────── on load ─────────── */
+window.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(location.search);
+
+  const initialMode  = (p.get('mode')  ?? 'avatar') as Mode;
+  const initialStyle = (p.get('style') ?? 'soc')    as Style;
+
+  // Formularvoreinstellung
+  (document.querySelector<HTMLInputElement>(`input[name=mode ][value=${initialMode }]`)!).checked = true;
+  (document.querySelector<HTMLInputElement>(`input[name=style][value=${initialStyle}]`)!).checked = true;
+
+  setMode(initialMode, initialStyle);
 });
 
-document.querySelectorAll('input[name=mode]').forEach(rb=>{
-  rb.addEventListener('change',ev=>{
-    const mode=(ev.target as HTMLInputElement).value as Mode;
-    history.pushState({},'',`?mode=${mode}`);
-    setMode(mode);
-  });
+/* ─────────── Form-Events ─────────── */
+document.getElementById('controls')!
+        .addEventListener('change', ev => {
+  const f   = new FormData(ev.currentTarget as HTMLFormElement);
+  const mode  = f.get('mode')  as Mode;
+  const style = f.get('style') as Style;
+
+  history.pushState({}, '', `?mode=${mode}&style=${style}`);
+  setMode(mode, style);
 });
 
-async function setMode(mode:Mode){
-  if(mode===current) return;
-  await cleanup();
+/* ─────────── Umschalten ─────────── */
+async function setMode(mode: Mode, style: Style) {
+  if (mode === currentMode && style === currentStyle) return;
+  await cleanup();                                    // Saisonwechsel
 
-  if(mode==='chat'){
-    avatarUI.classList.add('hidden');
+  if (mode === 'chat') {
+    avatarUI.classList.add   ('hidden');
     chatUI  .classList.remove('hidden');
 
-    const mod=await import('./features/chatbot');
-    cleanup=mod.stopChatbot; mod.startChatbot();
-  }else{
-    chatUI  .classList.add('hidden');
+    const mod = await import('./features/chatbot');
+    cleanup   = mod.stopChatbot;
+    mod.startChatbot(style);                          // <-- Stil mitgeben
+  } else {
+    chatUI  .classList.add   ('hidden');
     avatarUI.classList.remove('hidden');
 
-    const mod=await import('./features/avatar');
-    cleanup=mod.stopAvatar; mod.startAvatar();
+    const mod = await import('./features/avatar');
+    cleanup   = mod.stopAvatar;
+    mod.startAvatar(style);                           // <-- Stil mitgeben
   }
-  current=mode;
+
+  currentMode  = mode;
+  currentStyle = style;
 }

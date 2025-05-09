@@ -2,15 +2,20 @@
 <html lang="de">
 <head>
   <meta charset="utf-8" />
-  <title>HeyGen / OpenAI Demo</title>
+  <title>HeyGen / OpenAI</title>
 </head>
 
 <body>
 
   <!-- Umschalten zwischen Avatar & Chat -->
-  <form style="margin-bottom:1rem">
-    <label><input type="radio" name="mode" value="avatar"> Avatar</label>
-    <label><input type="radio" name="mode" value="chat"> Chat</label>
+  <form id="controls" style="margin-bottom:1rem">
+    <!-- --- Modus --- -->
+    <label><input type="radio" name="mode"  value="avatar"> Avatar</label>
+    <label><input type="radio" name="mode"  value="chat">   Chat</label>
+  
+    <!-- --- Kommunikations-Stil --- -->
+    <label style="margin-left:2rem"><input type="radio" name="style" value="soc"> Sozial</label>
+    <label><input type="radio" name="style" value="ins"> Instrumentell</label>
   </form>
 
   <!-- ───────────── AVATAR UI ───────────── -->
@@ -23,7 +28,7 @@
       <input id="userInput" type="text" placeholder="Nachricht …" />
       <button id="startSession">Start</button>
       <button id="endSession" disabled class="btn-secondary">Stop</button>
-      <button id="speakButton">Speak</button>
+      <button id="speakButton">Sprechen</button>
     </section>
   </section>
 
