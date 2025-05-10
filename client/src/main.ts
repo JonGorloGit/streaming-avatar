@@ -12,28 +12,36 @@ let cleanup: () => Promise<void> | void = () => {};
 
 /* ─────────── on load ─────────── */
 window.addEventListener('DOMContentLoaded', () => {
-  const p = new URLSearchParams(location.search);
+  const overlay = document.getElementById('consent-overlay')!;
+  // const accepted = localStorage.getItem('consent-given');
 
+  // if (!accepted) {
+  overlay.classList.remove('hidden');
+  document.body.style.overflow = 'hidden'; // Scrollen blockieren
+  // } else {
+  //   initApp(); // sofort starten
+  // }
+
+  document.getElementById('consent-accept')?.addEventListener('click', () => {
+    // localStorage.setItem('consent-given', 'true'); // ← auskommentiert
+    overlay.remove();
+    document.body.style.overflow = ''; // Scrollen wieder aktivieren
+    initApp(); // nach Zustimmung starten
+  });
+});
+
+/**
+ * Initialisiert die Anwendung (Avatar/Chat-Start)
+ */
+function initApp() {
+  const p = new URLSearchParams(location.search);
   const initialMode  = (p.get('mode')  ?? 'avatar') as Mode;
   const initialStyle = (p.get('style') ?? 'soc')    as Style;
 
-  // Formularvoreinstellung
-  (document.querySelector<HTMLInputElement>(`input[name=mode ][value=${initialMode }]`)!).checked = true;
-  (document.querySelector<HTMLInputElement>(`input[name=style][value=${initialStyle}]`)!).checked = true;
-
   setMode(initialMode, initialStyle);
-});
+}
 
-/* ─────────── Form-Events ─────────── */
-document.getElementById('controls')!
-        .addEventListener('change', ev => {
-  const f   = new FormData(ev.currentTarget as HTMLFormElement);
-  const mode  = f.get('mode')  as Mode;
-  const style = f.get('style') as Style;
 
-  history.pushState({}, '', `?mode=${mode}&style=${style}`);
-  setMode(mode, style);
-});
 
 /* ─────────── Umschalten ─────────── */
 async function setMode(mode: Mode, style: Style) {

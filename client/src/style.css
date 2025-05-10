@@ -396,6 +396,69 @@ section#avatar-ui textarea#userInput:focus {
   to   { opacity: 1; }
 }
 
+/* ───────────────────── Datenschutz Modal mit Overlay ───────────────────── */
+.consent-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3); /* dunkler, transparenter Hintergrund */
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.consent-modal {
+  max-width: 600px;
+  padding: 2rem;
+  text-align: center;
+  border: 1px solid var(--button-bg);
+  border-radius: 24px;
+  background: var(--cws-deep-blue);
+  box-shadow: 0 0 25px var(--button-bg);
+}
+
+.consent-text h2 {
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  margin-bottom: 1rem;
+  color: var(--cws-neon);
+}
+
+.consent-text p {
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  color: var(--pale-text-color);
+}
+
+.consent-text a {
+  color: var(--link);
+  text-decoration: underline;
+}
+
+.consent-text a:hover {
+  color: var(--link-hover);
+}
+
+#consent-accept {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  border: 1px solid var(--button-bg);
+  background: var(--button-bg);
+  color: var(--button-fg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+#consent-accept:hover {
+  background: var(--button-bg-hover);
+  color: var(--button-fg-hover);
+  border-color: var(--button-fg-hover);
+  box-shadow: 0 0 15px var(--button-fg-hover);
+}
+
 
 
 

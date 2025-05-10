@@ -3,21 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <title>HR-Service</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 
 <body>
-
-  <!-- Umschalten zwischen Avatar & Chat -->
-  <form id="controls" style="margin-bottom:1rem" hidden>
-    <!-- --- Modus --- -->
-    <label><input type="radio" name="mode"  value="avatar"> Avatar</label>
-    <label><input type="radio" name="mode"  value="chat">   Chat</label>
-  
-    <!-- --- Kommunikations-Stil --- -->
-    <label style="margin-left:2rem"><input type="radio" name="style" value="soc"> Sozial</label>
-    <label><input type="radio" name="style" value="ins"> Instrumentell</label>
-  </form>
+  <!-- Datenschutz-Banner -->
+  <div id="consent-overlay" class="consent-overlay hidden">
+    <div class="glass-card consent-modal">
+      <div class="consent-text">
+        <h2>Datenschutzhinweis</h2>
+          <p>
+            Diese Anwendung nutzt externe Anbieter (z.&nbsp;B. OpenAI, HeyGen), um Ihre Eingaben zu verarbeiten.
+          </p>
+          <p style="margin-top:1rem;font-weight:bold;color:var(--button-fg);">
+            Geben Sie <u>keine personenbezogenen Daten</u> oder <u>unternehmensinternen Informationen</u> ein.
+          </p>
+          <p style="margin-top:1rem;">
+            Mit „Zustimmen & Fortfahren“ bestätigen Sie, dass Sie diese Hinweise verstanden haben.
+          </p>
+          <button id="consent-accept">Zustimmen & Fortfahren</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ───────────── AVATAR UI ───────────── -->
   <section id="avatar-ui" class="glass-card hidden">
