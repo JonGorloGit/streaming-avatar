@@ -20,21 +20,21 @@ import StreamingAvatar, {
     text.textContent = progress < MAX_PROGRESS ? `${progress}/5` : '✓';
     circle.style.strokeDashoffset = (100 - percent).toString();
     if (progress === MAX_PROGRESS) {
-        let seconds = 10;
-        text.textContent = `${seconds}s`;
-      
-        const countdown = setInterval(() => {
-          seconds--;
-          text.textContent = seconds > 0 ? `${seconds}s` : '✓';
-      
-          if (seconds === 0) {
-            clearInterval(countdown);
-            localStorage.setItem('experimentDone', 'true');
-            document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
-            stopAvatar();
-          }
-        }, 1000); // alle 1 Sekunde
-      }     
+      let seconds = 10;
+      text.textContent = `${seconds}s`;
+  
+      const countdown = setInterval(() => {
+        seconds--;
+        text.textContent = seconds > 0 ? `${seconds}s` : '✓';
+  
+        if (seconds === 0) {
+          clearInterval(countdown);
+          localStorage.setItem('experimentDone', 'true');
+          document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
+          stopAvatar();
+        }
+      }, 1000);
+    }
   }
   
   /**
@@ -43,7 +43,7 @@ import StreamingAvatar, {
    */
   export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
     const speakBtn = document.getElementById('speakButton') as HTMLButtonElement;
-    const input    = document.getElementById('userInput')   as HTMLTextAreaElement;
+    const input = document.getElementById('userInput') as HTMLTextAreaElement;
   
     progress = 0;
     updateAvatarProgress();
@@ -60,12 +60,27 @@ import StreamingAvatar, {
       }
     });
   
+    // Mobile UX: Scroll on input focus
+    input.addEventListener('focus', () => {
+      setTimeout(() => {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 300);
+    });
+  
     speakBtn.onclick = async () => {
       const text = input.value.trim();
       if (avatar && text) {
         await avatar.speak({ text });
+  
         input.value = '';
         input.style.height = 'auto';
+        input.blur(); // Mobile keyboard schließen
+  
+        document.querySelector('.chatbot-card, .glass-card')?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+  
         if (progress < MAX_PROGRESS) {
           progress++;
           updateAvatarProgress();
@@ -87,15 +102,15 @@ import StreamingAvatar, {
       });
   
       await avatar.createStartAvatar({
-        quality      : AvatarQuality.High,
-        avatarName   : 'June_HR_public',
-        language     : 'de-DE',
+        quality: AvatarQuality.High,
+        avatarName: 'June_HR_public',
+        language: 'de-DE',
         knowledgeBase,
       });
   
       const greeting = style === 'soc'
-        ? 'Hallo! Schön, dass Sie da sind. Wie kann ich Ihnen helfen?'
-        : 'Willkommen. Was ist Ihr Anliegen?';
+        ? 'Hallo, ich bin June! Schön, dass du da bist. Wie kann ich dich unterstützen? (stelle dich mit Namen vor)'
+        : 'Willkommen, mein Name ist June. Was ist Ihr Anliegen? (stelle dich mit Namen vor)';
   
       await avatar.speak({ text: greeting });
   

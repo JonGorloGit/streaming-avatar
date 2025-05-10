@@ -58,10 +58,18 @@ export function startChatbot(selectedStyle: Style) {
   inputEl.addEventListener('keydown', onKeyPress);
   sendBtn.onclick = onSend;
 
+  // iOS/Android: Fokus automatisch hochscrollen
+  inputEl.addEventListener('focus', () => {
+    setTimeout(() => {
+      inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 300);
+  });
+  
+
   autoResize();
 
   const welcomeMessage = style === 'soc'
-    ? 'Hallo! Ich bin dein HR-Assistent. Was kann ich für dich tun?'
+    ? 'Hallo! Ich bin dein HR-Assistent. Schön, dass du da bist. Wie kann ich dich unterstützen?'
     : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
 
   showTypingMessage(welcomeMessage);
@@ -140,6 +148,9 @@ async function onSend() {
     stopTypingAnimation(typingEl, '⚠️ Server-Fehler');
   } finally {
     sendBtn.disabled = false;
+    // Tastatur schließen und an Anfang scrollen (mobile UX)
+    inputEl.blur();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
