@@ -24,8 +24,24 @@ function updateChatProgress() {
   const circle = el.querySelector('.circle') as SVGPathElement;
   const text = el.querySelector('.progress-text')!;
   const percent = (progress / MAX_PROGRESS) * 100;
-  text.textContent = progress < MAX_PROGRESS ? `${progress}/5` : '✔️';
+  text.textContent = progress < MAX_PROGRESS ? `${progress}/5` : '✓';
   circle.style.strokeDashoffset = (100 - percent).toString();
+  if (progress === MAX_PROGRESS) {
+    let seconds = 10;
+    text.textContent = `${seconds}s`;
+  
+    const countdown = setInterval(() => {
+      seconds--;
+      text.textContent = seconds > 0 ? `${seconds}s` : '✓';
+  
+      if (seconds === 0) {
+        clearInterval(countdown);
+        localStorage.setItem('experimentDone', 'true');
+        document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
+      }
+    }, 1000); // alle 1 Sekunde
+  }
+    
 }
 
 export function startChatbot(selectedStyle: Style) {

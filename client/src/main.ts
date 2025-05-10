@@ -15,6 +15,20 @@ window.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('consent-overlay')!;
   // const accepted = localStorage.getItem('consent-given');
 
+  const params = new URLSearchParams(window.location.search);
+
+  // ✅ Reset über z.B. ?reset=1
+  if (params.get('reset') === '1') {
+    localStorage.removeItem('experimentDone');
+    console.log('Experiment-Status zurückgesetzt');
+  }
+
+
+  if (localStorage.getItem('experimentDone') === 'true') {
+    document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
+    return; // Zugriff blockieren
+  }  
+
   // if (!accepted) {
   overlay.classList.remove('hidden');
   document.body.style.overflow = 'hidden'; // Scrollen blockieren
