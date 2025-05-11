@@ -14,7 +14,7 @@ import StreamingAvatar, {
   
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
   const MAX_PROGRESS = 5;
-  const MAX_RETRIES = 1;
+  const MAX_RETRIES = 2;
 
   speakBtn.disabled = true;
   
