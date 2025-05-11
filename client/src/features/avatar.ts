@@ -124,6 +124,8 @@ import StreamingAvatar, {
     try {
       const token = await fetchTokenWithRetry();
       console.log(token);
+      await new Promise(res => setTimeout(res, 500));
+
       const { knowledgeBase } = await fetch(`${API_BASE}/api/hr-prompt?style=${style}`).then(r => r.json());
   
       avatar = new StreamingAvatar({ token });
