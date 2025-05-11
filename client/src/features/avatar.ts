@@ -44,6 +44,20 @@ import StreamingAvatar, {
   export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
     const speakBtn = document.getElementById('speakButton') as HTMLButtonElement;
     const input = document.getElementById('userInput') as HTMLTextAreaElement;
+
+    speakBtn.disabled = true;
+
+    const connectingOverlay = document.getElementById('connecting-overlay')!;
+    const dotsEl = document.getElementById('dots')!;
+    let dotState = 1;
+    let dotInterval: any;
+
+    connectingOverlay.style.display = 'block';
+        dotInterval = setInterval(() => {
+        dotState = (dotState % 3) + 1;
+        dotsEl.textContent = '.'.repeat(dotState);
+    }, 500);
+
   
     progress = 0;
     updateAvatarProgress();
@@ -99,7 +113,13 @@ import StreamingAvatar, {
       avatar.on(StreamingEvents.STREAM_READY, e => {
         video.srcObject = (e as any).detail as MediaStream;
         video.play();
+        clearInterval(dotInterval);
+        connectingOverlay.style.display = 'none';
+
+        // Jetzt kann gesprochen werden
+        speakBtn.disabled = false;
       });
+      
   
       await avatar.createStartAvatar({
         quality: AvatarQuality.High,
@@ -107,6 +127,8 @@ import StreamingAvatar, {
         language: 'de-DE',
         knowledgeBase,
       });
+
+      
   
       const greeting = style === 'soc'
         ? 'Hallo, ich bin June! Schön, dass du da bist. Wie kann ich dich unterstützen? (stelle dich mit Namen vor)'
@@ -115,7 +137,9 @@ import StreamingAvatar, {
       await avatar.speak({ text: greeting });
   
     } catch (err) {
-      console.error('Avatar-Start fehlgeschlagen:', err);
+        clearInterval(dotInterval);
+        connectingOverlay.textContent = '❌ Verbindung fehlgeschlagen';
+        console.error('Avatar-Start fehlgeschlagen:', err);
     }
   }
   
