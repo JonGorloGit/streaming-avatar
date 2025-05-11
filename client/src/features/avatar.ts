@@ -51,7 +51,7 @@ import StreamingAvatar, {
   async function fetchTokenWithRetry(maxTries = 3): Promise<string> {
     for (let attempt = 1; attempt <= maxTries; attempt++) {
       try {
-        const res = await fetch(`${API_BASE}/api/get-access-token`);
+        const res = await fetch(`${API_BASE}/api/get-access-token?ts=${Date.now()}`);
         const json = await res.json();
         if (res.ok && json?.token) return json.token;
   
@@ -123,6 +123,7 @@ import StreamingAvatar, {
   
     try {
       const token = await fetchTokenWithRetry();
+      console.log(token);
       const { knowledgeBase } = await fetch(`${API_BASE}/api/hr-prompt?style=${style}`).then(r => r.json());
   
       avatar = new StreamingAvatar({ token });
