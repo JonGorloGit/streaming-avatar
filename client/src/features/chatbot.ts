@@ -71,7 +71,6 @@ export function startChatbot(selectedStyle: Style) {
     }, 300);
   });
   
-
   autoResize();
 
   const welcomeMessage = style === 'soc'
