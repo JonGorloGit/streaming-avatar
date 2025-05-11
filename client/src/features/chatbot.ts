@@ -55,7 +55,12 @@ export function startChatbot(selectedStyle: Style) {
   bodyEl  = document.getElementById('chatbot-body')!;
 
   inputEl.addEventListener('input', autoResize);
-  inputEl.addEventListener('keydown', onKeyPress);
+  inputEl.addEventListener('keyup',   autoResize);
+  inputEl.addEventListener('change',  autoResize);
+
+  // Beim Screen-Rotate und Resize nochmal prüfen
+  window.addEventListener('resize',           autoResize);
+  window.addEventListener('orientationchange', autoResize);
   sendBtn.onclick = onSend;
 
   // iOS/Android: Fokus automatisch hochscrollen
@@ -93,9 +98,15 @@ export function stopChatbot() {
 }
 
 function autoResize() {
-  inputEl.style.height = 'auto';
-  inputEl.style.height = Math.min(inputEl.scrollHeight, window.innerHeight * 0.3) + 'px';
-}
+    requestAnimationFrame(() => {
+      inputEl.style.height = 'auto';
+      // Berechne Maximalhöhe nach Viewport während Keyboard offen ist
+      const maxH = Math.min(window.innerHeight, document.documentElement.clientHeight) * 0.3;
+      const newH = Math.min(inputEl.scrollHeight, maxH);
+      inputEl.style.height = `${newH}px`;
+    });
+  }
+  
 
 function onKeyPress(ev: KeyboardEvent) {
   if (ev.key === 'Enter' && !ev.shiftKey) {

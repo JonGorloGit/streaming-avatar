@@ -81,7 +81,7 @@ textarea#chat-input{
   border-radius:12px;background:var(--grey-e);color:var(--cws-deep-blue);
   backdrop-filter:blur(10px);transition:border-color .2s;text-align:left;
 }
-textarea#chat-input{resize:vertical;min-height:2.5rem;font-family:inherit;line-height:1.4}
+textarea#chat-input{min-height:2.5rem;font-family:inherit;line-height:1.4}
 input::placeholder,textarea::placeholder{color:var(--pale-text-color)}
 input:focus,textarea:focus{border-color:var(--cws-neon);outline:0}
 
@@ -167,7 +167,6 @@ input[type='radio']{accent-color:var(--cws-green)}
 }
 .chatbot-input textarea{
   flex:1 1 auto;min-height:2.4rem;max-height:6rem;
-  resize:vertical;
   border:1px solid var(--cws-green);
   border-radius:10px;
   background:var(--grey-e);
@@ -357,7 +356,7 @@ input[type='radio']{accent-color:var(--cws-green)}
 section#avatar-ui textarea#userInput {
   flex: 1 1 auto;
   min-height: 2.4rem;
-  max-height: 15vh;                     /* wächst nach unten bis max. 30% Viewport */
+  max-height: 15vh;               
   overflow-y: auto;
   resize: none;
   border: 1px solid var(--cws-green);
@@ -775,7 +774,7 @@ textarea#chat-input{
   border-radius:12px;background:var(--grey-e);color:var(--cws-deep-blue);
   backdrop-filter:blur(10px);transition:border-color .2s;text-align:left;
 }
-textarea#chat-input{resize:vertical;min-height:2.5rem;font-family:inherit;line-height:1.4}
+textarea#chat-input{min-height:2.5rem;font-family:inherit;line-height:1.4}
 input::placeholder,textarea::placeholder{color:var(--pale-text-color)}
 input:focus,textarea:focus{border-color:var(--cws-neon);outline:0}
 
@@ -861,7 +860,6 @@ input[type='radio']{accent-color:var(--cws-green)}
 }
 .chatbot-input textarea{
   flex:1 1 auto;min-height:2.4rem;max-height:6rem;
-  resize:vertical;
   border:1px solid var(--cws-green);
   border-radius:10px;
   background:var(--grey-e);
@@ -955,7 +953,7 @@ input[type='radio']{accent-color:var(--cws-green)}
 
 /* ───────── Auto-Grow Textarea bis ⅓ der Karte ───────── */
 .chatbot-input textarea {
-  max-height: calc(90vh / 3);   /* ⅓ der card-Höhe (card = 90vh) */
+  max-height: 30vh;   /* ⅓ der card-Höhe (card = 90vh) */
   overflow-y: auto;             /* erst dann Scroll-Bar */
   resize: none;                 /* Eckgriff ausblenden, JS übernimmt */
 }
