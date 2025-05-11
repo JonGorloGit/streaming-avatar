@@ -38,7 +38,7 @@ import StreamingAvatar, {
     circle.style.strokeDashoffset = (100 - percent).toString();
   
     if (progress === MAX_PROGRESS) {
-      let seconds = 10;
+      let seconds = 15;
       text.textContent = `${seconds}s`;
       const countdown = setInterval(() => {
         seconds--;
