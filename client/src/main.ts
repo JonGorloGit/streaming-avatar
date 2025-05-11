@@ -51,11 +51,10 @@ function initApp() {
   const p = new URLSearchParams(location.search);
   const initialMode  = (p.get('mode')  ?? 'avatar') as Mode;
   const initialStyle = (p.get('style') ?? 'soc')    as Style;
-
+  
   setMode(initialMode, initialStyle);
+  
 }
-
-
 
 /* ─────────── Umschalten ─────────── */
 async function setMode(mode: Mode, style: Style) {
