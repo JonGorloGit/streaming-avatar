@@ -75,7 +75,7 @@ export function startChatbot(selectedStyle: Style) {
   autoResize();
 
   const welcomeMessage = style === 'soc'
-    ? 'Hallo! Ich bin dein HR-Assistent. Schön, dass du da bist. Wie kann ich dich unterstützen?'
+    ? 'Hallo! Ich bin June. Schön, dass du da bist. Wie kann ich dich unterstützen?'
     : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
 
   showTypingMessage(welcomeMessage);

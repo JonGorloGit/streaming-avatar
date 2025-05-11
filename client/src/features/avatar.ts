@@ -5,57 +5,53 @@ import StreamingAvatar, {
   
   let avatar: StreamingAvatar | null = null;
   let isStarting = false;
+  let finalCountdownStarted = false;
+  let isAvatarSpeaking = false;
   
-  const video    = document.getElementById('avatarVideo') as HTMLVideoElement;
+  const video = document.getElementById('avatarVideo') as HTMLVideoElement;
   const speakBtn = document.getElementById('speakButton') as HTMLButtonElement;
-  const input    = document.getElementById('userInput') as HTMLTextAreaElement;
-  const overlay  = document.getElementById('connecting-overlay')!;
-  const dotsEl   = document.getElementById('dots')!;
+  const input = document.getElementById('userInput') as HTMLTextAreaElement;
+  const overlay = document.getElementById('connecting-overlay')!;
+  const dotsEl = document.getElementById('dots')!;
   
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
   const MAX_PROGRESS = 5;
   const MAX_RETRIES = 2;
-
-  speakBtn.disabled = true;
-  
-  // Free-Plan: mindestens 10 Sekunden Cooldown nur bei 400 Fehlern
   const SESSION_COOLDOWN_MS = 10000;
   
   let progress = 0;
   let dotInterval: number | null = null;
   
-  /**
-   * Aktualisiert den Fortschrittskreis
-   */
   function updateAvatarProgress() {
     const el = document.getElementById('avatar-progress');
     if (!el) return;
     const circle = el.querySelector('.circle') as SVGPathElement;
-    const text   = el.querySelector('.progress-text')!;
+    const text = el.querySelector('.progress-text')!;
     const percent = (progress / MAX_PROGRESS) * 100;
   
-    text.textContent = progress < MAX_PROGRESS ? `${progress}/5` : '✓';
+    text.textContent = progress < MAX_PROGRESS ? `${progress}/${MAX_PROGRESS}` : '✓';
     circle.style.strokeDashoffset = (100 - percent).toString();
-  
-    if (progress === MAX_PROGRESS) {
-      let seconds = 15;
-      text.textContent = `${seconds}s`;
-      const countdown = setInterval(() => {
-        seconds--;
-        text.textContent = seconds > 0 ? `${seconds}s` : '✓';
-        if (seconds === 0) {
-          clearInterval(countdown);
-          localStorage.setItem('experimentDone', 'true');
-          document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
-          stopAvatar();
-        }
-      }, 1000);
-    }
   }
   
-  /**
-   * Stoppt und bereinigt die Avatar-Session
-   */
+  function startFinalCountdown() {
+    const el = document.getElementById('avatar-progress');
+    if (!el) return;
+    const text = el.querySelector('.progress-text')!;
+    let seconds = 5;
+    text.textContent = `${seconds}s`;
+  
+    const countdown = setInterval(async () => {
+      seconds--;
+      text.textContent = seconds > 0 ? `${seconds}s` : '✓';
+      if (seconds === 0) {
+        clearInterval(countdown);
+        localStorage.setItem('experimentDone', 'true');
+        document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
+        await stopAvatar();
+      }
+    }, 1000);
+  }
+  
   export async function stopAvatar() {
     if (avatar) {
       try {
@@ -65,24 +61,25 @@ import StreamingAvatar, {
       }
       avatar = null;
     }
-    video.srcObject = null;
+    if (video.srcObject) {
+      video.srcObject = null;
+    }
     isStarting = false;
+    isAvatarSpeaking = false;
+    speakBtn.disabled = true;
   }
   
-  /**
-   * Startet den Avatar mit Retry und spezifischem Fehler-Handling
-   */
   export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
-    if (isStarting) {
-      console.warn('Avatar-Start läuft bereits');
-      return;
-    }
+    if (isStarting) return;
     isStarting = true;
-    speakBtn.disabled = true;
     progress = 0;
+    finalCountdownStarted = false;
+    isAvatarSpeaking = false;
     updateAvatarProgress();
   
-    // Overlay & animierte Punkte
+    // UI initial sperren
+    speakBtn.disabled = true;
+  
     overlay.style.display = 'block';
     let dotState = 1;
     dotInterval = window.setInterval(() => {
@@ -90,39 +87,46 @@ import StreamingAvatar, {
       dotsEl.textContent = '.'.repeat(dotState);
     }, 500);
   
-    // Input-Handler einmalig setzen
     input.addEventListener('input', () => {
       input.style.height = 'auto';
       input.style.height = Math.min(input.scrollHeight, window.innerHeight * 0.3) + 'px';
     });
+  
     input.addEventListener('keydown', ev => {
       if (ev.key === 'Enter' && !ev.shiftKey) {
         ev.preventDefault();
-        speakBtn.click();
+        if (!speakBtn.disabled) speakBtn.click();
       }
     });
+  
     input.addEventListener('focus', () => {
       setTimeout(() => input.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
     });
   
     speakBtn.onclick = async () => {
+      if (isAvatarSpeaking) return;
       const text = input.value.trim();
-      if (avatar && text) {
-        await avatar.speak({ text });
-        input.value = '';
-        input.style.height = 'auto';
-        input.blur();
-        document.querySelector('.chatbot-card, .glass-card')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (progress < MAX_PROGRESS) {
-          progress++;
-          updateAvatarProgress();
-        }
+      if (!avatar || !text) return;
+  
+      // Sperre während Sprechen
+      isAvatarSpeaking = true;
+      speakBtn.disabled = true;
+  
+      // UI Input zurücksetzen für neue Eingabe
+      input.value = '';
+      input.style.height = 'auto';
+  
+      await avatar.speak({ text });
+  
+      // Nach Speak: Fortschritt zählen und anzeigen
+      if (progress < MAX_PROGRESS) {
+        progress++;
+        updateAvatarProgress();
       }
+      // Freigabe erfolgt erst im AVATAR_STOP_TALKING Event
     };
   
     try {
-      // KnowledgeBase abrufen
       const { knowledgeBase } = await fetch(
         `${API_BASE}/api/hr-prompt?style=${style}`
       ).then(res => res.json());
@@ -130,28 +134,35 @@ import StreamingAvatar, {
       let started = false;
       for (let attempt = 1; attempt <= MAX_RETRIES && !started; attempt++) {
         try {
-          // Token abrufen
           const tokenRes = await fetch(`${API_BASE}/api/get-access-token`);
           const { token } = await tokenRes.json();
           if (!tokenRes.ok || !token) throw new Error('Ungültiger Token');
-          console.log(`Startversuch ${attempt} mit Token`, token);
   
-          // Alte Session bereinigen
           if (avatar) await stopAvatar();
-  
           avatar = new StreamingAvatar({ token });
+  
           avatar.on(StreamingEvents.STREAM_READY, e => {
             video.srcObject = (e as any).detail as MediaStream;
             video.play();
-            speakBtn.disabled = false;
             overlay.style.display = 'none';
-            clearInterval(dotInterval!);
           });
   
-          // Kurze Verzögerung
+          avatar.on(StreamingEvents.AVATAR_START_TALKING, () => {
+            isAvatarSpeaking = true;
+            speakBtn.disabled = true;
+          });
+  
+          avatar.on(StreamingEvents.AVATAR_STOP_TALKING, () => {
+            isAvatarSpeaking = false;
+            speakBtn.disabled = false;
+            if (progress === MAX_PROGRESS && !finalCountdownStarted) {
+              finalCountdownStarted = true;
+              startFinalCountdown();
+            }
+          });
+  
           await new Promise(res => setTimeout(res, 300));
   
-          // Session starten
           await avatar.createStartAvatar({
             quality: AvatarQuality.High,
             avatarName: 'June_HR_public',
@@ -159,35 +170,25 @@ import StreamingAvatar, {
             knowledgeBase,
           });
   
-          // Begrüßung senden
           const greeting = style === 'soc'
-            ? 'Hallo, ich bin June! Schön, dass du da bist. Wie kann ich dich unterstützen?'
+            ? 'Hallo,Schön, dass du da bist. Wie kann ich dich unterstützen? (stelle dich mit Namen vor)'
             : 'Willkommen. Was ist Ihr Anliegen?';
           await avatar.speak({ text: greeting });
   
           started = true;
         } catch (err: any) {
-          // Spezifische Behandlung für 400 Bad Request vom Free-Plan
           const status = err?.status || (err instanceof Error && (err as any).status);
-          const isBadRequest = status === 400;
-          console.warn(`Versuch ${attempt} fehlgeschlagen:`, err);
-          if (!isBadRequest) {
-            throw err;
-          }
-          // Nur bei 400 warten
           if (avatar) await stopAvatar();
-          await new Promise(res => setTimeout(res, SESSION_COOLDOWN_MS));
+          if (status === 400) await new Promise(res => setTimeout(res, SESSION_COOLDOWN_MS));
+          else throw err;
         }
       }
   
-      if (!started) {
-        throw new Error(`Avatar konnte nach ${MAX_RETRIES} Versuchen nicht gestartet werden`);
-      }
+      if (!started) throw new Error(`Avatar konnte nach ${MAX_RETRIES} Versuchen nicht gestartet werden`);
     } catch (err) {
       console.error('Avatar-Start endgültig fehlgeschlagen:', err);
-      clearInterval(dotInterval!);
-      overlay.textContent =
-        '❌ Verbindung fehlgeschlagen – bitte warten und Seite neu laden';
+      if (dotInterval) clearInterval(dotInterval);
+      overlay.textContent = '❌ Verbindung fehlgeschlagen – bitte warten und Seite neu laden';
       speakBtn.disabled = true;
     } finally {
       isStarting = false;
