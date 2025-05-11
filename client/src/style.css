@@ -997,7 +997,7 @@ input[type='radio']{accent-color:var(--cws-green)}
   }
   .chatbot-input button {
     width: 100%;                 /* gleiche Breite wie Textarea */
-    max-height: 50px;
+    max-height: 30px;
     border-radius: 12px;
     font-size: 1.1rem;
   }
@@ -1015,7 +1015,7 @@ input[type='radio']{accent-color:var(--cws-green)}
     position: relative;
     flex: 0 0 50px;        /* breiter als vorher */
     height: 90%;           /* zweistufige Taste */
-    max-height: 120px;
+    max-height: 30px;
     background: var(--button-bg);
     color: var(--button-fg);
     border-radius: 8px;
@@ -1353,7 +1353,7 @@ section#avatar-ui textarea#userInput:focus {
     font-size: 1.1rem;
     padding: 1rem 1.25rem;
     border-radius: 14px;
-    min-height: 48px; /* Mindesthöhe für Touchflächen */
+    min-height: 40px; /* Mindesthöhe für Touchflächen */
     touch-action: manipulation; /* besseres Verhalten auf Mobile */
   }
 
@@ -1369,7 +1369,7 @@ section#avatar-ui textarea#userInput:focus {
 
   .chatbot-input button {
     width: 100%;
-    max-height: none;
+    max-height: 48px;
     font-size: 1.1rem;
   }
 
@@ -1382,7 +1382,9 @@ section#avatar-ui textarea#userInput:focus {
 
 @media (max-width: 360px) {
   h1 {
-    font-size: 1rem;
+    font-size: 1.1rem;
+    margin-top: 10px;
+    margin-bottom: 36px;
   }
 }
 
@@ -1395,7 +1397,8 @@ section#avatar-ui textarea#userInput:focus {
   .chatbot-card {
     width: 100%;
     max-width: none;
-    border-radius: 0;
+    border: none;
+    border-radius: 0 0 20px 20px;
     margin: 0;
   }
 }

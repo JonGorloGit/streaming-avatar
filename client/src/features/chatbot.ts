@@ -114,6 +114,10 @@ async function onSend() {
   inputEl.focus();
   sendBtn.disabled = true;
 
+    // Tastatur schließen und an Anfang scrollen (mobile UX)
+      inputEl.blur();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
   const [typingEl, stopTyping] = startTypingAnimation();
   const minDelay = new Promise(res => setTimeout(res, 2000));
 
@@ -148,9 +152,6 @@ async function onSend() {
     stopTypingAnimation(typingEl, '⚠️ Server-Fehler');
   } finally {
     sendBtn.disabled = false;
-    // Tastatur schließen und an Anfang scrollen (mobile UX)
-    inputEl.blur();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 }
 
