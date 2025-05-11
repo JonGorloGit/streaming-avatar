@@ -161,6 +161,7 @@ function append(sender: Role, text: string) {
   el.textContent = text;
   bodyEl.appendChild(el);
   bodyEl.scrollTop = bodyEl.scrollHeight;
+  el.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
 function startTypingAnimation(): [HTMLElement, () => void] {
@@ -169,7 +170,7 @@ function startTypingAnimation(): [HTMLElement, () => void] {
   el.textContent = '•';
   bodyEl.appendChild(el);
   bodyEl.scrollTop = bodyEl.scrollHeight;
-
+  el.scrollIntoView({ behavior: 'smooth', block: 'end' });
   const symbols = ['•  ', '•• ', '•••'];
   let i = 0;
 
