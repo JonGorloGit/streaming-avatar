@@ -13,6 +13,8 @@ import StreamingAvatar, {
   const input = document.getElementById('userInput') as HTMLTextAreaElement;
   const overlay = document.getElementById('connecting-overlay')!;
   const dotsEl = document.getElementById('dots')!;
+
+  speakBtn.disabled = true;
   
   const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
   const MAX_PROGRESS = 5;
@@ -70,13 +72,14 @@ import StreamingAvatar, {
   }
   
   export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
+    video.play();
     if (isStarting) return;
     isStarting = true;
     progress = 0;
     finalCountdownStarted = false;
     isAvatarSpeaking = false;
     updateAvatarProgress();
-  
+    
     // UI initial sperren
     speakBtn.disabled = true;
   

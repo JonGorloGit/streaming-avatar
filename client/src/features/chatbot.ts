@@ -107,7 +107,6 @@ function autoResize() {
     });
   }
   
-
 function onKeyPress(ev: KeyboardEvent) {
   if (ev.key === 'Enter' && !ev.shiftKey) {
     ev.preventDefault();
