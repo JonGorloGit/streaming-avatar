@@ -160,7 +160,7 @@ function append(sender: Role, text: string) {
   el.className = `message ${sender === 'assistant' ? 'bot' : 'user'}`;
   el.textContent = text;
   bodyEl.appendChild(el);
-  bodyEl.scrollTop = bodyEl.scrollHeight;
+  //bodyEl.scrollTop = bodyEl.scrollHeight;
   el.scrollIntoView({ behavior: 'smooth', block: 'end' });
 }
 
@@ -169,7 +169,7 @@ function startTypingAnimation(): [HTMLElement, () => void] {
   el.className = 'message bot typing';
   el.textContent = '•';
   bodyEl.appendChild(el);
-  bodyEl.scrollTop = bodyEl.scrollHeight;
+  //bodyEl.scrollTop = bodyEl.scrollHeight;
   el.scrollIntoView({ behavior: 'smooth', block: 'end' });
   const symbols = ['•  ', '•• ', '•••'];
   let i = 0;
