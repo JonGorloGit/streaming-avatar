@@ -67,97 +67,91 @@ import StreamingAvatar, {
   }
   
   /* ─────────── Avatar starten ─────────── */
-  export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
-    speakBtn.disabled = true;
-    progress = 0;
-    updateAvatarProgress();
-  
-    // Input-Handling
-    input.addEventListener('input', () => {
-      input.style.height = 'auto';
-      input.style.height = Math.min(input.scrollHeight, window.innerHeight * 0.3) + 'px';
-    });
-  
-    input.addEventListener('keydown', ev => {
-      if (ev.key === 'Enter' && !ev.shiftKey) {
-        ev.preventDefault();
-        speakBtn.click();
-      }
-    });
-  
-    input.addEventListener('focus', () => {
-      setTimeout(() => {
-        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 300);
-    });
-  
-    // Sprechbutton-Handler
-    speakBtn.onclick = async () => {
-      const text = input.value.trim();
-      if (avatar && text) {
-        await avatar.speak({ text });
-  
-        input.value = '';
-        input.style.height = 'auto';
-        input.blur();
-  
-        document.querySelector('.chatbot-card, .glass-card')?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'start',
-        });
-  
-        if (progress < MAX_PROGRESS) {
-          progress++;
-          updateAvatarProgress();
-        }
-      }
-    };
-  
-    // "Connecting..." Overlay anzeigen
-    overlay.style.display = 'block';
-    let dotState = 1;
-    dotInterval = setInterval(() => {
-      dotState = (dotState % 3) + 1;
-      dotsEl.textContent = '.'.repeat(dotState);
-    }, 500);
-  
-    try {
-      const token = await fetchTokenWithRetry();
-      console.log(token);
-      await new Promise(res => setTimeout(res, 500));
+  let isStarting = false;
 
-      const { knowledgeBase } = await fetch(`${API_BASE}/api/hr-prompt?style=${style}`).then(r => r.json());
-  
-      avatar = new StreamingAvatar({ token });
-  
-      avatar.on(StreamingEvents.STREAM_READY, e => {
-        video.srcObject = (e as any).detail as MediaStream;
-        video.play();
-        speakBtn.disabled = false;
-        overlay.style.display = 'none';
-        clearInterval(dotInterval);
-      });
-  
-      await avatar.createStartAvatar({
-        quality: AvatarQuality.High,
-        avatarName: 'June_HR_public',
-        language: 'de-DE',
-        knowledgeBase,
-      });
-  
-      const greeting = style === 'soc'
-        ? 'Hallo, ich bin June! Schön, dass du da bist. Wie kann ich dich unterstützen? (stelle dich mit Namen vor)'
-        : 'Willkommen, mein Name ist June. Was ist Ihr Anliegen? (stelle dich mit Namen vor)';
-  
-      await avatar.speak({ text: greeting });
-  
-    } catch (err) {
-      clearInterval(dotInterval);
-      overlay.textContent = '❌ Verbindung fehlgeschlagen';
-      console.error('Avatar-Start fehlgeschlagen:', err);
-      speakBtn.disabled = true;
-    }
+export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
+  if (isStarting) {
+    console.warn('Avatar-Start bereits läuft – Abbruch.');
+    return;
   }
+
+  isStarting = true;
+  speakBtn.disabled = true;
+  progress = 0;
+  updateAvatarProgress();
+
+  const connectingOverlay = document.getElementById('connecting-overlay')!;
+  const dotsEl = document.getElementById('dots')!;
+  let dotState = 1;
+  let dotInterval: any = setInterval(() => {
+    dotState = (dotState % 3) + 1;
+    dotsEl.textContent = '.'.repeat(dotState);
+  }, 500);
+  connectingOverlay.style.display = 'block';
+
+  try {
+    const { knowledgeBase } = await fetch(`${API_BASE}/api/hr-prompt?style=${style}`).then(r => r.json());
+
+    let success = false;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const tokenRes = await fetch(`${API_BASE}/api/get-access-token`);
+        const { token } = await tokenRes.json();
+
+        if (!token || !tokenRes.ok) throw new Error('Token ungültig');
+
+        console.log(`Versuch ${attempt}: Starte Avatar mit Token:`, token);
+
+        if (avatar) {
+          try { await avatar.stopAvatar(); } catch (_) {}
+          avatar = null;
+        }
+
+        avatar = new StreamingAvatar({ token });
+
+        avatar.on(StreamingEvents.STREAM_READY, e => {
+          video.srcObject = (e as any).detail as MediaStream;
+          video.play();
+          speakBtn.disabled = false;
+          connectingOverlay.style.display = 'none';
+          clearInterval(dotInterval);
+        });
+
+        await new Promise(res => setTimeout(res, 300)); // render delay
+        await avatar.createStartAvatar({
+          quality: AvatarQuality.High,
+          avatarName: 'June_HR_public',
+          language: 'de-DE',
+          knowledgeBase,
+        });
+
+        const greeting = style === 'soc'
+          ? 'Hallo, ich bin June! Schön, dass du da bist. Wie kann ich dich unterstützen? (stelle dich mit Namen vor)'
+          : 'Willkommen, mein Name ist June. Was ist Ihr Anliegen? (stelle dich mit Namen vor)';
+
+        await avatar.speak({ text: greeting });
+        success = true;
+        break;
+
+      } catch (sessionErr) {
+        console.warn(`Avatar-Start Versuch ${attempt} fehlgeschlagen`, sessionErr);
+        await new Promise(res => setTimeout(res, 1000)); // kurze Pause vor Retry
+      }
+    }
+
+    if (!success) {
+      throw new Error('Avatar konnte nach 3 Versuchen nicht gestartet werden');
+    }
+
+  } catch (err) {
+    clearInterval(dotInterval);
+    connectingOverlay.textContent = '❌ Verbindung fehlgeschlagen';
+    speakBtn.disabled = true;
+    console.error('Avatar-Start endgültig fehlgeschlagen:', err);
+  } finally {
+    isStarting = false;
+  }
+}
   
   /* ─────────── Avatar stoppen ─────────── */
   export async function stopAvatar() {
