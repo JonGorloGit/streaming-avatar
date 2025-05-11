@@ -160,8 +160,7 @@ function append(sender: Role, text: string) {
   el.className = `message ${sender === 'assistant' ? 'bot' : 'user'}`;
   el.textContent = text;
   bodyEl.appendChild(el);
-  //bodyEl.scrollTop = bodyEl.scrollHeight;
-  el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 }
 
 function startTypingAnimation(): [HTMLElement, () => void] {
@@ -169,8 +168,8 @@ function startTypingAnimation(): [HTMLElement, () => void] {
   el.className = 'message bot typing';
   el.textContent = '•';
   bodyEl.appendChild(el);
-  //bodyEl.scrollTop = bodyEl.scrollHeight;
-  el.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
+  //el.scrollIntoView({ behavior: 'smooth', block: 'end' });
   const symbols = ['•  ', '•• ', '•••'];
   let i = 0;
 
@@ -187,6 +186,7 @@ function stopTypingAnimation(el: HTMLElement, finalText: string) {
   el.classList.remove('typing');
   el.textContent = finalText;
   el.classList.add('fade-in');
+  bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 }
 
 function showTypingMessage(finalText: string, delay = 2000) {
