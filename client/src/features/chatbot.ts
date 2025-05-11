@@ -57,6 +57,7 @@ export function startChatbot(selectedStyle: Style) {
   inputEl.addEventListener('input', autoResize);
   inputEl.addEventListener('keyup',   autoResize);
   inputEl.addEventListener('change',  autoResize);
+  inputEl.addEventListener('keydown', onKeyPress);
 
   // Beim Screen-Rotate und Resize nochmal prüfen
   window.addEventListener('resize',           autoResize);

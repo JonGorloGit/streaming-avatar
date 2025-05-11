@@ -1,419 +1,339 @@
-/* ─────────────────────────  Farb-Variablen  ───────────────────────── */
+/* ───────────────────────── Farb-Variablen ───────────────────────── */
 :root {
   /* Primär */
-  --cws-deep-blue:#002733;
-  --cws-green:#00806e;
-  --cws-neon:#c2fe06;
-  --grey-6:#626364;
-  --grey-7:#727475;
-  --grey-9:#929495;
-  --grey-e:#e5e5e5;
-  --black-10p:rgba(0,0,0,.1);
-  --black-30p:rgba(0,0,0,.3);
+  --cws-deep-blue: #002733;
+  --cws-green: #00806e;
+  --cws-neon: #c2fe06;
+  --grey-6: #626364;
+  --grey-7: #727475;
+  --grey-9: #929495;
+  --grey-e: #e5e5e5;
+  --black-10p: rgba(0,0,0,.1);
+  --black-30p: rgba(0,0,0,.3);
 
   /* Semantik / Typografie */
-  --text-contrast-color:var(--cws-green);
-  --pale-text-color:var(--grey-7);
-  --list-bullet-color:var(--cws-green);
+  --text-contrast-color: var(--cws-green);
+  --pale-text-color: var(--grey-7);
+  --list-bullet-color: var(--cws-green);
 
   /* Buttons */
-  --button-bg:var(--cws-neon);
-  --button-fg:var(--cws-deep-blue);
-  --button-bg-hover:var(--cws-green);
-  --button-fg-hover:var(--cws-neon);
-  --button-bg-disabled:var(--grey-e);
-  --button-bg-sec:transparent;
-  --button-bg-sec-hover:var(--cws-green);
+  --button-bg: var(--cws-neon);
+  --button-fg: var(--cws-deep-blue);
+  --button-bg-hover: var(--cws-green);
+  --button-fg-hover: var(--cws-neon);
+  --button-bg-disabled: var(--grey-e);
+  --button-bg-sec: transparent;
+  --button-bg-sec-hover: var(--cws-green);
 
   /* Scrollbar */
-  --scrollbar-thumb:var(--grey-9);
-  --scrollbar-track:var(--grey-e);
+  --scrollbar-thumb: var(--grey-9);
+  --scrollbar-track: var(--grey-e);
 
   /* Links */
-  --link:var(--cws-green);
-  --link-hover:var(--cws-deep-blue);
+  --link: var(--cws-green);
+  --link-hover: var(--cws-deep-blue);
 }
 
-/* ─────────────────────────  Reset  ───────────────────────── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+/* ───────────────────────── Reset & Basis-Stile ───────────────────────── */
+*, ::before, ::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-body{
-  font-family:system-ui,Avenir,Helvetica,Arial,sans-serif;
-  line-height:1.5;
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
   background: var(--grey-e);
-  color:var(--text-contrast-color);
-  display:flex;align-items:center;justify-content:center;
-  overflow-x:hidden;
-  padding:1rem;
+  color: var(--text-contrast-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow-x: hidden;
+  padding: 1rem;
 }
 
-/* ─────────────────────────  Links & Listen  ───────────────────────── */
-a{color:var(--link);text-decoration:underline var(--link);transition:color .2s}
-a:hover{color:var(--link-hover);text-decoration-color:var(--link)}
-ul{list-style:none}
-li::before{content:'› ';color:var(--list-bullet-color)}
-
-/* ─────────────────────────  Glass-Card  (Avatar-UI) ───────────────────────── */
-.glass-card{
-  width:100%;max-width:920px;padding:2rem;margin:2rem auto;text-align:center;
-  background:var(--cws-deep-blue);
-  border:2px solid var(--grey-6);
-  border-radius:24px;
-  box-shadow:0 4px 30px var(--cws-deep-blue);
-  backdrop-filter:blur(20px);
+/* ───────────────────────── Links & Listen ───────────────────────── */
+a {
+  color: var(--link);
+  text-decoration: underline var(--link);
+  transition: color .2s;
+}
+a:hover {
+  color: var(--link-hover);
+  text-decoration-color: var(--link);
+}
+ul {
+  list-style: none;
+}
+li::before {
+  content: '› ';
+  color: var(--list-bullet-color);
 }
 
-/* ─────────────────────────  Headings  ───────────────────────── */
-h1{font-size:clamp(1.5rem,6vw,2.5rem);margin-bottom:1.5rem;color:#fff}
-
-/* ─────────────────────────  Video  ───────────────────────── */
-video{display:block;margin:0 auto 1.5rem;width:100%;max-width:600px;background:var(--grey-9);border-radius:12px}
-
-/* ─────────────────────────  Form Controls  ───────────────────────── */
-section[role='group']{
-  display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;
+/* ───────────────────────── Headings ───────────────────────── */
+h1 {
+  font-size: clamp(1.5rem, 6vw, 2.5rem);
+  margin-bottom: 1.5rem;
+  color: #fff; /* Standardmäßig für dunkle Karten-Header */
 }
 
-input[type='text'],
-textarea#chat-input{
-  flex:1;min-width:150px;padding:.75rem 1rem;border:1px solid var(--cws-green);
-  border-radius:12px;background:var(--grey-e);color:var(--cws-deep-blue);
-  backdrop-filter:blur(10px);transition:border-color .2s;text-align:left;
-}
-textarea#chat-input{min-height:2.5rem;font-family:inherit;line-height:1.4}
-input::placeholder,textarea::placeholder{color:var(--pale-text-color)}
-input:focus,textarea:focus{border-color:var(--cws-neon);outline:0}
-
-/* ───────── Buttons ───────── */
-button{
-  min-width:50px;padding:.75rem 1.5rem;font-size:1rem;cursor:pointer;
-  max-height: 80px;
-  align-self: center;
-  border:1px solid var(--button-bg);border-radius:12px;
-  background:var(--button-bg);color:var(--button-fg);
-  transition:background .2s,color .2s,box-shadow .2s,border-color .2s;
-  backdrop-filter:blur(10px);
-}
-button:hover:not(:disabled){
-  background:var(--button-bg-hover);color:var(--button-fg-hover);
-  border-color:var(--button-fg-hover);box-shadow:0 0 20px var(--button-fg-hover)
-}
-button:disabled{
-  background:var(--button-bg-disabled);color:var(--pale-text-color);
-  cursor:not-allowed;opacity:.7
-}
-.btn-secondary{
-  background:var(--button-bg-sec);color:var(--button-bg);
-  border:1px solid var(--button-bg)
-}
-.btn-secondary:hover:not(:disabled){
-  background:var(--button-bg-sec-hover);color:var(--button-fg-hover);
-  border-color:var(--button-fg-hover)
+/* ───────────────────────── Video ───────────────────────── */
+video#avatarVideo { /* Spezifischer für das Avatar-Video */
+  display: block;
+  margin: 0 auto 1.5rem;
+  width: 100%;
+  max-width: 600px;
+  background: var(--grey-9);
+  border-radius: 12px;
 }
 
-/* ─────────────────────────  Umschalt-Helfer  ───────────────────────── */
-form label{margin-right:.75rem;font-weight:600;color:var(--cws-green)}
-input[type='radio']{accent-color:var(--cws-green)}
-.hidden{display:none!important}
+/* ───────────────────────── Allgemeine Container / Karten ───────────────────────── */
+.glass-card {
+  width: 100%;
+  max-width: 920px;
+  padding: 2rem;
+  margin: 2rem auto;
+  text-align: center;
+  background: var(--cws-deep-blue);
+  border: 2px solid var(--grey-6);
+  border-radius: 24px;
+  box-shadow: 0 4px 30px var(--cws-deep-blue);
+  backdrop-filter: blur(20px);
+}
 
-/* ─────────────────────────  Chatbot UI  ───────────────────────── */
-/* Karten-Container */
-.chatbot-card{
-  display:flex;flex-direction:column;
-  width:clamp(280px,90vw,620px);
-  height:clamp(460px,90vh,720px);
-  margin:auto;
-  border:2px solid var(--grey-6);
-  border-radius:20px;
-  background:var(--cws-deep-blue);
-  color:#fff;
-  box-shadow:0 0 30px var(--cws-deep-blue);
-  overflow:hidden;
+#avatar-ui { /* Für Positionierung des Progress-Kreises */
+  position: relative;
 }
-/* Header */
-.chatbot-header{
-  flex:0 0 64px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.35rem;font-weight:600;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 60%);
+
+/* ───────────────────────── Form Controls Basis ───────────────────────── */
+section[role='group'] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
 }
-/* Nachrichtenliste */
-.chatbot-body{
-  flex:1 1 auto;
-  padding:1rem .75rem;
-  overflow-y:auto;
-  display:flex;flex-direction:column;gap:.5rem;
-  scroll-behavior:smooth;
-}
-.message{
-  max-width:85%;
-  padding:.5rem .75rem;
-  border-radius:12px;
-  font-size:.95rem;line-height:1.35;
-  word-break:break-word;
-  box-shadow:0 2px 4px rgba(0,0,0,.12);
-}
-.message.user{align-self:flex-end;background:var(--cws-neon);;color:var(--cws-deep-blue)}
-.message.bot {align-self:flex-start;background:#f1f3f5;color:#222}
-/* Eingabezeile */
-.chatbot-input{
-  flex:0 0 auto;
-  display:flex;gap:.75rem;align-items:center;
-  padding:.75rem 1rem;
-  border-top:1px solid rgba(255,255,255,.08);
-  background:rgba(0,0,0,.08);
-}
-.chatbot-input textarea{
-  flex:1 1 auto;min-height:2.4rem;max-height:6rem;
-  border:1px solid var(--cws-green);
-  border-radius:10px;
-  background:var(--grey-e);
-  padding:.65rem .8rem;font-family:inherit;font-size:.95rem;line-height:1.35;
-  color:#00352d;
-  transition:border-color .2s;
+
+textarea,
+input[type='text'] {
+  flex: 1;
+  min-width: 150px;
+  padding: .75rem 1rem;
+  border: 1px solid var(--cws-green);
+  border-radius: 12px;
+  background: var(--grey-e);
+  color: var(--cws-deep-blue);
+  backdrop-filter: blur(10px); /* Nur für Avatar-UI Textarea relevant, schadet aber nicht */
+  transition: border-color .2s;
   text-align: left;
-}
-.chatbot-input textarea:focus{outline:none;border-color:var(--button-bg)}
-.chatbot-input button{
-  flex:0 0 110px;
-  padding:.7rem 1rem;border-radius:10px;border:none;
-  background:var(--button-bg);color:#002733;font-weight:600;cursor:pointer;
-  transition:background .2s,transform .15s;
-}
-.chatbot-input button:hover{background:var(--button-bg-hover);color:var(--button-fg-hover)}
-.chatbot-input button:active{transform:scale(.96)}
-.chatbot-input button:disabled{opacity:.45;cursor:not-allowed}
-
-/* Scrollbar in Chat */
-.chatbot-body::-webkit-scrollbar{width:10px}
-.chatbot-body::-webkit-scrollbar-track{background:transparent}
-.chatbot-body::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:10px}
-
-/* ─────────────────────────  Mobile  ───────────────────────── */
-@media(max-width:480px){
-  .glass-card{padding:1.5rem}
-  section[role='group']{gap:.5rem}
-  .chatbot-card{height:90vh;border-radius:12;width: 100%;min-width:100%;margin-left: 0;margin-right: 0;}
-  .chatbot-header{font-size:1.15rem}
-  .chatbot-input button{flex:0 0 88px;font-size:.9rem}
-
-  body {
-    padding-top: 0;
-    padding-left: 0;
-    padding-right: 0;
-  }
+  font-family: inherit; /* Wichtig für textarea */
+  font-size: .95rem;    /* Basisgröße, kann spezifisch überschrieben werden */
+  line-height: 1.35;   /* Basis Zeilenhöhe */
 }
 
-/* ─────────────────────────  Dark-Mode  ───────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Grund­palette umkehren / abdunkeln */
-    --text-contrast-color: #c2fe06;     /* Neon-Akzent als Haupttext */
-    --pale-text-color:      #8ba0a4;
-    --button-bg:            #00806e;
-    --button-fg:            #c2fe06;
-    --button-bg-hover:      #00a985;
-    --button-fg-hover:      #002733;
-    --button-bg-sec-hover:  #00a985;
-
-    --scrollbar-thumb: #465357;
-    --scrollbar-track: #1e2a2f;
-
-    --link:        #c2fe06;
-    --link-hover:  #00dbac;
-  }
-
-  /* Seiten­hintergrund & Standard­schrift */
-  body {
-    background: var(--cws-deep-blue);
-    color:       var(--text-contrast-color);
-  }
-
-  /* Avatar- & Chat-Karten sollen dunkler wirken */
-  .glass-card,
-  .chatbot-card {
-    background: #001d26;
-    box-shadow: 0 0 25px rgba(0,0,0,.45);
-  }
-
-  /* Chat-Bubbles */
-  .message.user { background:#005a4c;color:#c2fe06; }
-  .message.bot  { background:#0b3441;color:#e5e5e5;  }
-
-  /* Eingabe­felder */
-  input[type='text'],
-  textarea#chat-input,
-  .chatbot-input textarea {
-    background:#0f2b35;
-    border-color:#00a985;
-    color:#c2fe06;
-  }
-
-  /* Video-Platzhalter dunkler */
-  video { background:#0b3441; }
-
-  /* Scrollbar in Chat noch dunkler */
-  .chatbot-body::-webkit-scrollbar-thumb { background:#2a3a3f; }
+textarea {
+  resize: none; /* JS kümmert sich drum oder per CSS max-height */
+  overflow-y: auto; /* Scrollbar bei Bedarf */
 }
 
-/* ───────── Auto-Grow Textarea bis ⅓ der Karte ───────── */
-.chatbot-input textarea {
-  max-height: calc(90vh / 3);   /* ⅓ der card-Höhe (card = 90vh) */
-  overflow-y: auto;             /* erst dann Scroll-Bar */
-  resize: none;                 /* Eckgriff ausblenden, JS übernimmt */
+textarea::placeholder,
+input::placeholder {
+  color: var(--pale-text-color);
 }
 
-/* ───────── Desktop-Layout (ab 481 px) ───────── */
-@media (min-width: 481px) {
-  .chatbot-input {
-    flex-direction: row;
-    gap: .75rem;
-    padding: .75rem 1rem;
-  }
-  .chatbot-input textarea {
-    flex: 1 1 auto;
-    min-height: 2.4rem;
-    max-height: 30vh;            /* wächst bis ⅓ Karte */
-    overflow-y: auto;
-    resize: none;
-    padding-right: 1rem;         /* Luft rechts */
-  }
-  .chatbot-input button {
-    flex: 0 0 160px;             /* rechteckig wie Enter-Taste */
-    border-radius: 12px;
-    font-size: 1.1rem;
-  }
+textarea:focus,
+input:focus {
+  border-color: var(--cws-neon);
+  outline: 0;
 }
 
-/* ───────── Mobile-Layout (bis 480 px) ───────── */
-@media (max-width: 480px) {
-  .chatbot-input {
-    flex-direction: column;
-    gap: .75rem;
-    padding: .75rem 1rem;
-  }
-  .chatbot-input textarea {
-    width: 100%;
-    max-height: 30vh;
-    overflow-y: auto;
-    resize: none;
-  }
-  .chatbot-input button {
-    width: 100%;                 /* gleiche Breite wie Textarea */
-    max-height: 50px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-  }
-}
-
-/* allgemeine Button-Optik (Pfeil nach oben bleibt) */
-.chatbot-input button::before {
-  content: \"\\25B2\";           /* ▲ */
-  font-family: inherit;
-}
-
-/* ───────── ISO-Enter-Taste (Desktop) ───────── */
-@media (min-width: 481px) {
-  .chatbot-input button{
-    position: relative;
-    flex: 0 0 50px;        /* breiter als vorher */
-    height: 90%;           /* zweistufige Taste */
-    max-height: 120px;
-    background: var(--button-bg);
-    color: var(--button-fg);
-    border-radius: 8px;
-    font-size: 0;            /* Text ausblenden, wir nutzen ::before */
-    overflow: hidden;
-  }
-
-  /* Beschriftung + Pfeil */
-  .chatbot-input button::before{
-    content: '⮐';
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-60%);    /* etwas nach oben versetzen */
-    font-size: 1.05rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .chatbot-input button::after{
-    content: \"\\25B2\";       /* ↵ (Return-Pfeil) */
-    position: absolute;
-    top: 57%; right: 20%;
-    transform: translateY(-50%);
-    font-size: 1.4rem;
-  }
-
-  /* Hover / Active unverändert */
-  .chatbot-input button:hover{
-    background: var(--button-bg-hover); color: var(--button-fg-hover);
-  }
-  .chatbot-input button:active{transform: translateY(1px);}
-}
-
+/* Spezifische Textareas */
 section#avatar-ui textarea#userInput {
   flex: 1 1 auto;
   min-height: 2.4rem;
-  max-height: 15vh;               
-  overflow-y: auto;
-  resize: none;
-  border: 1px solid var(--cws-green);
-  border-radius: 10px;
-  background: var(--grey-e);
-  padding: .65rem .8rem;
-  font-family: inherit;
-  font-size: .95rem;
-  line-height: 1.35;
-  color: #00352d;
-  transition: border-color .2s;
-  text-align: left;
+  max-height: 15vh; /* wächst nach unten bis max. 15% Viewport */
+  /* padding, border-radius, background etc. von Basis geerbt */
 }
 section#avatar-ui textarea#userInput:focus {
-  outline: none;
-  border-color: var(--button-bg);
+  border-color: var(--button-bg); /* Abweichend vom Standard-Fokus */
 }
 
-@media (prefers-color-scheme: dark) {
-  section#avatar-ui textarea#userInput {
-    background: #0f2b35;
-    border-color: #00a985;
-    color: #c2fe06;
-  }
-
-  section#avatar-ui textarea#userInput:focus {
-    border-color: var(--button-bg-hover);
-  }
+/* ───────────────────────── Buttons Basis ───────────────────────── */
+button {
+  min-width: 50px;
+  padding: .75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  max-height: 80px; /* Generelles Limit */
+  align-self: center;
+  border: 1px solid var(--button-bg);
+  border-radius: 12px;
+  background: var(--button-bg);
+  color: var(--button-fg);
+  transition: background .2s, color .2s, box-shadow .2s, border-color .2s;
+  backdrop-filter: blur(10px); /* Nur für Avatar-UI Button relevant, schadet aber nicht */
+}
+button:hover:not(:disabled) {
+  background: var(--button-bg-hover);
+  color: var(--button-fg-hover);
+  border-color: var(--button-fg-hover);
+  box-shadow: 0 0 20px var(--button-fg-hover);
+}
+button:disabled {
+  background: var(--button-bg-disabled);
+  color: var(--pale-text-color);
+  cursor: not-allowed;
+  opacity: .7;
 }
 
-.message.bot.fading-out {
-  opacity: 0.6;
-  transition: opacity 0.05s ease;
+.btn-secondary { /* Beispiel für einen sekundären Button-Stil */
+  background: var(--button-bg-sec);
+  color: var(--button-bg);
+  border: 1px solid var(--button-bg);
+}
+.btn-secondary:hover:not(:disabled) {
+  background: var(--button-bg-sec-hover);
+  color: var(--button-fg-hover);
+  border-color: var(--button-fg-hover);
 }
 
-.message.bot.fading-in {
-  animation: fadeInText 0.05s ease forwards;
+/* ───────────────────────── Umschalt-Helfer (z.B. für Radio-Buttons, falls noch genutzt) ───────────────────────── */
+form label { /* Falls Formulare mit Labels existieren */
+  margin-right: .75rem;
+  font-weight: 600;
+  color: var(--cws-green);
 }
+input[type='radio'] { /* Falls Radio-Buttons existieren */
+  accent-color: var(--cws-green);
+}
+
+/* ───────────────────────── Hilfsklassen ───────────────────────── */
+.hidden {
+  display: none !important;
+}
+
+/* ───────────────────────── Chatbot UI ───────────────────────── */
+.chatbot-card {
+  display: flex;
+  flex-direction: column;
+  width: clamp(280px, 90vw, 620px);
+  height: clamp(460px, 90vh, 720px);
+  margin: auto;
+  border: 2px solid var(--grey-6);
+  border-radius: 20px;
+  background: var(--cws-deep-blue);
+  color: #fff;
+  box-shadow: 0 0 30px var(--cws-deep-blue);
+  overflow: hidden;
+}
+
+.chatbot-header {
+  flex: 0 0 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), transparent 60%);
+  position: relative; /* Für Progress-Kreis */
+}
+
+.chatbot-body {
+  flex: 1 1 auto;
+  padding: 1rem .75rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  scroll-behavior: smooth;
+}
+.chatbot-body::-webkit-scrollbar { width: 10px; }
+.chatbot-body::-webkit-scrollbar-track { background: transparent; }
+.chatbot-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+
+.message {
+  max-width: 85%;
+  padding: .5rem .75rem;
+  border-radius: 12px;
+  font-size: .95rem;
+  line-height: 1.35;
+  word-break: break-word;
+  box-shadow: 0 2px 4px rgba(0,0,0,.12);
+}
+.message.user { align-self: flex-end; background: var(--cws-neon); color: var(--cws-deep-blue); }
+.message.bot { align-self: flex-start; background: #f1f3f5; color: #222; }
+.message.bot.typing { /* Spezifisch für Tipp-Animation */ }
+.message.bot.fading-out { opacity: 0.6; transition: opacity 0.05s ease; }
+.message.bot.fading-in { animation: fadeInText 0.05s ease forwards; }
 
 @keyframes fadeInText {
   from { opacity: 0; }
-  to   { opacity: 1; }
+  to { opacity: 1; }
+}
+
+.chatbot-input {
+  flex: 0 0 auto;
+  display: flex;
+  gap: .75rem;
+  align-items: center; /* Wichtig für Desktop-Layout */
+  padding: .75rem 1rem;
+  border-top: 1px solid rgba(255,255,255,.08);
+  background: rgba(0,0,0,.08);
+}
+
+.chatbot-input textarea#chat-input { /* Spezifische ID für Chat-Textarea */
+  flex: 1 1 auto;
+  min-height: 2.4rem; /* Angepasst an Avatar-Input */
+  max-height: 30vh; /* Standard für Desktop & Mobile, überschreibt Basis textarea max-height */
+  /* padding, border-radius, background etc. von Basis textarea geerbt */
+  /* color: #00352d; ist bereits von Basis textarea */
+}
+.chatbot-input textarea#chat-input:focus {
+  border-color: var(--button-bg); /* Abweichend von Standard-Fokus */
+}
+
+.chatbot-input button#chat-send { /* Spezifische ID für Chat-Senden-Button */
+  flex: 0 0 110px; /* Basis für Desktop, wird in Media Queries angepasst */
+  padding: .7rem 1rem; /* Überschreibt Basis-Button-Padding */
+  border-radius: 10px; /* Überschreibt Basis-Button-Radius */
+  border: none; /* Überschreibt Basis-Button-Border */
+  font-weight: 600;
+  /* background, color von Basis-Button geerbt */
+  transition: background .2s, transform .15s, color .2s; /* Transform hinzugefügt */
+}
+.chatbot-input button#chat-send:hover:not(:disabled) {
+  /* background, color von Basis-Button-Hover geerbt */
+  /* box-shadow hier nicht gewünscht */
+  box-shadow: none;
+}
+.chatbot-input button#chat-send:active:not(:disabled) {
+  transform: scale(.96);
+}
+.chatbot-input button#chat-send:disabled {
+  opacity: .45; /* Spezifische Opazität */
+}
+.chatbot-input button#chat-send::before { /* Pfeil für Chat-Button */
+  content: "⮐";
+  font-family: inherit;
 }
 
 /* ───────────────────── Datenschutz Modal mit Overlay ───────────────────── */
 .consent-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3); /* dunkler, transparenter Hintergrund */
+  background: rgba(0, 0, 0, 0.3);
   z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(4px);
 }
-
-.consent-modal {
+.consent-modal { /* Nutzt einige Stile von glass-card, aber mit Unterschieden */
   max-width: 600px;
   padding: 2rem;
   text-align: center;
@@ -434,9 +354,8 @@ section#avatar-ui textarea#userInput:focus {
   line-height: 1.6;
   color: var(--grey-e);
 }
-
-.consent-text a {
-  color: var(--link);
+.consent-text a { /* Lokale Link-Stile, falls abweichend von global */
+  color: var(--link); /* Sollte mit globalen Variablen übereinstimmen */
   text-decoration: underline;
 }
 
@@ -444,135 +363,18 @@ section#avatar-ui textarea#userInput:focus {
   color: var(--link-hover);
 }
 
-#consent-accept {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+button#consent-accept { /* Spezifische ID für Zustimm-Button */
+  padding: 0.75rem 1.5rem; /* Basis-Button-Padding */
+  font-size: 1rem; /* Basis-Button-Größe */
   font-weight: 600;
-  border-radius: 12px;
-  border: 1px solid var(--button-bg);
-  background: var(--button-bg);
-  color: var(--button-fg);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
+  /* border-radius, border, background, color von Basis-Button geerbt */
+  /* transition von Basis-Button geerbt */
+  /* backdrop-filter von Basis-Button geerbt */
 }
 
-#consent-accept:hover {
-  background: var(--button-bg-hover);
-  color: var(--button-fg-hover);
-  border-color: var(--button-fg-hover);
-  box-shadow: 0 0 15px var(--button-fg-hover);
-}
-
-.avatar-progress {
-  position: absolute;
-  top: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
-  font-size: 0.8rem;
-}
-
-/* Eltern-Container muss relativ sein */
-#avatar-ui {
-  position: relative;
-}
-
-.chat-progress {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 48px;
-  height: 48px;
-  font-size: 0.75rem;
-}
-.chatbot-header {
-  position: relative;
-}
-
-.progress-circle {
-  z-index: 10;
-}
-
-.progress-circle svg {
-  transform: rotate(-90deg);
-  width: 100%;
-  height: 100%;
-}
-
-.progress-circle .circle-bg {
-  fill: none;
-  stroke: var(--grey-9);
-  stroke-width: 4;
-}
-
-.progress-circle .circle {
-  fill: none;
-  stroke: var(--button-bg);
-  stroke-width: 4;
-  stroke-dasharray: 100, 100;
-  stroke-dashoffset: 100;
-  transition: stroke-dashoffset 0.4s ease;
-}
-
-.progress-circle .progress-text {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-weight: 600;
-  color: var(--cws-neon);
-}
-
-@media (prefers-color-scheme: dark) {
-  /* Fortschrittskreis im Dark Mode */
-  .progress-circle .circle-bg {
-    stroke: #2a3a3f;
-  }
-
-  .progress-circle .circle {
-    stroke: var(--button-bg);
-  }
-
-  .progress-circle .progress-text {
-    color: var(--text-contrast-color);
-  }
-
-  /* Consent-Modal im Dark Mode */
-  .consent-modal {
-    background: #001d26;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.45);
-    border-color: var(--button-bg);
-  }
-
-  .consent-text h2 {
-    color: var(--cws-neon);
-  }
-
-  .consent-text p {
-    color: var(--grey-e);
-  }
-
-  .consent-text a {
-    color: var(--link);
-  }
-
-  .consent-text a:hover {
-    color: var(--link-hover);
-  }
-
-  #consent-accept {
-    background: var(--button-bg);
-    color: var(--button-fg);
-    border-color: var(--button-bg);
-  }
-
-  #consent-accept:hover {
-    background: var(--button-bg-hover);
-    color: var(--button-fg-hover);
-    border-color: var(--button-fg-hover);
-    box-shadow: 0 0 15px var(--button-fg-hover);
-  }
+button#consent-accept:hover:not(:disabled) {
+  /* background, color, border-color von Basis-Button-Hover geerbt */
+  box-shadow: 0 0 15px var(--button-fg-hover); /* Spezifischer Hover-Schatten */
 }
 
 /* ───────────────────── Experiment-Erfüllt-Overlay ───────────────────── */
@@ -601,7 +403,7 @@ section#avatar-ui textarea#userInput:focus {
 #experiment-complete-banner h3 {
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: var(--button-bg);
+  color: var(--button-bg); /* Nutzt Button-Hintergrund für Akzent */
 }
 
 #experiment-complete-banner p {
@@ -610,595 +412,31 @@ section#avatar-ui textarea#userInput:focus {
   color: var(--pale-text-color);
 }
 
-@media (prefers-color-scheme: dark) {
-  #experiment-complete-banner {
-    background: #001d26;
-    color: var(--text-contrast-color);
-    border-color: var(--button-bg);
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.45);
-  }
-
-  #experiment-complete-banner h3 {
-    color: var(--cws-neon);
-  }
-
-  #experiment-complete-banner p {
-    color: var(--pale-text-color);
-  }
-}
-
-@media (max-width: 480px) {
-  /* Avatar-Card kompakter machen */
-  #avatar-ui.glass-card {
-    padding: 1rem;
-    margin: 1rem auto;
-  }
-
-  #avatarVideo {
-    max-height: 40vh;
-    object-fit: contain;
-  }
-
-  .avatar-progress {
-    top: 1rem;
-    right: 1rem;
-    width: 42px;
-    height: 42px;
-    font-size: 0.7rem;
-  }
-}
-
-@media (max-width: 480px) {
-  button,
-  .btn-secondary,
-  #speakButton,
-  #chat-send,
-  #consent-accept {
-    width: 100%;
-    font-size: 1.1rem;
-    padding: 1rem 1.25rem;
-    border-radius: 14px;
-    min-height: 48px; /* Mindesthöhe für Touchflächen */
-    touch-action: manipulation; /* besseres Verhalten auf Mobile */
-  }
-
-  /* Falls Buttons nebeneinander liegen (z. B. im Chatbot): */
-  section[role='group'] {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .chatbot-input {
-    flex-direction: column;
-  }
-
-  .chatbot-input button {
-    width: 100%;
-    max-height: none;
-    font-size: 1.1rem;
-  }
-
-  textarea,
-  input[type="text"] {
-    font-size: 1rem;
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 360px) {
-  h1 {
-    font-size: 1rem;
-  }
-}
-
-/* ─────────────────────────  Farb-Variablen  ───────────────────────── */
-:root {
-  /* Primär */
-  --cws-deep-blue:#002733;
-  --cws-green:#00806e;
-  --cws-neon:#c2fe06;
-  --grey-6:#626364;
-  --grey-7:#727475;
-  --grey-9:#929495;
-  --grey-e:#e5e5e5;
-  --black-10p:rgba(0,0,0,.1);
-  --black-30p:rgba(0,0,0,.3);
-
-  /* Semantik / Typografie */
-  --text-contrast-color:var(--cws-green);
-  --pale-text-color:var(--grey-7);
-  --list-bullet-color:var(--cws-green);
-
-  /* Buttons */
-  --button-bg:var(--cws-neon);
-  --button-fg:var(--cws-deep-blue);
-  --button-bg-hover:var(--cws-green);
-  --button-fg-hover:var(--cws-neon);
-  --button-bg-disabled:var(--grey-e);
-  --button-bg-sec:transparent;
-  --button-bg-sec-hover:var(--cws-green);
-
-  /* Scrollbar */
-  --scrollbar-thumb:var(--grey-9);
-  --scrollbar-track:var(--grey-e);
-
-  /* Links */
-  --link:var(--cws-green);
-  --link-hover:var(--cws-deep-blue);
-}
-
-/* ─────────────────────────  Reset  ───────────────────────── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-
-body{
-  font-family:system-ui,Avenir,Helvetica,Arial,sans-serif;
-  line-height:1.5;
-  background: var(--grey-e);
-  color:var(--text-contrast-color);
-  display:flex;align-items:center;justify-content:center;
-  overflow-x:hidden;
-  padding:1rem;
-}
-
-/* ─────────────────────────  Links & Listen  ───────────────────────── */
-a{color:var(--link);text-decoration:underline var(--link);transition:color .2s}
-a:hover{color:var(--link-hover);text-decoration-color:var(--link)}
-ul{list-style:none}
-li::before{content:'› ';color:var(--list-bullet-color)}
-
-/* ─────────────────────────  Glass-Card  (Avatar-UI) ───────────────────────── */
-.glass-card{
-  width:100%;max-width:920px;padding:2rem;margin:2rem auto;text-align:center;
-  background:var(--cws-deep-blue);
-  border:2px solid var(--grey-6);
-  border-radius:24px;
-  box-shadow:0 4px 30px var(--cws-deep-blue);
-  backdrop-filter:blur(20px);
-}
-
-/* ─────────────────────────  Headings  ───────────────────────── */
-h1{font-size:clamp(1.5rem,6vw,2.5rem);margin-bottom:1.5rem;color:#fff}
-
-/* ─────────────────────────  Video  ───────────────────────── */
-video{display:block;margin:0 auto 1.5rem;width:100%;max-width:600px;background:var(--grey-9);border-radius:12px}
-
-/* ─────────────────────────  Form Controls  ───────────────────────── */
-section[role='group']{
-  display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;
-}
-
-input[type='text'],
-textarea#chat-input{
-  flex:1;min-width:150px;padding:.75rem 1rem;border:1px solid var(--cws-green);
-  border-radius:12px;background:var(--grey-e);color:var(--cws-deep-blue);
-  backdrop-filter:blur(10px);transition:border-color .2s;text-align:left;
-}
-textarea#chat-input{min-height:2.5rem;font-family:inherit;line-height:1.4}
-input::placeholder,textarea::placeholder{color:var(--pale-text-color)}
-input:focus,textarea:focus{border-color:var(--cws-neon);outline:0}
-
-/* ───────── Buttons ───────── */
-button{
-  min-width:50px;padding:.75rem 1.5rem;font-size:1rem;cursor:pointer;
-  max-height: 80px;
-  align-self: center;
-  border:1px solid var(--button-bg);border-radius:12px;
-  background:var(--button-bg);color:var(--button-fg);
-  transition:background .2s,color .2s,box-shadow .2s,border-color .2s;
-  backdrop-filter:blur(10px);
-}
-button:hover:not(:disabled){
-  background:var(--button-bg-hover);color:var(--button-fg-hover);
-  border-color:var(--button-fg-hover);box-shadow:0 0 20px var(--button-fg-hover)
-}
-button:disabled{
-  background:var(--button-bg-disabled);color:var(--pale-text-color);
-  cursor:not-allowed;opacity:.7
-}
-.btn-secondary{
-  background:var(--button-bg-sec);color:var(--button-bg);
-  border:1px solid var(--button-bg)
-}
-.btn-secondary:hover:not(:disabled){
-  background:var(--button-bg-sec-hover);color:var(--button-fg-hover);
-  border-color:var(--button-fg-hover)
-}
-
-/* ─────────────────────────  Umschalt-Helfer  ───────────────────────── */
-form label{margin-right:.75rem;font-weight:600;color:var(--cws-green)}
-input[type='radio']{accent-color:var(--cws-green)}
-.hidden{display:none!important}
-
-/* ─────────────────────────  Chatbot UI  ───────────────────────── */
-/* Karten-Container */
-.chatbot-card{
-  display:flex;flex-direction:column;
-  width:clamp(280px,90vw,620px);
-  height:clamp(460px,90vh,720px);
-  margin:auto;
-  border:2px solid var(--grey-6);
-  border-radius:20px;
-  background:var(--cws-deep-blue);
-  color:#fff;
-  box-shadow:0 0 30px var(--cws-deep-blue);
-  overflow:hidden;
-}
-/* Header */
-.chatbot-header{
-  flex:0 0 64px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.35rem;font-weight:600;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  background:linear-gradient(180deg,rgba(255,255,255,.06),transparent 60%);
-}
-/* Nachrichtenliste */
-.chatbot-body{
-  flex:1 1 auto;
-  padding:1rem .75rem;
-  overflow-y:auto;
-  display:flex;flex-direction:column;gap:.5rem;
-  scroll-behavior:smooth;
-}
-.message{
-  max-width:85%;
-  padding:.5rem .75rem;
-  border-radius:12px;
-  font-size:.95rem;line-height:1.35;
-  word-break:break-word;
-  box-shadow:0 2px 4px rgba(0,0,0,.12);
-}
-.message.user{align-self:flex-end;background:var(--cws-neon);;color:var(--cws-deep-blue)}
-.message.bot {align-self:flex-start;background:#f1f3f5;color:#222}
-/* Eingabezeile */
-.chatbot-input{
-  flex:0 0 auto;
-  display:flex;gap:.75rem;align-items:center;
-  padding:.75rem 1rem;
-  border-top:1px solid rgba(255,255,255,.08);
-  background:rgba(0,0,0,.08);
-}
-.chatbot-input textarea{
-  flex:1 1 auto;min-height:2.4rem;max-height:6rem;
-  border:1px solid var(--cws-green);
-  border-radius:10px;
-  background:var(--grey-e);
-  padding:.65rem .8rem;font-family:inherit;font-size:.95rem;line-height:1.35;
-  color:#00352d;
-  transition:border-color .2s;
-  text-align: left;
-}
-.chatbot-input textarea:focus{outline:none;border-color:var(--button-bg)}
-.chatbot-input button{
-  flex:0 0 110px;
-  padding:.7rem 1rem;border-radius:10px;border:none;
-  background:var(--button-bg);color:#002733;font-weight:600;cursor:pointer;
-  transition:background .2s,transform .15s;
-}
-.chatbot-input button:hover{background:var(--button-bg-hover);color:var(--button-fg-hover)}
-.chatbot-input button:active{transform:scale(.96)}
-.chatbot-input button:disabled{opacity:.45;cursor:not-allowed}
-
-/* Scrollbar in Chat */
-.chatbot-body::-webkit-scrollbar{width:10px}
-.chatbot-body::-webkit-scrollbar-track{background:transparent}
-.chatbot-body::-webkit-scrollbar-thumb{background:var(--scrollbar-thumb);border-radius:10px}
-
-/* ─────────────────────────  Mobile  ───────────────────────── */
-@media(max-width:480px){
-  .glass-card{padding:1.5rem}
-  section[role='group']{gap:.5rem}
-  .chatbot-card{height:90vh;border-radius:12;width: 100%;min-width:100%;margin-left: 0;margin-right: 0;}
-  .chatbot-header{font-size:1.15rem}
-  .chatbot-input button{flex:0 0 88px;font-size:.9rem}
-
-  body {
-    padding-top: 0;
-    padding-left: 0;
-    padding-right: 0;
-  }
-}
-
-/* ─────────────────────────  Dark-Mode  ───────────────────────── */
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Grund­palette umkehren / abdunkeln */
-    --text-contrast-color: #c2fe06;     /* Neon-Akzent als Haupttext */
-    --pale-text-color:      #8ba0a4;
-    --button-bg:            #00806e;
-    --button-fg:            #c2fe06;
-    --button-bg-hover:      #00a985;
-    --button-fg-hover:      #002733;
-    --button-bg-sec-hover:  #00a985;
-
-    --scrollbar-thumb: #465357;
-    --scrollbar-track: #1e2a2f;
-
-    --link:        #c2fe06;
-    --link-hover:  #00dbac;
-  }
-
-  /* Seiten­hintergrund & Standard­schrift */
-  body {
-    background: var(--cws-deep-blue);
-    color:       var(--text-contrast-color);
-  }
-
-  /* Avatar- & Chat-Karten sollen dunkler wirken */
-  .glass-card,
-  .chatbot-card {
-    background: #001d26;
-    box-shadow: 0 0 25px rgba(0,0,0,.45);
-  }
-
-  /* Chat-Bubbles */
-  .message.user { background:#005a4c;color:#c2fe06; }
-  .message.bot  { background:#0b3441;color:#e5e5e5;  }
-
-  /* Eingabe­felder */
-  input[type='text'],
-  textarea#chat-input,
-  .chatbot-input textarea {
-    background:#0f2b35;
-    border-color:#00a985;
-    color:#c2fe06;
-  }
-
-  /* Video-Platzhalter dunkler */
-  video { background:#0b3441; }
-
-  /* Scrollbar in Chat noch dunkler */
-  .chatbot-body::-webkit-scrollbar-thumb { background:#2a3a3f; }
-}
-
-/* ───────── Auto-Grow Textarea bis ⅓ der Karte ───────── */
-.chatbot-input textarea {
-  max-height: 30vh;   /* ⅓ der card-Höhe (card = 90vh) */
-  overflow-y: auto;             /* erst dann Scroll-Bar */
-  resize: none;                 /* Eckgriff ausblenden, JS übernimmt */
-}
-
-/* ───────── Desktop-Layout (ab 481 px) ───────── */
-@media (min-width: 481px) {
-  .chatbot-input {
-    flex-direction: row;
-    gap: .75rem;
-    padding: .75rem 1rem;
-  }
-  .chatbot-input textarea {
-    flex: 1 1 auto;
-    min-height: 2.4rem;
-    max-height: 30vh;            /* wächst bis ⅓ Karte */
-    overflow-y: auto;
-    resize: none;
-    padding-right: 1rem;         /* Luft rechts */
-  }
-  .chatbot-input button {
-    flex: 0 0 160px;             /* rechteckig wie Enter-Taste */
-    border-radius: 12px;
-    font-size: 1.1rem;
-  }
-}
-
-/* ───────── Mobile-Layout (bis 480 px) ───────── */
-@media (max-width: 480px) {
-  .chatbot-input {
-    flex-direction: column;
-    gap: .75rem;
-    padding: .75rem 1rem;
-  }
-  .chatbot-input textarea {
-    width: 100%;
-    max-height: 30vh;
-    overflow-y: auto;
-    resize: none;
-  }
-  .chatbot-input button {
-    width: 100%;                 /* gleiche Breite wie Textarea */
-    max-height: 30px;
-    border-radius: 12px;
-    font-size: 1.1rem;
-  }
-}
-
-/* allgemeine Button-Optik (Pfeil nach oben bleibt) */
-.chatbot-input button::before {
-  content: \"\\25B2\";           /* ▲ */
-  font-family: inherit;
-}
-
-/* ───────── ISO-Enter-Taste (Desktop) ───────── */
-@media (min-width: 481px) {
-  .chatbot-input button{
-    position: relative;
-    flex: 0 0 50px;        /* breiter als vorher */
-    height: 90%;           /* zweistufige Taste */
-    max-height: 30px;
-    background: var(--button-bg);
-    color: var(--button-fg);
-    border-radius: 8px;
-    font-size: 0;            /* Text ausblenden, wir nutzen ::before */
-    overflow: hidden;
-  }
-
-  /* Beschriftung + Pfeil */
-  .chatbot-input button::before{
-    content: '⮐';
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%,-60%);    /* etwas nach oben versetzen */
-    font-size: 1.05rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .chatbot-input button::after{
-    content: \"\\25B2\";       /* ↵ (Return-Pfeil) */
-    position: absolute;
-    top: 57%; right: 20%;
-    transform: translateY(-50%);
-    font-size: 1.4rem;
-  }
-
-  /* Hover / Active unverändert */
-  .chatbot-input button:hover{
-    background: var(--button-bg-hover); color: var(--button-fg-hover);
-  }
-  .chatbot-input button:active{transform: translateY(1px);}
-}
-
-section#avatar-ui textarea#userInput {
-  flex: 1 1 auto;
-  min-height: 2.4rem;
-  max-height: 15vh;                     /* wächst nach unten bis max. 30% Viewport */
-  overflow-y: auto;
-  resize: none;
-  border: 1px solid var(--cws-green);
-  border-radius: 10px;
-  background: var(--grey-e);
-  padding: .65rem .8rem;
-  font-family: inherit;
-  font-size: .95rem;
-  line-height: 1.35;
-  color: #00352d;
-  transition: border-color .2s;
-  text-align: left;
-}
-section#avatar-ui textarea#userInput:focus {
-  outline: none;
-  border-color: var(--button-bg);
-}
-
-@media (prefers-color-scheme: dark) {
-  section#avatar-ui textarea#userInput {
-    background: #0f2b35;
-    border-color: #00a985;
-    color: #c2fe06;
-  }
-
-  section#avatar-ui textarea#userInput:focus {
-    border-color: var(--button-bg-hover);
-  }
-}
-
-.message.bot.fading-out {
-  opacity: 0.6;
-  transition: opacity 0.05s ease;
-}
-
-.message.bot.fading-in {
-  animation: fadeInText 0.05s ease forwards;
-}
-
-@keyframes fadeInText {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-/* ───────────────────── Datenschutz Modal mit Overlay ───────────────────── */
-.consent-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3); /* dunkler, transparenter Hintergrund */
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
-}
-
-.consent-modal {
-  max-width: 600px;
-  padding: 2rem;
-  text-align: center;
-  border: 1px solid var(--button-bg);
-  border-radius: 24px;
-  background: var(--cws-deep-blue);
-  box-shadow: 0 0 25px var(--button-bg);
-}
-
-.consent-text h2 {
-  font-size: clamp(1.5rem, 4vw, 2rem);
-  margin-bottom: 1rem;
-  color: var(--cws-neon);
-}
-
-.consent-text p {
-  margin-bottom: 2rem;
-  line-height: 1.6;
-  color: var(--grey-e);
-}
-
-.consent-text a {
-  color: var(--link);
-  text-decoration: underline;
-}
-
-.consent-text a:hover {
-  color: var(--link-hover);
-}
-
-#consent-accept {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  border-radius: 12px;
-  border: 1px solid var(--button-bg);
-  background: var(--button-bg);
-  color: var(--button-fg);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-
-#consent-accept:hover {
-  background: var(--button-bg-hover);
-  color: var(--button-fg-hover);
-  border-color: var(--button-fg-hover);
-  box-shadow: 0 0 15px var(--button-fg-hover);
-}
-
-.avatar-progress {
+/* ───────────────────── Fortschritts-Kreise ───────────────────── */
+.progress-circle {
   position: absolute;
-  top: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
+  z-index: 10;
+  /* Größe und Position sind spezifisch pro Instanz */
+}
+.avatar-progress {
+  top: 2rem; right: 2rem;
+  width: 50px; height: 50px;
   font-size: 0.8rem;
 }
-
-/* Eltern-Container muss relativ sein */
-#avatar-ui {
-  position: relative;
-}
-
 .chat-progress {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 48px;
-  height: 48px;
+  top: 10px; right: 10px;
+  width: 48px; height: 48px;
   font-size: 0.75rem;
 }
-.chatbot-header {
-  position: relative;
-}
-
-.progress-circle {
-  z-index: 10;
-}
-
 .progress-circle svg {
   transform: rotate(-90deg);
-  width: 100%;
-  height: 100%;
+  width: 100%; height: 100%;
 }
-
 .progress-circle .circle-bg {
   fill: none;
   stroke: var(--grey-9);
   stroke-width: 4;
 }
-
 .progress-circle .circle {
   fill: none;
   stroke: var(--button-bg);
@@ -1207,236 +445,15 @@ section#avatar-ui textarea#userInput:focus {
   stroke-dashoffset: 100;
   transition: stroke-dashoffset 0.4s ease;
 }
-
 .progress-circle .progress-text {
   position: absolute;
-  top: 50%;
-  left: 50%;
+  top: 50%; left: 50%;
   transform: translate(-50%, -50%);
   font-weight: 600;
   color: var(--cws-neon);
 }
 
-@media (prefers-color-scheme: dark) {
-  /* Fortschrittskreis im Dark Mode */
-  .progress-circle .circle-bg {
-    stroke: #2a3a3f;
-  }
-
-  .progress-circle .circle {
-    stroke: var(--button-bg);
-  }
-
-  .progress-circle .progress-text {
-    color: var(--text-contrast-color);
-  }
-
-  /* Consent-Modal im Dark Mode */
-  .consent-modal {
-    background: #001d26;
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.45);
-    border-color: var(--button-bg);
-  }
-
-  .consent-text h2 {
-    color: var(--cws-neon);
-  }
-
-  .consent-text p {
-    color: var(--grey-e);
-  }
-
-  .consent-text a {
-    color: var(--link);
-  }
-
-  .consent-text a:hover {
-    color: var(--link-hover);
-  }
-
-  #consent-accept {
-    background: var(--button-bg);
-    color: var(--button-fg);
-    border-color: var(--button-bg);
-  }
-
-  #consent-accept:hover {
-    background: var(--button-bg-hover);
-    color: var(--button-fg-hover);
-    border-color: var(--button-fg-hover);
-    box-shadow: 0 0 15px var(--button-fg-hover);
-  }
-}
-
-/* ───────────────────── Experiment-Erfüllt-Overlay ───────────────────── */
-#experiment-complete-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(5px);
-  z-index: 9999;
-  display: none; /* per JS sichtbar machen */
-  align-items: center;
-  justify-content: center;
-}
-
-#experiment-complete-banner {
-  max-width: 480px;
-  background: var(--cws-deep-blue);
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 0 20px var(--button-bg);
-  text-align: center;
-  color: var(--text-contrast-color);
-  border: 1px solid var(--button-bg);
-}
-
-#experiment-complete-banner h3 {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: var(--button-bg);
-}
-
-#experiment-complete-banner p {
-  line-height: 1.5;
-  font-size: 1rem;
-  color: var(--pale-text-color);
-}
-
-@media (prefers-color-scheme: dark) {
-  #experiment-complete-banner {
-    background: #001d26;
-    color: var(--text-contrast-color);
-    border-color: var(--button-bg);
-    box-shadow: 0 0 25px rgba(0, 0, 0, 0.45);
-  }
-
-  #experiment-complete-banner h3 {
-    color: var(--cws-neon);
-  }
-
-  #experiment-complete-banner p {
-    color: var(--pale-text-color);
-  }
-}
-
-@media (max-width: 480px) {
-  /* Avatar-Card kompakter machen */
-  #avatar-ui.glass-card {
-    padding: 1rem;
-    margin: 1rem auto;
-  }
-
-  #avatarVideo {
-    max-height: 40vh;
-    object-fit: contain;
-  }
-
-  .avatar-progress {
-    top: 1rem;
-    right: 1rem;
-    width: 42px;
-    height: 42px;
-    font-size: 0.7rem;
-  }
-}
-
-@media (max-width: 480px) {
-  button,
-  .btn-secondary,
-  #speakButton,
-  #chat-send,
-  #consent-accept {
-    width: 100%;
-    font-size: 1.1rem;
-    padding: 1rem 1.25rem;
-    border-radius: 14px;
-    min-height: 40px; /* Mindesthöhe für Touchflächen */
-    touch-action: manipulation; /* besseres Verhalten auf Mobile */
-  }
-
-  /* Falls Buttons nebeneinander liegen (z. B. im Chatbot): */
-  section[role='group'] {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .chatbot-input {
-    flex-direction: column;
-  }
-
-  .chatbot-input button {
-    width: 100%;
-    max-height: 48px;
-    font-size: 1.1rem;
-  }
-
-  textarea,
-  input[type="text"] {
-    font-size: 1rem;
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 360px) {
-  h1 {
-    font-size: 1.1rem;
-    margin-top: 10px;
-    margin-bottom: 36px;
-  }
-}
-
-@media (max-width: 480px) {
-  body {
-    display: block; /* statt flex */
-    padding: 0;      /* optional: wenn du volle Breite willst */
-  }
-
-  .chatbot-card {
-    width: 100%;
-    max-width: none;
-    border: none;
-    border-radius: 0 0 20px 20px;
-    margin: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  #avatarVideo {
-    aspect-ratio: 9 / 16;
-    width: 100%;
-    height: auto;
-    object-fit: cover;       /* oder contain, je nach Ziel */
-    border-radius: 16px;
-  }
-}
-
-@media (hover: none) and (pointer: coarse) {
-  /* Gilt nur für Touchgeräte */
-
-  button,
-  #speakButton,
-  #chat-send,
-  #consent-accept {
-    box-shadow: none !important;
-    transition: none !important;
-  }
-
-  button:hover,
-  #speakButton:hover,
-  #chat-send:hover,
-  #consent-accept:hover,
-  button:active,
-  #speakButton:active,
-  #chat-send:active,
-  #consent-accept:active {
-    background: var(--button-bg) !important;
-    color: var(--button-fg) !important;
-    border-color: var(--button-bg) !important;
-    transform: none !important;
-  }
-}
-
+/* ───────────────────── Verbindungs-Overlay (Avatar) ───────────────────── */
 .connecting-overlay {
   position: absolute;
   top: 50%;
@@ -1448,26 +465,255 @@ section#avatar-ui textarea#userInput:focus {
   text-align: center;
   pointer-events: none;
   z-index: 10;
-  animation: fadeIn 0.5s ease-in-out;
+  animation: fadeInConnectingOverlay 0.5s ease-in-out; /* Umbenannt zur Klarheit */
 }
-
-@keyframes fadeIn {
+@keyframes fadeInConnectingOverlay { /* Umbenannt zur Klarheit */
   from { opacity: 0; }
-  to   { opacity: 1; }
+  to { opacity: 1; }
 }
 
+/* ───────────────────────── Desktop-Layout (ab 481px) ───────────────────────── */
+@media (min-width: 481px) {
+  .chatbot-input {
+    /* Standard: flex-direction: row; gap: .75rem; padding: .75rem 1rem; */
+    /* align-items: center; ist bereits im Basis-Stil */
+  }
+  .chatbot-input textarea#chat-input {
+    /* flex: 1 1 auto; ist bereits im Basis-Stil */
+    /* min-height: 2.4rem; max-height: 30vh; overflow-y: auto; resize: none; sind bereits im Basis-Stil */
+    padding-right: 1rem; /* Zusätzlicher Platz rechts */
+  }
+  .chatbot-input button#chat-send {
+    flex: 0 0 160px; /* Rechteckig */
+    border-radius: 12px; /* Etwas größerer Radius */
+    font-size: 1.1rem;
+    max-height: none; /* Aufhebung des globalen Button-Limits */
+  }
 
+  /* ISO-Enter-Taste für Desktop Chat-Button */
+  .chatbot-input button#chat-send.iso-enter { /* Spezifische Klasse, falls benötigt, oder direkt auf #chat-send */
+    position: relative;
+    flex: 0 0 50px; /* Schmaler für ISO-Look */
+    height: 90%; /* Um ca. zweistufige Höhe zu erreichen */
+    max-height: 50px; /* Angepasst, 30px war sehr klein */
+    border-radius: 8px;
+    font-size: 0; /* Text ausblenden, Icons übernehmen */
+    overflow: hidden;
+  }
+  .chatbot-input button#chat-send.iso-enter::before {
+    content: '⮐'; /* Return-Symbol */
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -60%); /* Etwas nach oben */
+    font-size: 1.05rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .chatbot-input button#chat-send.iso-enter::after { /* Nur für ISO-Look */
+    content: "⮐"; /* Pfeil nach oben */
+    position: absolute;
+    top: 57%; right: 20%;
+    transform: translateY(-50%);
+    font-size: 1.4rem;
+  }
+  .chatbot-input button#chat-send.iso-enter:active:not(:disabled) {
+    transform: translateY(1px); /* Leichter Klick-Effekt */
+  }
+}
 
+/* ───────────────────────── Mobile-Layout (bis 480px) ───────────────────────── */
+@media (max-width: 480px) {
+  body {
+    display: block; /* Statt flex für einfacheres Scrolling auf Mobile */
+    padding: 0;
+  }
 
+  h1 {
+    font-size: 1.1rem; /* Kleiner für Mobile */
+    margin-top: 10px;  /* Kann variieren, je nach Bedarf */
+    margin-bottom: 36px;/* Kann variieren, je nach Bedarf */
+  }
+  @media (max-width: 360px) { /* Noch kleinere Screens */
+    h1 {
+      font-size: 1rem;
+    }
+  }
 
+  .glass-card {
+    padding: 1.5rem;
+  }
+  #avatar-ui.glass-card { /* Spezifischer für Avatar auf Mobile */
+    padding: 1rem;
+    margin: 1rem auto;
+  }
 
+  video#avatarVideo {
+    max-height: 40vh; /* Limit für Video-Höhe */
+    /* object-fit: contain; Falls das bevorzugt wird */
+    aspect-ratio: 9 / 16; /* Für konsistentes Seitenverhältnis */
+    width: 100%;
+    height: auto;
+    object-fit: cover; /* Oder contain, je nach gewünschtem Effekt */
+    border-radius: 16px; /* Abgerundete Ecken für Video */
+  }
 
+  .avatar-progress {
+    top: 1rem; right: 1rem;
+    width: 42px; height: 42px;
+    font-size: 0.7rem;
+  }
 
+  section[role='group'] {
+    flex-direction: column; /* Elemente untereinander */
+    gap: 1rem; /* Etwas mehr Abstand */
+  }
 
+  /* Allgemeine Button-Styles für Mobile */
+  button, .btn-secondary, #speakButton, #chat-send, #consent-accept {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 1rem 1.25rem;
+    border-radius: 14px;
+    min-height: 48px; /* Mindesthöhe für Touch */
+    max-height: none; /* Aufhebung des globalen Limits, falls es stört */
+    /* touch-action: manipulation; ist gut, aber hier als Kommentar, da nicht explizit gefordert */
+  }
 
+  /* Allgemeine Text-Input-Styles für Mobile */
+  textarea, input[type="text"] {
+    font-size: 1rem; /* Etwas größer für Lesbarkeit */
+    padding: 1rem;   /* Mehr Padding für Touch */
+  }
 
+  .chatbot-card {
+    height: 90vh; /* Nutzt fast die volle Höhe */
+    width: 100%;
+    min-width: 100%;
+    margin: 0; /* Kein horizontaler Margin */
+    border: none; /* Kein Rand auf Mobile */
+    border-radius: 0 0 20px 20px; /* Nur unten abgerundet, falls es oben am Bildschirmrand anliegt */
+  }
+  .chatbot-header {
+    font-size: 1.15rem;
+  }
 
+  .chatbot-input {
+    flex-direction: column;
+    gap: .75rem; /* Beibehaltung des Gaps */
+    /* padding: .75rem 1rem; ist bereits im Basis-Stil */
+  }
+  .chatbot-input textarea#chat-input {
+    width: 100%; /* Volle Breite im Column-Layout */
+    /* max-height: 30vh; ist bereits im Basis-Stil */
+  }
+  .chatbot-input button#chat-send {
+    /* width: 100%; font-size: 1.1rem; border-radius: 14px; min-height: 48px; von allgemeinen Mobile-Button-Stilen geerbt */
+    flex-basis: auto; /* Zurücksetzen von Desktop flex-basis */
+    max-height: 50px; /* Spezifisches Höhenlimit für Chat-Button auf Mobile */
+  }
+  .chatbot-input button#chat-send::before { /* Pfeil für Chat-Button */
+    content: "▲";
+    font-family: inherit;
+  }
+}
 
+/* ───────────────────────── Dark-Mode ───────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Grundpalette umkehren / abdunkeln */
+    --text-contrast-color: #c2fe06; /* Neon-Akzent als Haupttext */
+    --pale-text-color: #8ba0a4;
+    --button-bg: #00806e;
+    --button-fg: #c2fe06;
+    --button-bg-hover: #00a985;
+    --button-fg-hover: #002733;
+    --button-bg-sec-hover: #00a985; /* Fehlte, ergänzt */
 
+    --scrollbar-thumb: #465357;
+    --scrollbar-track: #1e2a2f; /* Fehlte, ergänzt */
 
+    --link: #c2fe06;
+    --link-hover: #00dbac;
+  }
 
+  body {
+    background: var(--cws-deep-blue);
+    /* color wird durch --text-contrast-color in :root gesetzt */
+  }
+
+  .glass-card, .chatbot-card {
+    background: #001d26; /* Etwas dunkler als body */
+    box-shadow: 0 0 25px rgba(0,0,0,.45);
+  }
+
+  /* Eingabefelder im Dark Mode */
+  textarea,
+  input[type='text'] {
+    background: #0f2b35;
+    border-color: #00a985;
+    color: #c2fe06;
+  }
+  section#avatar-ui textarea#userInput:focus, /* Spezifischer Fokus für Avatar im Dark Mode */
+  .chatbot-input textarea#chat-input:focus { /* Spezifischer Fokus für Chat im Dark Mode */
+    border-color: var(--button-bg-hover); /* Oder eine andere passende Neon/Kontrastfarbe */
+  }
+
+  video#avatarVideo { /* Video-Platzhalter dunkler */
+    background: #0b3441;
+  }
+
+  /* Chat-Bubbles im Dark Mode */
+  .message.user { background: #005a4c; color: #c2fe06; }
+  .message.bot { background: #0b3441; color: #e5e5e5; }
+
+  /* Scrollbar in Chat (Dark Mode) */
+  .chatbot-body::-webkit-scrollbar-thumb {
+    background: #2a3a3f; /* Noch dunkler als Standard Dark Scrollbar */
+  }
+
+  /* Fortschrittskreis im Dark Mode */
+  .progress-circle .circle-bg { stroke: #2a3a3f; }
+  /* .progress-circle .circle { stroke: var(--button-bg); } ist bereits korrekt durch Variablen */
+  /* .progress-circle .progress-text { color: var(--text-contrast-color); } ist bereits korrekt durch Variablen */
+
+  /* Consent-Modal im Dark Mode */
+  .consent-modal {
+    background: #001d26;
+    box-shadow: 0 0 25px rgba(0,0,0,.45);
+    /* border-color: var(--button-bg); ist bereits korrekt durch Variablen */
+  }
+  /* .consent-text h2 { color: var(--cws-neon); } ist bereits korrekt durch Variablen */
+  /* .consent-text p { color: var(--grey-e); } ist korrekt durch Variablen, da --grey-e im Dark Mode nicht überschrieben wird */
+  /* .consent-text a, #consent-accept Button-Farben sind bereits korrekt durch Variablen */
+
+  /* Experiment-Erfüllt-Overlay im Dark Mode */
+  #experiment-complete-banner {
+    background: #001d26;
+    /* color: var(--text-contrast-color); ist bereits korrekt durch Variablen */
+    /* border-color: var(--button-bg); ist bereits korrekt durch Variablen */
+    box-shadow: 0 0 25px rgba(0,0,0,.45);
+  }
+
+  #experiment-complete-banner h3 {
+    color: var(--cws-neon); /* Spezifisch Neon für die Überschrift hier */
+  }
+  /* #experiment-complete-banner p { color: var(--pale-text-color); } ist bereits korrekt durch Variablen */
+}
+
+/* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
+/* Gilt nur für Touchgeräte, um unerwünschte Hover-Effekte zu vermeiden */
+@media (hover: none) and (pointer: coarse) {
+  button, #speakButton, #chat-send, #consent-accept {
+    box-shadow: none !important; /* Wichtig, um Hover-Schatten zu entfernen */
+    /* transition: none !important; /* Kann überlegt werden, entfernt aber auch Klick-Feedback */
+  }
+
+  /* Verhindert das "Klebenbleiben" von Hover-Stilen nach einem Tap */
+  button:hover, #speakButton:hover, #chat-send:hover, #consent-accept:hover,
+  button:active, #speakButton:active, #chat-send:active, #consent-accept:active {
+    background: var(--button-bg) !important;
+    color: var(--button-fg) !important;
+    border-color: var(--button-bg) !important;
+    transform: none !important;
+  }
+}
