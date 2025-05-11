@@ -38,6 +38,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('consent-accept')?.addEventListener('click', () => {
     // localStorage.setItem('consent-given', 'true'); // ← auskommentiert
+    if (localStorage.getItem('experimentDone') === 'true') {
+      document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
+      return; // Zugriff blockieren
+    }  
     overlay.remove();
     document.body.style.overflow = ''; // Scrollen wieder aktivieren
     initApp(); // nach Zustimmung starten
@@ -51,6 +55,10 @@ function initApp() {
   const p = new URLSearchParams(location.search);
   const initialMode  = (p.get('mode')  ?? 'avatar') as Mode;
   const initialStyle = (p.get('style') ?? 'soc')    as Style;
+  if (localStorage.getItem('experimentDone') === 'true') {
+    document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
+    return; // Zugriff blockieren
+  }  
   
   setMode(initialMode, initialStyle);
   

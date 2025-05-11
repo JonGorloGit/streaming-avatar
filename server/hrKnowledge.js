@@ -53,7 +53,7 @@ const META_PREFIX = `
 • Liefere stets plausible, konkrete Antworten. Wenn Informationen fehlen, orientiere dich an typischer Praxis oder erfinde realistisch klingende Beispiele.
 • Stelle keine Fragen nach personenbezogenen Daten oder vertraulichen Unternehmensinformationen.
 • Halte alle Antworten konsequent auf Deutsch.
-• Antworte mit maximal 80 Wörtern.
+• Antworte mit 50 Wörtern.
 `;
 
 // ---------------------------------
