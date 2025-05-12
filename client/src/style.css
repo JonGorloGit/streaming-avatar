@@ -411,7 +411,7 @@ button:disabled {
   margin-bottom: 1rem;
 }
 
-.consent-modal h2 { font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1rem; color: var(--wh); }
+.consent-modal h2 { font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1rem; color: var(--cws-deep-blue); }
 .consent-modal p { margin-bottom: 1rem; line-height: 1.6; color: var(--cws-deep-blue);} /* MB reduziert */
 .consent-modal p:last-of-type { margin-bottom: 2rem; } /* Letzter P hat mehr Abstand zum Button */
 .consent-modal p strong { color: var(--cws-neon); }
