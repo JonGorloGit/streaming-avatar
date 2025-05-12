@@ -4,6 +4,7 @@
   --cws-deep-blue: #002733;
   --cws-green: #00806e;
   --cws-neon: #c2fe06;
+  --cws-neon-rgb: 194, 254, 6; /* RGB für RGBA-Nutzung */
   --grey-6: #626364;
   --grey-7: #727475;
   --grey-9: #929495;
@@ -12,703 +13,806 @@
   --black-30p: rgba(0,0,0,.3);
 
   /* Semantik / Typografie */
-  --text-contrast-color: var(--cws-green);
-  --pale-text-color: var(--grey-7);
+  --text-main-color: var(--cws-deep-blue);
+  --text-pale-color: var(--grey-7);
   --list-bullet-color: var(--cws-green);
 
   /* Buttons */
-  --button-bg: var(--cws-neon);
-  --button-fg: var(--cws-deep-blue);
-  --button-bg-hover: var(--cws-green);
-  --button-fg-hover: var(--cws-neon);
   --button-bg-disabled: var(--grey-e);
-  --button-bg-sec: transparent;
-  --button-bg-sec-hover: var(--cws-green);
+  --button-fg-disabled: var(--grey-7);
 
   /* Scrollbar */
   --scrollbar-thumb: var(--grey-9);
   --scrollbar-track: var(--grey-e);
 
   /* Links */
-  --link: var(--cws-green);
-  --link-hover: var(--cws-deep-blue);
+  --link-color: var(--cws-green);
+  --link-hover-color: var(--cws-deep-blue);
+
+  /* Glassmorphism Light Mode Farben */
+  --lm-body-bg-image: url('/public/lightmode-back.png');
+  --lm-body-bg-color: var(--grey-e);
+  --lm-glass-bg: rgba(255, 255, 255, 0.35);
+  --lm-glass-border: rgba(255, 255, 255, 0.5);
+  --lm-glass-shadow: rgba(0, 0, 0, 0.1);
+  --lm-text-color-on-glass: var(--cws-deep-blue);
+  --lm-input-bg: rgba(255, 255, 255, 0.35); /* Input specific, same as main glass */
+  --lm-input-border: rgba(255, 255, 255, 0.5); /* Input specific, same as main glass */
+  --lm-input-focus-border: var(--cws-neon);
+  --lm-input-focus-shadow: rgba(var(--cws-neon-rgb), 0.2);
+  --lm-button-glass-bg: var(--cws-neon);
+  --lm-button-glass-border: rgba(255, 255, 255, 0.6);
+  --lm-button-glass-fg: var(--cws-deep-blue);
+  --lm-button-hover-glass-bg: var(--cws-green);
+  --lm-button-hover-glass-fg: var(--cws-neon);
+  --lm-button-hover-glass-border: rgba(255, 255, 255, 0.6);
+  --lm-progress-circle-bg-stroke: var(--grey-9);
+  --lm-progress-circle-fg-stroke: var(--cws-neon);
+  --lm-progress-circle-text-color: var(--cws-deep-blue);
+
+  /* Noise als SVG Data URI für die Demo */
+  --noise-svg: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 }
 
 /* ───────────────────────── Reset & Basis-Stile ───────────────────────── */
-*, ::before, ::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html, body {
-  height: 100%;
-}
-
+*, ::before, ::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; }
 body {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Inter', sans-serif, Avenir, Helvetica;
+  font-weight: 300;
   line-height: 1.5;
-  background: var(--grey-e);
-  color: var(--text-contrast-color);
+  background-color: var(--body-bg-color); /* Wird durch --lm-body-bg-color überschrieben */
+  color: var(--text-main-color);
+  display: flex;
+  flex-direction: column; /* Geändert */
+  align-items: center;
+  justify-content: flex-start; /* Geändert */
+  overflow-x: hidden;
+  min-height: 100dvh;
+  position: relative;
+  z-index: 0;
+  padding-top: 72px; /* Platz für die feste Navbar + etwas Abstand */
+  padding-left: 1rem; /* Seitenabstände wieder hinzufügen */
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: var(--lm-body-bg-image); /* Default zu Light Mode */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  filter: blur(3px);
+  transform: scale(1.02);
+  z-index: -1;
+}
+
+/* ───────────────────────── Navbar ───────────────────────── */
+.navbar {
+  position: fixed; /* Macht die Navbar fest */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 75px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem; /* Etwas mehr seitlicher Abstand */
+  z-index: 1000; /* Stellt sicher, dass sie über dem Inhalt liegt */
+  transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
+
+  /* Light Mode Glass Styles */
+  background: var(--lm-glass-bg);
+  border-bottom: 1px solid var(--lm-glass-border);
+  box-shadow: 0 2px 10px var(--lm-glass-shadow);
+  backdrop-filter: blur(10px); /* Etwas weniger Blur als Karten */
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.navbar-left-outer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600; /* Fetter für den Titel */
+}
+
+.navbar-left-inner {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  font-weight: 600; /* Fetter für den Titel */
+}
+
+.navbar-left-inner p:first-child {
+  /* Titel */
+  color: var(--lm-text-color-on-glass);
+  font-size: 1.1rem;
+}
+
+.navbar-left-inner p:last-child {
+  /* Sub-Titel (INTERNAL) */
+  color: var(--text-pale-color);
+  font-size: 0.5rem; /* Kleiner */
+  font-weight: 300; /* Dünner */
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Etwas weniger Abstand */
+}
+
+.navbar-right-mobile {
+  display: none;
+}
+
+.circle-icon {
+  width: 32px; /* Größer */
+  height: 32px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow-x: hidden;
-  padding: 1rem;
+  font-size: 0.9rem; /* Angepasst */
+  font-weight: 600;
+  cursor: pointer;
+
+  /* Light Mode */
+  background-color: var(--cws-deep-blue);
+  color: var(--cws-neon);
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.icon-placeholder {
+  width: 32px; /* Gleiche Größe wie circle-icon */
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  /* Light Mode */
+  color: var(--grey-7); /* Icon Farbe */
+  background-color: transparent; /* Kein fester Hintergrund */
+}
+.icon-placeholder i {
+  font-size: 1.1rem; /* Größe der FontAwesome Icons */
+  line-height: 1; /* Verhindert Versatz durch Line-Height */
+}
+
+.icon-placeholder:hover {
+  background-color: var(--black-10p); /* Leichter Hover Effekt */
 }
 
 /* ───────────────────────── Links & Listen ───────────────────────── */
-a {
-  color: var(--link);
-  text-decoration: underline var(--link);
-  transition: color .2s;
+a { color: var(--link-color); text-decoration: underline var(--link-color); transition: color .2s; }
+a:hover { color: var(--link-hover-color); text-decoration-color: var(--link-hover-color); }
+ul { list-style: none; } li::before { content: '› '; color: var(--list-bullet-color); }
+
+/* ───────────────────────── Headings in Glass Cards & Chatbot Header ───────────────────────── */
+.glass-card h1, .chatbot-header h1 {
+  font-size: clamp(1.2rem, 5vw, 1.8rem);
+  margin-bottom: 0;
+  flex-grow: 1;
+  text-align: center; /* Zentriert den Text */
+  padding-right: 0.5rem;
+  color: var(--lm-text-color-on-glass); /* Default zu Light Mode Text */
 }
-a:hover {
-  color: var(--link-hover);
-  text-decoration-color: var(--link);
+#avatar-ui .avatar-header h1 {
+  transform: translateX(36.44px); /* Spezifisch nur für Avatar UI Header beibehalten */
 }
-ul {
-  list-style: none;
-}
-li::before {
-  content: '› ';
-  color: var(--list-bullet-color);
+.chatbot-header h1 {
+   transform: translateX(36.44px);
 }
 
-/* ───────────────────────── Headings ───────────────────────── */
-h1 {
-  font-size: clamp(1.5rem, 6vw, 2.5rem);
-  margin-bottom: 1.5rem;
-  color: #fff; /* Standardmäßig für dunkle Karten-Header */
-}
 
 /* ───────────────────────── Video ───────────────────────── */
-video#avatarVideo { /* Spezifischer für das Avatar-Video */
-  display: block;
-  margin: 0 auto 1.5rem;
-  width: 100%;
-  max-width: 600px;
-  background: var(--grey-9);
-  border-radius: 12px;
+video#avatarVideo {
+  display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 600px;
+  border-radius: 10px; object-fit: cover; aspect-ratio: 16 / 9;
+  background: rgba(229, 229, 229, 0.4); position: relative;
 }
 
-/* ───────────────────────── Allgemeine Container / Karten ───────────────────────── */
+video#avatarVideo {
+  aspect-ratio: 9 / 16;    /* <<< SETZT das Hochkant-Format */
+  width: 100%;           /* <<< Nimmt volle Breite INNERHALB des Card-Paddings ein */
+  border-radius: 8px;
+  max-height: 40vh; /* Limit für Video-Höhe */
+  height: auto;
+  object-fit: cover; /* Oder contain, je nach gewünschtem Effekt */
+  border-radius: 16px; /* Abgerundete Ecken für Video */
+  margin-top: 1rem;
+
+}
+
+/* ───────────────────────── Allgemeine Container / Karten (Glassmorphism) ───────────────────────── */
 .glass-card {
-  width: 100%;
-  max-width: 920px;
-  padding: 2rem;
-  margin: 2rem auto;
-  text-align: center;
-  background: var(--cws-deep-blue);
-  border: 2px solid var(--grey-6);
-  border-radius: 24px;
-  box-shadow: 0 4px 30px var(--cws-deep-blue);
-  backdrop-filter: blur(20px);
+   margin-top: 3rem; /* Fügt etwas Abstand unter der Navbar hinzu */
+   margin-bottom: 1rem;
+   width: 100%; max-width: 920px; padding: 1.5rem;
+   text-align: center; position: relative;
+   border-radius: 18px; overflow: hidden;
+   background: var(--lm-glass-bg); border: 2px solid var(--lm-glass-border);
+   box-shadow: 0 8px 32px var(--lm-glass-shadow);
+   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+   color: var(--lm-text-color-on-glass);
 }
 
-#avatar-ui { /* Für Positionierung des Progress-Kreises */
-  position: relative;
+#avatar-ui .avatar-header {
+    display: flex; /* Aktiviert Flexbox */
+    align-items: center; /* Vertikal zentrieren */
+    justify-content: space-between; /* Verteilt Platz */
+    margin-bottom: 1rem;
+    position: relative; /* Bleibt relativ für innere Elemente */
+    min-height: 50px; /* Stellt sicher, dass der Header Höhe hat für den Kreis */
 }
 
-/* ───────────────────────── Form Controls Basis ───────────────────────── */
-section[role='group'] {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: center;
+/* ───────────────────────── Form Controls (Glassmorphism) ───────────────────────── */
+section[role='group'] { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+textarea, input[type='text'] {
+  flex: 1; min-width: 150px; padding: .75rem 1rem; border-radius: 8px;
+  transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
+  text-align: left; font-family: inherit; font-size: .95rem; line-height: 1.35;
+  background: var(--lm-input-bg); /* Generische Variable für Input BG */
+  color: var(--lm-text-color-on-glass); /* Generische Variable für Text */
+  border: 1px solid var(--lm-input-border); /* Generische Variable für Input Border */
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
 }
-
-textarea,
-input[type='text'] {
-  flex: 1;
-  min-width: 150px;
-  padding: .75rem 1rem;
-  border: 1px solid var(--cws-green);
-  border-radius: 12px;
-  background: var(--grey-e);
-  color: var(--cws-deep-blue);
-  backdrop-filter: blur(10px); /* Nur für Avatar-UI Textarea relevant, schadet aber nicht */
-  transition: border-color .2s;
-  text-align: left;
-  font-family: inherit; /* Wichtig für textarea */
-  font-size: .95rem;    /* Basisgröße, kann spezifisch überschrieben werden */
-  line-height: 1.35;   /* Basis Zeilenhöhe */
-}
-
-textarea {
-  resize: none; /* JS kümmert sich drum oder per CSS max-height */
-  overflow-y: auto; /* Scrollbar bei Bedarf */
-}
-
-textarea::placeholder,
-input::placeholder {
-  color: var(--pale-text-color);
-}
-
-textarea:focus,
-input:focus {
-  border-color: var(--cws-neon);
+textarea { resize: none; overflow-y: auto; }
+textarea::placeholder, input::placeholder { color: var(--text-pale-color); opacity: 0.8; }
+textarea:focus, input:focus {
+  border-color: var(--lm-input-focus-border); /* Generische Variable */
   outline: 0;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 0 0 2px var(--lm-input-focus-shadow); /* Generische Variable */
 }
+section#avatar-ui textarea#userInput { flex: 1 1 auto; min-height: 2.4rem; max-height: 15vh; }
 
-/* Spezifische Textareas */
-section#avatar-ui textarea#userInput {
-  flex: 1 1 auto;
-  min-height: 2.4rem;
-  max-height: 15vh; /* wächst nach unten bis max. 15% Viewport */
-  /* padding, border-radius, background etc. von Basis geerbt */
-}
-section#avatar-ui textarea#userInput:focus {
-  border-color: var(--button-bg); /* Abweichend vom Standard-Fokus */
-}
-
-/* ───────────────────────── Buttons Basis ───────────────────────── */
+/* ───────────────────────── Buttons (Glassmorphism) ───────────────────────── */
 button {
-  min-width: 50px;
-  padding: .75rem 1.5rem;
-  font-size: 1rem;
-  cursor: pointer;
-  max-height: 80px; /* Generelles Limit */
-  align-self: center;
-  border: 1px solid var(--button-bg);
-  border-radius: 12px;
-  background: var(--button-bg);
-  color: var(--button-fg);
-  transition: background .2s, color .2s, box-shadow .2s, border-color .2s;
-  backdrop-filter: blur(10px); /* Nur für Avatar-UI Button relevant, schadet aber nicht */
+  min-width: 50px; padding: .75rem 1.5rem; font-size: 1rem; cursor: pointer;
+  max-height: 80px; align-self: center; border-radius: 8px;
+  transition: background .2s, color .2s, box-shadow .2s, border-color .2s, transform .15s;
+  font-weight: 600;
+  background: var(--lm-button-glass-bg); /* Generische Variable */
+  color: var(--lm-button-glass-fg); /* Generische Variable */
+  border: 1px solid var(--lm-button-glass-border); /* Generische Variable */
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 button:hover:not(:disabled) {
-  background: var(--button-bg-hover);
-  color: var(--button-fg-hover);
-  border-color: var(--button-fg-hover);
-  box-shadow: 0 0 20px var(--button-fg-hover);
+  background: var(--lm-button-hover-glass-bg); /* Generische Variable */
+  border-color: var(--lm-button-hover-glass-border); /* Generische Variable */
+  color: var(--lm-button-hover-glass-fg); /* Generische Variable */
+  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
 button:disabled {
-  background: var(--button-bg-disabled);
-  color: var(--pale-text-color);
-  cursor: not-allowed;
-  opacity: .7;
+  background: rgba(229, 229, 229, 0.5); color: var(--button-fg-disabled); cursor: not-allowed;
+  opacity: .7; border-color: rgba(200,200,200,0.5); box-shadow: none; backdrop-filter: none;
 }
 
-.btn-secondary { /* Beispiel für einen sekundären Button-Stil */
-  background: var(--button-bg-sec);
-  color: var(--button-bg);
-  border: 1px solid var(--button-bg);
+/* ───────────────────────── Fortschritts-Kreise ───────────────────────── */
+.progress-circle {
+  position: relative; flex-shrink: 0; z-index: 10;
+  width: 50px; height: 50px; font-size: 0.8rem;
+  margin-left: 0.5rem;
 }
-.btn-secondary:hover:not(:disabled) {
-  background: var(--button-bg-sec-hover);
-  color: var(--button-fg-hover);
-  border-color: var(--button-fg-hover);
+.avatar-progress { /* Keine spezifische Positionierung mehr nötig */ }
+.chat-progress { width: 48px; height: 48px; font-size: 0.75rem; }
+
+.progress-circle svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+.progress-circle .circle-bg { fill: none; stroke: var(--lm-progress-circle-bg-stroke); stroke-width: 4; }
+.progress-circle .circle { fill: none; stroke: var(--lm-progress-circle-fg-stroke); stroke-width: 4; stroke-dasharray: 100.53; stroke-dashoffset: 100.53; transition: stroke-dashoffset 0.4s ease; }
+.progress-circle .progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 600; color: var(--lm-progress-circle-text-color); }
+
+/* ───────────────────────── CHATBOT UI (Glassmorphism) ───────────────────────── */
+#chat-ui {
+    /* Stellt sicher, dass die Chat UI nicht die volle Höhe einnimmt,
+       wenn sie zusammen mit der Avatar UI angezeigt wird (falls das passiert) */
+    max-height: calc(100vh - 80px); /* Beispiel: Viewport Höhe minus Navbar Höhe minus etwas Puffer */
+    width: 100%; /* Volle Breite innerhalb des Body Paddings */
+    display: flex; /* Zentriert die chatbot-card */
+    justify-content: center;
+    align-items: center;
 }
 
-/* ───────────────────────── Umschalt-Helfer (z.B. für Radio-Buttons, falls noch genutzt) ───────────────────────── */
-form label { /* Falls Formulare mit Labels existieren */
-  margin-right: .75rem;
-  font-weight: 600;
-  color: var(--cws-green);
-}
-input[type='radio'] { /* Falls Radio-Buttons existieren */
-  accent-color: var(--cws-green);
-}
-
-/* ───────────────────────── Hilfsklassen ───────────────────────── */
-.hidden {
-  display: none !important;
-}
-
-/* ───────────────────────── Chatbot UI ───────────────────────── */
 .chatbot-card {
-  display: flex;
-  flex-direction: column;
-  width: clamp(280px, 90vw, 620px);
-  height: clamp(460px, 90vh, 720px);
-  margin: auto;
-  border: 2px solid var(--grey-6);
-  border-radius: 20px;
-  background: var(--cws-deep-blue);
-  color: #fff;
-  box-shadow: 0 0 30px var(--cws-deep-blue);
-  overflow: hidden;
+   display: flex; flex-direction: column;
+   width: clamp(280px, 90vw, 620px); height: clamp(460px, 80vh, 720px); /* Höhe angepasst an Viewport */
+   margin-top: 2.5rem; /* Etwas Abstand nach oben */
+   margin-bottom: 1rem; /* Etwas Abstand nach unten */
+   border-radius: 20px; /* Behält eigenen Radius */
+   overflow: hidden; position: relative; /* Für ::after im Dark Mode */
+
+  /* Light Mode Glass Styles (werden im Dark Mode überschrieben) */
+  background: var(--lm-glass-bg);
+  border: 2px solid var(--lm-glass-border); /* 2px beibehalten wie original */
+  box-shadow: 0 8px 32px var(--lm-glass-shadow);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  color: var(--lm-text-color-on-glass); /* Textfarbe für Body etc. */
 }
 
 .chatbot-header {
-  flex: 0 0 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  font-weight: 600;
-  border-bottom: 1px solid rgba(255,255,255,.08);
-  background: linear-gradient(180deg, rgba(255,255,255,.06), transparent 60%);
-  position: relative; /* Für Progress-Kreis */
+  flex: 0 0 64px; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 1rem; font-size: 1.35rem; font-weight: 600;
+  position: relative; /* Für z-index im Dark Mode */
+  z-index: 1; /* Über ::after im Dark Mode */
+
+  /* Light Mode - Subtile Trennlinie */
+  border-bottom: 1px solid var(--lm-glass-border);
+  /* Hintergrund und Farbe werden von .chatbot-card geerbt */
 }
+/* H1 im Header wird durch die generelle Regel oben gestyled */
+.chatbot-header h1 { text-align: center; /* Überschreibt generelles center */ }
 
 .chatbot-body {
-  flex: 1 1 auto;
-  padding: 1rem .75rem;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: .5rem;
+  flex: 1 1 auto; padding: 1rem .75rem; overflow-y: auto;
+  display: flex; flex-direction: column; gap: .5rem;
   scroll-behavior: smooth;
+  position: relative; /* Für z-index im Dark Mode */
+  z-index: 1; /* Über ::after im Dark Mode */
 }
 .chatbot-body::-webkit-scrollbar { width: 10px; }
-.chatbot-body::-webkit-scrollbar-track { background: transparent; }
+.chatbot-body::-webkit-scrollbar-track { background: transparent; } /* Transparent über Glas */
 .chatbot-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
 
 .message {
-  max-width: 85%;
-  padding: .5rem .75rem;
-  border-radius: 12px;
-  font-size: .95rem;
-  line-height: 1.35;
-  word-break: break-word;
+  max-width: 85%; padding: .5rem .75rem; border-radius: 12px;
+  font-size: .95rem; line-height: 1.35; word-break: break-word;
   box-shadow: 0 2px 4px rgba(0,0,0,.12);
 }
+/* Light Mode Nachrichtenfarben */
 .message.user { align-self: flex-end; background: var(--cws-neon); color: var(--cws-deep-blue); }
-.message.bot { align-self: flex-start; background: #f1f3f5; color: #222; }
+.message.bot { align-self: flex-start; background: rgba(255, 255, 255, 0.7); color: #222; } /* Etwas transparenter weißer Hintergrund */
 .message.bot.fading-out { opacity: 0.6; transition: opacity 0.05s ease; }
 .message.bot.fading-in { animation: fadeInText 0.05s ease forwards; }
-
-@keyframes fadeInText {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes fadeInText { from { opacity: 0; } to { opacity: 1; } }
 
 .chatbot-input {
-  flex: 0 0 auto;
-  display: flex;
-  gap: .75rem;
-  align-items: center; /* Wichtig für Desktop-Layout */
+  flex: 0 0 auto; display: flex; gap: .75rem; align-items: center;
   padding: .75rem 1rem;
-  border-top: 1px solid rgba(255,255,255,.08);
-  background: rgba(0,0,0,.08);
-}
+  position: relative; /* Für z-index im Dark Mode */
+  z-index: 1; /* Über ::after im Dark Mode */
 
-.chatbot-input textarea#chat-input { /* Spezifische ID für Chat-Textarea */
-  flex: 1 1 auto;
-  min-height: 2.4rem; /* Angepasst an Avatar-Input */
-  max-height: 30vh; /* Standard für Desktop & Mobile, überschreibt Basis textarea max-height */
-  /* padding, border-radius, background etc. von Basis textarea geerbt */
-  /* color: #00352d; ist bereits von Basis textarea */
+  /* Light Mode - Subtile Trennlinie */
+  border-top: 1px solid var(--lm-glass-border);
+  /* Hintergrund wird von .chatbot-card geerbt */
 }
-.chatbot-input textarea#chat-input:focus {
-  border-color: var(--button-bg); /* Abweichend von Standard-Fokus */
+/* Textarea im Chat verwendet generelle Glass-Input-Stile */
+.chatbot-input textarea#chat-input {
+  flex: 1 1 auto; min-height: 2.4rem; max-height: 30vh;
+  /* Verwendet die Stile von 'textarea' oben */
 }
+/* Button im Chat verwendet generelle Glass-Button-Stile */
+.chatbot-input button#chat-send {
+  flex: 0 0 110px; padding: .7rem 1rem; border-radius: 10px; font-weight: 600;
+  /* Verwendet die Stile von 'button' oben */
+}
+.chatbot-input button#chat-send:active:not(:disabled) { transform: scale(.96); }
+.chatbot-input button#chat-send::before { content: "⮐"; font-family: inherit; }
 
-.chatbot-input button#chat-send { /* Spezifische ID für Chat-Senden-Button */
-  flex: 0 0 110px; /* Basis für Desktop, wird in Media Queries angepasst */
-  padding: .7rem 1rem; /* Überschreibt Basis-Button-Padding */
-  border-radius: 10px; /* Überschreibt Basis-Button-Radius */
-  border: none; /* Überschreibt Basis-Button-Border */
-  font-weight: 600;
-  /* background, color von Basis-Button geerbt */
-  transition: background .2s, transform .15s, color .2s; /* Transform hinzugefügt */
-}
-.chatbot-input button#chat-send:hover:not(:disabled) {
-  /* background, color von Basis-Button-Hover geerbt */
-  /* box-shadow hier nicht gewünscht */
-  box-shadow: none;
-}
-.chatbot-input button#chat-send:active:not(:disabled) {
-  transform: scale(.96);
-}
-.chatbot-input button#chat-send:disabled {
-  opacity: .45; /* Spezifische Opazität */
-}
-.chatbot-input button#chat-send::before { /* Pfeil für Chat-Button */
-  content: "⮐";
-  font-family: inherit;
-}
-
-/* ───────────────────── Datenschutz Modal mit Overlay ───────────────────── */
+/* ───────────────────────── Consent Modal & Overlays ───────────────────────── */
 .consent-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(4px);
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
 }
-.consent-modal { /* Nutzt einige Stile von glass-card, aber mit Unterschieden */
-  max-width: 600px;
-  padding: 2rem;
-  text-align: center;
-  border: 1px solid var(--button-bg);
-  border-radius: 24px;
-  background: var(--cws-deep-blue);
-  box-shadow: 0 0 25px var(--button-bg);
-}
-
-.consent-text h2 {
-  font-size: clamp(1.5rem, 4vw, 2rem);
+.consent-modal { /* Erbt jetzt .glass-card Stile */
+  max-width: 600px; border-radius: 24px; /* Eigener Radius */
+  margin-top: 1rem; /* Behält Abstand bei */
   margin-bottom: 1rem;
-  color: var(--cws-neon);
 }
 
-.consent-text p {
-  margin-bottom: 2rem;
-  line-height: 1.6;
-  color: var(--grey-e);
-}
-.consent-text a { /* Lokale Link-Stile, falls abweichend von global */
-  color: var(--link); /* Sollte mit globalen Variablen übereinstimmen */
-  text-decoration: underline;
-}
+.consent-modal h2 { font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1rem; color: var(--wh); }
+.consent-modal p { margin-bottom: 1rem; line-height: 1.6; color: var(--cws-deep-blue);} /* MB reduziert */
+.consent-modal p:last-of-type { margin-bottom: 2rem; } /* Letzter P hat mehr Abstand zum Button */
+.consent-modal p strong { color: var(--cws-neon); }
+.consent-modal button#consent-accept { padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; }
 
-.consent-text a:hover {
-  color: var(--link-hover);
-}
-
-button#consent-accept { /* Spezifische ID für Zustimm-Button */
-  padding: 0.75rem 1.5rem; /* Basis-Button-Padding */
-  font-size: 1rem; /* Basis-Button-Größe */
-  font-weight: 600;
-  /* border-radius, border, background, color von Basis-Button geerbt */
-  /* transition von Basis-Button geerbt */
-  /* backdrop-filter von Basis-Button geerbt */
-}
-
-button#consent-accept:hover:not(:disabled) {
-  /* background, color, border-color von Basis-Button-Hover geerbt */
-  box-shadow: 0 0 15px var(--button-fg-hover); /* Spezifischer Hover-Schatten */
-}
-
-/* ───────────────────── Experiment-Erfüllt-Overlay ───────────────────── */
 #experiment-complete-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(5px);
-  z-index: 9999;
-  display: none; /* per JS sichtbar machen */
-  align-items: center;
-  justify-content: center;
+  position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+  z-index: 9999; display: none; align-items: center; justify-content: center;
 }
-
-#experiment-complete-banner {
-  max-width: 480px;
-  background: var(--cws-deep-blue);
-  padding: 2rem;
-  border-radius: 20px;
-  box-shadow: 0 0 20px var(--button-bg);
-  text-align: center;
-  color: var(--text-contrast-color);
-  border: 1px solid var(--button-bg);
-}
-
-#experiment-complete-banner h3 {
-  font-size: 1.5rem;
+#experiment-complete-banner { /* Erbt jetzt .glass-card Stile */
+  max-width: 480px; border-radius: 20px;
+  margin-top: 1rem; /* Behält Abstand bei */
   margin-bottom: 1rem;
-  color: var(--button-bg); /* Nutzt Button-Hintergrund für Akzent */
 }
+#experiment-complete-banner h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--cws-neon); }
+#experiment-complete-banner p { line-height: 1.5; font-size: 1rem; color: white;}
 
-#experiment-complete-banner p {
-  line-height: 1.5;
-  font-size: 1rem;
-  color: var(--pale-text-color);
-}
-
-/* ───────────────────── Fortschritts-Kreise ───────────────────── */
-.progress-circle {
-  position: absolute;
-  z-index: 10;
-  /* Größe und Position sind spezifisch pro Instanz */
-}
-.avatar-progress {
-  top: 2rem; right: 2rem;
-  width: 50px; height: 50px;
-  font-size: 0.8rem;
-}
-.chat-progress {
-  top: 10px; right: 10px;
-  width: 48px; height: 48px;
-  font-size: 0.75rem;
-}
-.progress-circle svg {
-  transform: rotate(-90deg);
-  width: 100%; height: 100%;
-}
-.progress-circle .circle-bg {
-  fill: none;
-  stroke: var(--grey-9);
-  stroke-width: 4;
-}
-.progress-circle .circle {
-  fill: none;
-  stroke: var(--button-bg);
-  stroke-width: 4;
-  stroke-dasharray: 100, 100;
-  stroke-dashoffset: 100;
-  transition: stroke-dashoffset 0.4s ease;
-}
-.progress-circle .progress-text {
-  position: absolute;
-  top: 50%; left: 50%;
-  transform: translate(-50%, -50%);
-  font-weight: 600;
-  color: var(--cws-neon);
-}
-
-/* ───────────────────── Verbindungs-Overlay (Avatar) ───────────────────── */
 .connecting-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 1.5rem;
-  color: var(--grey-e);
-  font-weight: bold;
-  text-align: center;
-  pointer-events: none;
-  z-index: 10;
-  animation: fadeInConnectingOverlay 0.5s ease-in-out; /* Umbenannt zur Klarheit */
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 1.5rem; color: var(--text-pale-color); font-weight: bold;
+  text-align: center; pointer-events: none; z-index: 10;
+  animation: fadeInConnectingOverlay 0.5s ease-in-out;
 }
-@keyframes fadeInConnectingOverlay { /* Umbenannt zur Klarheit */
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+@keyframes fadeInConnectingOverlay { from { opacity: 0; } to { opacity: 1; } }
 
-/* ───────────────────────── Desktop-Layout (ab 481px) ───────────────────────── */
-@media (min-width: 481px) {
-  .chatbot-input textarea#chat-input {
-    /* flex: 1 1 auto; ist bereits im Basis-Stil */
-    /* min-height: 2.4rem; max-height: 30vh; overflow-y: auto; resize: none; sind bereits im Basis-Stil */
-    padding-right: 1rem; /* Zusätzlicher Platz rechts */
-  }
-  .chatbot-input button#chat-send {
-    flex: 0 0 160px; /* Rechteckig */
-    border-radius: 12px; /* Etwas größerer Radius */
-    font-size: 1.1rem;
-    max-height: none; /* Aufhebung des globalen Button-Limits */
-  }
+.hidden { display: none !important; }
 
-  /* ISO-Enter-Taste für Desktop Chat-Button */
-  .chatbot-input button#chat-send.iso-enter { /* Spezifische Klasse, falls benötigt, oder direkt auf #chat-send */
-    position: relative;
-    flex: 0 0 50px; /* Schmaler für ISO-Look */
-    height: 90%; /* Um ca. zweistufige Höhe zu erreichen */
-    max-height: 50px; /* Angepasst, 30px war sehr klein */
-    border-radius: 8px;
-    font-size: 0; /* Text ausblenden, Icons übernehmen */
-    overflow: hidden;
-  }
-  .chatbot-input button#chat-send.iso-enter::before {
-    content: '⮐'; /* Return-Symbol */
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -60%); /* Etwas nach oben */
-    font-size: 1.05rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .chatbot-input button#chat-send.iso-enter::after { /* Nur für ISO-Look */
-    content: "⮐"; /* Pfeil nach oben */
-    position: absolute;
-    top: 57%; right: 20%;
-    transform: translateY(-50%);
-    font-size: 1.4rem;
-  }
-  .chatbot-input button#chat-send.iso-enter:active:not(:disabled) {
-    transform: translateY(1px); /* Leichter Klick-Effekt */
+/* ───────────────────────── Media Queries (Responsiveness) ───────────────────────── */
+@media (min-width: 481px) and (max-width: 768px) { /* Zwischen Desktop und Mobile */
+   .chatbot-card {
+       height: clamp(460px, 85vh, 720px); /* Etwas mehr Höhe erlauben als ganz Mobile */
+   }
+
+   .connecting-overlay {
+    font-size: 1.2rem;
   }
 }
 
-/* ───────────────────────── Mobile-Layout (bis 480px) ───────────────────────── */
-@media (max-width: 480px) {
-  body {
-    display: block; /* Statt flex für einfacheres Scrolling auf Mobile */
-    padding: 0;
-  }
+@media (min-width: 481px) { /* Styles für Desktop und größere Tablets */
+  .chatbot-input textarea#chat-input { padding-right: 1rem; }
+  .chatbot-input button#chat-send { flex: 0 0 160px; border-radius: 12px; font-size: 1.1rem; max-height: none; }
+  .chatbot-input button#chat-send.iso-enter { position: relative; flex: 0 0 50px; height: 90%; max-height: 50px; border-radius: 8px; font-size: 0; overflow: hidden; }
+  .chatbot-input button#chat-send.iso-enter::before { content: '⮐'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 1.05rem; font-weight: 600; white-space: nowrap; }
+  .chatbot-input button#chat-send.iso-enter::after { content: "⮐"; position: absolute; top: 57%; right: 20%; transform: translateY(-50%); font-size: 1.4rem; }
+  .chatbot-input button#chat-send.iso-enter:active:not(:disabled) { transform: translateY(1px); }
+}
 
-  h1 {
-    font-size: 1.1rem; /* Kleiner für Mobile */
-    margin-top: 10px;  /* Kann variieren, je nach Bedarf */
-    margin-bottom: 36px;/* Kann variieren, je nach Bedarf */
-  }
-  @media (max-width: 360px) { /* Noch kleinere Screens */
-    h1 {
-      font-size: 1rem;
+@media (max-width: 768px) { /* Anpassungen für Navbar auf kleineren Bildschirmen */
+    .navbar {
+        padding: 0 1rem; /* Weniger Padding */
     }
+    .navbar-right {
+        gap: 0.5rem; /* Icons näher zusammenrücken */
+    }
+    .circle-icon, .icon-placeholder {
+        width: 28px; /* Icons etwas kleiner */
+        height: 28px;
+    }
+    .circle-icon {
+         font-size: 0.8rem;
+    }
+    .icon-placeholder i {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) { /* Spezifische Mobile Styles */
+  body {
+    display: block; /* Zurück zu block für einfache Layouts */
+    padding-top: 66px; /* Platz für Navbar (56px) + etwas Abstand (10px) */
+    padding-left: 0; /* Kein seitliches Padding am Body */
+    padding-right: 0;
+    padding-bottom: 0; /* Kein unteres Padding */
+    min-height: 100dvh; /* Sicherstellen, dass Body Höhe hat */
+  }
+  .navbar {
+      padding: 0 0.75rem; /* Noch weniger Padding */
+      height: 56px; /* Höhe beibehalten */
+      gap: 1rem;
   }
 
-  .glass-card {
-    padding: 1.5rem;
+  .navbar-right {
+    display: none;
   }
-  #avatar-ui.glass-card { /* Spezifischer für Avatar auf Mobile */
-    padding: 1rem;
-    margin: 1rem auto;
+
+  .navbar-right-mobile {
+    display: flex;
+    flex-direction: row;
   }
+
+  #avatar-ui, #chat-ui {
+     max-height: none; /* Beschränkung aufheben, da sie den Hauptinhalt bilden */
+     width: 100%; /* Volle Breite */
+     display: block; /* Standard block layout */
+  }
+
+  .glass-card { /* Passt Padding/Margin für Karten auf Mobile an */
+      padding: 1rem;
+      margin-top: 1rem;
+      margin-bottom: 0.5rem;
+      width: auto; /* Erlaubt Schrumpfen auf Inhaltsbreite minus margin */
+      border-radius: 12px; /* Angepasster Radius mobil */
+      max-width: none; /* Keine Breitenbeschränkung */
+  }
+  
+  #avatar-ui .avatar-header h1 {
+    transform: translateX(25.44px); /* Spezifisch nur für Avatar UI Header beibehalten */
+  }
+  .chatbot-header h1 {
+     transform: translateX(25.44px);
+  }
+
+  #avatar-ui .avatar-header h1, .chatbot-header h1 { font-size: 1.1rem; margin-bottom: 0; padding-right: 0.25rem; }
+  @media (max-width: 360px) { /* Noch kleinere Bildschirme */
+    #avatar-ui .avatar-header h1, .chatbot-header h1 { font-size: 1rem; }
+  }
+
+  @media (max-width: 330px) {
+    #avatar-ui .avatar-header h1, .chatbot-header h1 {text-align: left; transform: translateX(0px);}
+  }
+
+  .chatbot-card { /* Volle Breite/Höhe mobil anpassen */
+      /* height: 100dvh; */ /* Nimmt zu viel Platz ein */
+      width: 100%; /* Volle Breite */
+      min-width: 100%;
+      margin: 0; /* Kein Margin */
+      border: none; /* Kein Rand */
+      border-radius: 0; /* Kein Radius */
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  }
+  #avatar-ui .avatar-header {margin-bottom: 0.5rem; min-height: 42px; }
 
   video#avatarVideo {
+    aspect-ratio: 9 / 16;    /* <<< SETZT das Hochkant-Format */
+    width: 100%;           /* <<< Nimmt volle Breite INNERHALB des Card-Paddings ein */
+    border-radius: 8px;
     max-height: 40vh; /* Limit für Video-Höhe */
-    /* object-fit: contain; Falls das bevorzugt wird */
-    aspect-ratio: 9 / 16; /* Für konsistentes Seitenverhältnis */
-    width: 100%;
     height: auto;
     object-fit: cover; /* Oder contain, je nach gewünschtem Effekt */
     border-radius: 16px; /* Abgerundete Ecken für Video */
-  }
+    margin-top: 1rem;
+    margin-top: 1rem;      /* Behält oberen Abstand bei */
+    margin-bottom: 1rem;   /* Behält unteren Abstand bei */
+    margin-left: 0;        /* <<< Stellt sicher, dass es links beginnt (innerhalb Padding) */
+    margin-right: 0;       /* <<< Stellt sicher, dass es rechts endet (innerhalb Padding) */
+} 
 
-  .avatar-progress {
-    top: 1rem; right: 1rem;
-    width: 42px; height: 42px;
-    font-size: 0.7rem;
-  }
+.connecting-overlay {font-size: 1rem;}
 
-  section[role='group'] {
-    flex-direction: column; /* Elemente untereinander */
-    gap: 1rem; /* Etwas mehr Abstand */
-  }
+  .progress-circle { width: 42px; height: 42px; font-size: 0.7rem; }
 
-  /* Allgemeine Button-Styles für Mobile */
-  button, .btn-secondary, #speakButton, #chat-send, #consent-accept {
-    width: 100%;
-    font-size: 1.1rem;
-    padding: 1rem 1.25rem;
-    border-radius: 14px;
-    min-height: 48px; /* Mindesthöhe für Touch */
-    max-height: none; /* Aufhebung des globalen Limits, falls es stört */
-    /* touch-action: manipulation; ist gut, aber hier als Kommentar, da nicht explizit gefordert */
-  }
+  section[role='group'] { flex-direction: column; gap: 0.75rem; padding: 0 1rem 1rem 1rem; /* Padding für Input Gruppe */ }
+  button, .btn-secondary, #speakButton, #chat-send, #consent-accept { width: 100%; font-size: 1.1rem; padding: 0.8rem 1rem; border-radius: 10px; min-height: 44px; max-height: none; }
+  textarea, input[type="text"] { font-size: 1rem; padding: 0.8rem; width: 100%; /* Volle Breite erzwingen */}
 
-  /* Allgemeine Text-Input-Styles für Mobile */
-  textarea, input[type="text"] {
-    font-size: 1rem; /* Etwas größer für Lesbarkeit */
-    padding: 1rem;   /* Mehr Padding für Touch */
-  }
+  .chatbot-header { padding: 0 0.75rem; font-size: 1.15rem; flex: 0 0 56px; /* Höhe an Navbar anpassen */}
+  .chatbot-header h1 { display: inline; font-size: 1.15rem; margin-left: 0;}
 
-  .chatbot-card {
-    height: 90vh; /* Nutzt fast die volle Höhe */
-    width: 100%;
-    min-width: 100%;
-    margin: 0; /* Kein horizontaler Margin */
-    border: none; /* Kein Rand auf Mobile */
-    border-radius: 0 0 20px 20px; /* Nur unten abgerundet, falls es oben am Bildschirmrand anliegt */
-  }
-  .chatbot-header {
-    font-size: 1.15rem;
-  }
+  .chatbot-input { flex-direction: column; gap: .75rem; padding: 0.75rem; /* Padding angepasst */ }
+  .chatbot-input textarea#chat-input { width: 100%; }
+  .chatbot-input button#chat-send { flex-basis: auto; max-height: 50px; }
+  .chatbot-input button#chat-send::before { content: "▲"; font-family: inherit; }
 
-  .chatbot-input {
-    flex-direction: column;
-    gap: .75rem; /* Beibehaltung des Gaps */
-    /* padding: .75rem 1rem; ist bereits im Basis-Stil */
-  }
-  .chatbot-input textarea#chat-input {
-    width: 100%; /* Volle Breite im Column-Layout */
-    /* max-height: 30vh; ist bereits im Basis-Stil */
-  }
-  .chatbot-input button#chat-send {
-    /* width: 100%; font-size: 1.1rem; border-radius: 14px; min-height: 48px; von allgemeinen Mobile-Button-Stilen geerbt */
-    flex-basis: auto; /* Zurücksetzen von Desktop flex-basis */
-    max-height: 50px; /* Spezifisches Höhenlimit für Chat-Button auf Mobile */
-  }
-  .chatbot-input button#chat-send::before { /* Pfeil für Chat-Button */
-    content: "▲";
-    font-family: inherit;
-  }
+  .consent-modal { width: 90%; margin: 0.5rem auto; border-radius: 18px; } /* Modal auch anpassen */
+  #experiment-complete-banner { width: 90%; margin: 0.5rem auto; }
 }
 
 /* ───────────────────────── Dark-Mode ───────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Grundpalette umkehren / abdunkeln */
-    --text-contrast-color: #c2fe06; /* Neon-Akzent als Haupttext */
-    --pale-text-color: #8ba0a4;
-    --button-bg: #00806e;
-    --button-fg: #c2fe06;
-    --button-bg-hover: #00a985;
-    --button-fg-hover: #002733;
-    --button-bg-sec-hover: #00a985; /* Fehlte, ergänzt */
-
+    /* Text & Basis */
+    --text-main-color: #e6f1ff;
+    --text-pale-color: #8ba0a4;
+    /* Buttons */
+    --button-fg-disabled: var(--text-pale-color);
+    --button-bg-disabled: #2a3a3f;
+    /* Scrollbar */
     --scrollbar-thumb: #465357;
-    --scrollbar-track: #1e2a2f; /* Fehlte, ergänzt */
+    --scrollbar-track: #1e2a2f;
+    /* Links */
+    --link-color: var(--cws-neon);
+    --link-hover-color: #00dbac;
 
-    --link: #c2fe06;
-    --link-hover: #00dbac;
+    /* Dark Mode Body */
+    --dm-body-bg-image: url('/public/darkmode-back.png');
+    --dm-body-bg-color: #0A192F;
+
+    /* Dark Mode Glass Base */
+    --dm-glass-bg: rgba(12, 22, 38, 0.6); /* Etwas deckender */
+    --dm-glass-border: var(--cws-green);
+    --dm-glass-shadow-glow: rgba(var(--cws-neon-rgb), 0.18);
+    --dm-glass-shadow-depth: rgba(0, 0, 0, 0.4);
+    --dm-text-color-on-glass: rgba(229, 229, 229, 0.9); /* Heller für besseren Kontrast */
+    --dm-glass-blur: 18px;
+
+    /* Dark Mode Navbar */
+    --dm-navbar-border: rgba(var(--cws-neon-rgb), 0.15); /* Subtile Neon-Linie für Navbar */
+
+    /* Dark Mode Video Frame */
+    --dm-video-frame-bg: hsla(0, 0%, 90%, 0.1);
+    --dm-video-frame-border: var(--cws-green);
+
+    /* Dark Mode Inputs */
+    --dm-input-bg: rgba(15, 28, 48, 0.6);
+    --dm-input-border: var(--cws-green);
+    --dm-input-focus-border: var(--cws-neon);
+    --dm-input-focus-shadow: rgba(var(--cws-neon-rgb), 0.3);
+    --dm-input-backdrop-blur: 10px;
+
+    /* Dark Mode Buttons */
+    --dm-button-bg: rgba(var(--cws-neon-rgb), 0.65);
+    --dm-button-fg: #001a20;
+    --dm-button-border: rgba(var(--cws-neon-rgb), 0.8);
+    --dm-button-hover-bg: rgba(var(--cws-neon-rgb), 0.85);
+    --dm-button-hover-border: var(--cws-neon);
+    --dm-button-shadow: rgba(var(--cws-neon-rgb), 0.25);
+    --dm-button-hover-shadow: rgba(var(--cws-neon-rgb), 0.35);
+    --dm-button-backdrop-blur: 10px;
+
+    /* Dark Mode Progress Circle */
+    --dm-progress-circle-bg-stroke: rgba(var(--cws-neon-rgb), 0.2);
+    --dm-progress-circle-fg-stroke: var(--cws-neon);
+    --dm-progress-circle-text-color: var(--cws-neon);
   }
 
   body {
-    background: var(--cws-deep-blue);
-    /* color wird durch --text-contrast-color in :root gesetzt */
+    background-image: var(--dm-body-bg-image); background-color: var(--dm-body-bg-color);
+    color: var(--text-main-color);
   }
 
-  .glass-card, .chatbot-card {
-    background: #001d26; /* Etwas dunkler als body */
-    box-shadow: 0 0 25px rgba(0,0,0,.45);
+  body::before {
+    background-image: var(--dm-body-bg-image);
   }
 
-  /* Eingabefelder im Dark Mode */
-  textarea,
-  input[type='text'] {
-    background: #0f2b35;
-    border-color: #00a985;
-    color: #c2fe06;
+  /* --- Navbar Dark Mode --- */
+  .navbar {
+    background: var(--dm-glass-bg);
+    border-bottom-color: var(--dm-navbar-border); /* Subtile Linie */
+    box-shadow: 0 4px 15px var(--dm-glass-shadow-depth); /* Dunkler Schatten */
+    backdrop-filter: blur(var(--dm-glass-blur));
+    -webkit-backdrop-filter: blur(var(--dm-glass-blur));
   }
-  section#avatar-ui textarea#userInput:focus, /* Spezifischer Fokus für Avatar im Dark Mode */
-  .chatbot-input textarea#chat-input:focus { /* Spezifischer Fokus für Chat im Dark Mode */
-    border-color: var(--button-bg-hover); /* Oder eine andere passende Neon/Kontrastfarbe */
+  .navbar-left-inner p:first-child {
+    color: var(--cws-neon); /* Neon Titel */
   }
-
-  video#avatarVideo { /* Video-Platzhalter dunkler */
-    background: #0b3441;
+  .navbar-left-inner p:last-child {
+    color: var(--text-pale-color); /* Blasse Farbe für Subtitel */
   }
-
-  /* Chat-Bubbles im Dark Mode */
-  .message.user { background: #005a4c; color: #c2fe06; }
-  .message.bot { background: #0b3441; color: #e5e5e5; }
-
-  /* Scrollbar in Chat (Dark Mode) */
-  .chatbot-body::-webkit-scrollbar-thumb {
-    background: #2a3a3f; /* Noch dunkler als Standard Dark Scrollbar */
+  .circle-icon {
+    background-color: var(--cws-neon); /* Hintergrund Neon */
+    color: var(--cws-deep-blue); /* Text dunkel */
+    border: 1px solid rgba(var(--cws-neon-rgb), 0.5); /* Leichter Neon Rand */
   }
-
-  /* Fortschrittskreis im Dark Mode */
-  .progress-circle .circle-bg { stroke: #2a3a3f; }
-  /* .progress-circle .circle { stroke: var(--button-bg); } ist bereits korrekt durch Variablen */
-  /* .progress-circle .progress-text { color: var(--text-contrast-color); } ist bereits korrekt durch Variablen */
-
-  /* Consent-Modal im Dark Mode */
-  .consent-modal {
-    background: #001d26;
-    box-shadow: 0 0 25px rgba(0,0,0,.45);
-    /* border-color: var(--button-bg); ist bereits korrekt durch Variablen */
+  .icon-placeholder {
+    color: var(--text-pale-color); /* Blasse Icon Farbe */
   }
-  /* .consent-text h2 { color: var(--cws-neon); } ist bereits korrekt durch Variablen */
-  /* .consent-text p { color: var(--grey-e); } ist korrekt durch Variablen, da --grey-e im Dark Mode nicht überschrieben wird */
-  /* .consent-text a, #consent-accept Button-Farben sind bereits korrekt durch Variablen */
-
-  /* Experiment-Erfüllt-Overlay im Dark Mode */
-  #experiment-complete-banner {
-    background: #001d26;
-    /* color: var(--text-contrast-color); ist bereits korrekt durch Variablen */
-    /* border-color: var(--button-bg); ist bereits korrekt durch Variablen */
-    box-shadow: 0 0 25px rgba(0,0,0,.45);
+  .icon-placeholder:hover {
+     background-color: rgba(var(--cws-neon-rgb), 0.1); /* Leichter Neon Hover */
   }
 
-  #experiment-complete-banner h3 {
-    color: var(--cws-neon); /* Spezifisch Neon für die Überschrift hier */
+  /* General Glass Card Dark Mode */
+  .glass-card {
+    background: var(--dm-glass-bg); border: 1px solid var(--dm-glass-border);
+    box-shadow: 0 0 35px -10px var(--dm-glass-shadow-glow), 0 8px 25px var(--dm-glass-shadow-depth);
+    backdrop-filter: blur(var(--dm-glass-blur)); -webkit-backdrop-filter: blur(var(--dm-glass-blur));
+    color: var(--dm-text-color-on-glass);
   }
-  /* #experiment-complete-banner p { color: var(--pale-text-color); } ist bereits korrekt durch Variablen */
-}
+  .glass-card h1 { color: var(--cws-neon); } /* Neon für H1 in Glas-Karten */
+  /* #avatar-ui .avatar-header h1 { color: var(--dm-text-color-on-glass); } /* Überschrieben von generellem H1 */
+
+  /* Noise Overlay for all Glass Elements */
+  .glass-card::after, .chatbot-card::after {
+      content: ''; position: absolute; inset: 0;
+      background-image: var(--noise-svg); opacity: 0.03;
+      pointer-events: none; border-radius: inherit; z-index: 0;
+  }
+  .glass-card > *:not(style):not(script),
+  .chatbot-card > *:not(style):not(script):not(::after) { /* Sicherstellen, dass ::after ausgeschlossen wird */
+      position: relative; z-index: 1;
+  }
+
+  video#avatarVideo {
+    background: var(--dm-video-frame-bg); border: 1px solid var(--dm-video-frame-border);
+    box-shadow: inset 0 0 0 1.5px var(--dm-video-frame-border), 0 5px 15px rgba(0,0,0,0.3); /* Angepasster Schatten */
+  }
+
+  /* Dark Mode Inputs (Textarea, Input) */
+  textarea, input[type='text'] {
+    background: var(--dm-input-bg); border: 1px solid var(--dm-input-border); color: var(--dm-text-color-on-glass);
+    backdrop-filter: blur(var(--dm-input-backdrop-blur)); -webkit-backdrop-filter: blur(var(--dm-input-backdrop-blur));
+  }
+  textarea::placeholder, input::placeholder { color: var(--text-pale-color); opacity: 0.7; }
+  textarea:focus, input:focus {
+    border-color: var(--dm-input-focus-border);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.1), 0 0 0 2.5px var(--dm-input-focus-shadow);
+  }
+
+  /* Dark Mode Buttons */
+  button {
+    background: var(--dm-button-bg); color: var(--dm-button-fg); border: 1px solid var(--dm-button-border);
+    box-shadow: 0 3px 18px var(--dm-button-shadow);
+    backdrop-filter: blur(var(--dm-button-backdrop-blur)); -webkit-backdrop-filter: blur(var(--dm-button-backdrop-blur));
+  }
+  button:hover:not(:disabled) {
+    background: var(--dm-button-hover-bg); border-color: var(--dm-button-hover-border);
+    color: var(--dm-button-fg);
+    box-shadow: 0 5px 22px var(--dm-button-hover-shadow);
+  }
+  button:disabled {
+      background: var(--button-bg-disabled); color: var(--button-fg-disabled);
+      box-shadow: none; opacity: 0.6; border-color: transparent; backdrop-filter: none;
+  }
+
+  /* Dark Mode Progress Circle */
+  .progress-circle .circle-bg { stroke: var(--dm-progress-circle-bg-stroke); }
+  .progress-circle .circle { stroke: var(--dm-progress-circle-fg-stroke); }
+  .progress-circle .progress-text { color: var(--dm-progress-circle-text-color); }
+
+  /* --- Chatbot Specific Dark Mode Overrides --- */
+  .chatbot-card {
+    background: var(--dm-glass-bg);
+    border: 1px solid var(--dm-glass-border); /* Dünnerer Rand für Chat */
+    box-shadow: 0 0 35px -10px var(--dm-glass-shadow-glow), 0 8px 25px var(--dm-glass-shadow-depth);
+    backdrop-filter: blur(var(--dm-glass-blur)); -webkit-backdrop-filter: blur(var(--dm-glass-blur));
+    color: var(--dm-text-color-on-glass);
+  }
+
+  .chatbot-header {
+    border-bottom-color: rgba(var(--cws-neon-rgb), 0.15); /* Subtile Neon-Linie */
+    /* Hintergrund & Textfarbe von .chatbot-card geerbt */
+  }
+  .chatbot-header h1 { color: var(--cws-neon); } /* Neon für Chatbot Header */
+
+  .chatbot-input {
+    border-top-color: rgba(var(--cws-neon-rgb), 0.15); /* Subtile Neon-Linie */
+    background: rgba(var(--cws-neon-rgb), 0.03); /* Leichter Hintergrund zur Abhebung */
+  }
+  /* Input & Button im Chat erben die generellen Dark Mode Stile für Inputs/Buttons */
+
+  .message.user { /* Farben bleiben gleich, passen gut */
+    background: var(--cws-neon); color: #001a20;
+  }
+  .message.bot { /* Farben bleiben gleich, passen gut */
+    background: rgba(var(--cws-neon-rgb), 0.1); color: var(--dm-text-color-on-glass); border: 1px solid rgba(var(--cws-neon-rgb),0.2);
+  }
+  .chatbot-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
+
+  /* Overlays & Modals Dark Mode */
+  .consent-modal { color: var(--dm-text-color-on-glass); } /* Erbt Glas Stile */
+  .consent-modal h2 { color: var(--cws-neon); }
+  .consent-modal p { color: var(--text-pale-color); }
+  .consent-modal p strong { color: var(--cws-neon); }
+
+  #experiment-complete-banner { color: var(--dm-text-color-on-glass); } /* Erbt Glas Stile */
+  #experiment-complete-banner h3 { color: var(--cws-neon); }
+  #experiment-complete-banner p { color: var(--text-pale-color); }
+
+  .connecting-overlay { color: var(--grey-9); } /* Farbe für Dark Mode */
+
+   /* Mobile Dark Mode Anpassungen */
+   @media (max-width: 480px) {
+        .chatbot-card {
+             backdrop-filter: blur(16px); /* Etwas mehr Blur mobil dark */
+             -webkit-backdrop-filter: blur(16px);
+        }
+        video#avatarVideo {
+             border: none; /* Kein Rand mobil dark */
+             box-shadow: none;
+             background: transparent; /* Kein heller Hintergrund */
+        }
+        .glass-card { /* Leichter Rand für mobile Karten im Dark Mode */
+            border: 1px solid rgba(var(--cws-neon-rgb), 0.2);
+        }
+    }
+} /* Ende Dark Mode Media Query */
 
 /* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
-/* Gilt nur für Touchgeräte, um unerwünschte Hover-Effekte zu vermeiden */
 @media (hover: none) and (pointer: coarse) {
   button, #speakButton, #chat-send, #consent-accept {
-    box-shadow: none !important; /* Wichtig, um Hover-Schatten zu entfernen */
-    /* transition: none !important; /* Kann überlegt werden, entfernt aber auch Klick-Feedback */
+    box-shadow: none !important; transform: none !important; transition: none; /* Keine Transition/Effekte auf Touch */
   }
+  button:active:not(:disabled) { transform: scale(0.98) !important; } /* Kleiner Klick-Effekt stattdessen */
 
-  /* Verhindert das "Klebenbleiben" von Hover-Stilen nach einem Tap */
-  button:hover, #speakButton:hover, #chat-send:hover, #consent-accept:hover,
-  button:active, #speakButton:active, #chat-send:active, #consent-accept:active {
-    background: var(--button-bg) !important;
-    color: var(--button-fg) !important;
-    border-color: var(--button-bg) !important;
-    transform: none !important;
+  .icon-placeholder:hover { background-color: transparent !important; } /* Kein Hover auf Icons */
+  .icon-placeholder:active { background-color: var(--black-10p) !important; } /* Klick-Effekt Light */
+
+  /* Verhindern, dass Hover-Styles auf Touch "hängenbleiben" */
+  @media (prefers-color-scheme: dark) {
+    button:hover:not(:disabled) { /* Keine visuellen Änderungen bei Hover */
+      background: var(--dm-button-bg) !important;
+      color: var(--dm-button-fg) !important;
+      border-color: var(--dm-button-border) !important;
+    }
+     .icon-placeholder:active { background-color: rgba(var(--cws-neon-rgb), 0.1) !important; } /* Klick-Effekt Dark */
+  }
+  @media (prefers-color-scheme: light) {
+     button:hover:not(:disabled) { /* Keine visuellen Änderungen bei Hover */
+      background: var(--lm-button-glass-bg) !important;
+      color: var(--lm-button-glass-fg) !important;
+      border-color: var(--lm-button-glass-border) !important;
+    }
   }
 }
