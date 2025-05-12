@@ -224,13 +224,12 @@ video#avatarVideo {
 video#avatarVideo {
   aspect-ratio: 9 / 16;    /* <<< SETZT das Hochkant-Format */
   width: 100%;           /* <<< Nimmt volle Breite INNERHALB des Card-Paddings ein */
-  border-radius: 8px;
   max-height: 40vh; /* Limit für Video-Höhe */
   height: auto;
   object-fit: cover; /* Oder contain, je nach gewünschtem Effekt */
   border-radius: 16px; /* Abgerundete Ecken für Video */
   margin-top: 1rem;
-
+  border: 1px solid white;
 }
 
 /* ───────────────────────── Allgemeine Container / Karten (Glassmorphism) ───────────────────────── */
@@ -464,7 +463,7 @@ button:disabled {
         padding: 0 1rem; /* Weniger Padding */
     }
     .navbar-right {
-        gap: 0.5rem; /* Icons näher zusammenrücken */
+        gap: 0.6rem; /* Icons näher zusammenrücken */
     }
     .circle-icon, .icon-placeholder {
         width: 28px; /* Icons etwas kleiner */
@@ -500,6 +499,7 @@ button:disabled {
   .navbar-right-mobile {
     display: flex;
     flex-direction: row;
+    gap: 1rem;
   }
 
   #avatar-ui, #chat-ui {
@@ -672,7 +672,7 @@ button:disabled {
 
   /* General Glass Card Dark Mode */
   .glass-card {
-    background: var(--dm-glass-bg); border: 1px solid var(--dm-glass-border);
+    background: var(--dm-glass-bg); border: 2px solid rgba(var(--cws-neon-rgb), 0.15);
     box-shadow: 0 0 35px -10px var(--dm-glass-shadow-glow), 0 8px 25px var(--dm-glass-shadow-depth);
     backdrop-filter: blur(var(--dm-glass-blur)); -webkit-backdrop-filter: blur(var(--dm-glass-blur));
     color: var(--dm-text-color-on-glass);
@@ -692,7 +692,7 @@ button:disabled {
   }
 
   video#avatarVideo {
-    background: var(--dm-video-frame-bg); border: 1px solid var(--dm-video-frame-border);
+    background: var(--dm-video-frame-bg); border: 2px solid rgba(var(--cws-neon-rgb), 0.15);
     box-shadow: inset 0 0 0 1.5px var(--dm-video-frame-border), 0 5px 15px rgba(0,0,0,0.3); /* Angepasster Schatten */
   }
 
@@ -731,7 +731,7 @@ button:disabled {
   /* --- Chatbot Specific Dark Mode Overrides --- */
   .chatbot-card {
     background: var(--dm-glass-bg);
-    border: 1px solid var(--dm-glass-border); /* Dünnerer Rand für Chat */
+    border: 2px solid  rgba(var(--cws-neon-rgb), 0.15); /* Dünnerer Rand für Chat */
     box-shadow: 0 0 35px -10px var(--dm-glass-shadow-glow), 0 8px 25px var(--dm-glass-shadow-depth);
     backdrop-filter: blur(var(--dm-glass-blur)); -webkit-backdrop-filter: blur(var(--dm-glass-blur));
     color: var(--dm-text-color-on-glass);
