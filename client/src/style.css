@@ -538,8 +538,6 @@ button:disabled {
       width: 100%; /* Volle Breite */
       min-width: 100%;
       margin: 0; /* Kein Margin */
-      border: none; /* Kein Rand */
-      border-radius: 0; /* Kein Radius */
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   #avatar-ui .avatar-header {margin-bottom: 0.5rem; min-height: 42px; }
@@ -767,7 +765,7 @@ button:disabled {
 
   #experiment-complete-banner { color: var(--dm-text-color-on-glass); } /* Erbt Glas Stile */
   #experiment-complete-banner h3 { color: var(--cws-neon); }
-  #experiment-complete-banner p { color: var(--text-pale-color); }
+  #experiment-complete-banner p { color: white; }
 
   .connecting-overlay { color: var(--grey-9); } /* Farbe für Dark Mode */
 
