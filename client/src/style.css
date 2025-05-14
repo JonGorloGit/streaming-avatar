@@ -702,6 +702,20 @@ button:disabled {
     backdrop-filter: blur(var(--dm-input-backdrop-blur)); -webkit-backdrop-filter: blur(var(--dm-input-backdrop-blur));
     transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
   }
+
+  /* Entfernt die Pfeile in Webkit-Browsern (Chrome, Safari, Edge) */
+  textarea, input[type="text"]::-webkit-inner-spin-button,
+  input[type="text"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* Entfernt die Pfeile in Firefox */
+  textarea, input[type="text"] {
+    -webkit-appearance: none; /* Für WebKit-Browser (Chrome, Safari) */
+    -moz-appearance: none;    /* Für Firefox */
+    appearance: none;         /* Standardisierte Eigenschaft */
+  }
+
   textarea::placeholder, input::placeholder { color: var(--text-pale-color); opacity: 0.7; }
   textarea:focus, input:focus {
     border-color: var(--dm-input-focus-border);
