@@ -402,6 +402,107 @@ button:disabled {
 .chatbot-input button#chat-send:active:not(:disabled) { transform: scale(.96); }
 .chatbot-input button#chat-send::before { content: "\21B5"; font-family: inherit; }
 
+/* ───────── Floating Tags Styles ───────── */
+.floating-tags-container {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 35px;
+  z-index: 999;
+}
+
+.tag-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: relative;
+  height: 48px; /* Etwas größer für besseres Tappen */
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent; /* Verhindert blauen Kasten bei Tap auf iOS */
+}
+
+.tag-icon-circle {
+  width: 64px; /* Angepasst an Höhe */
+  height: 64px;
+  /* Glassmorphism Basis */
+  background: #00806e89;
+  border: 1px solid var(--lm-glass-border);
+  box-shadow: 0 4px 15px var(--lm-glass-shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  position: relative;
+  margin-right: 15px; /* Etwas mehr Abstand */
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.tag-icon-circle i {
+  font-size: 1.3rem; /* Angepasst */
+  color: var(--cws-neon);
+  transition: color 0.2s ease;
+}
+
+.tag-text-panel {
+  position: absolute;
+  right: 15px; /* Passend zu margin-right des Icons */
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+
+  /* Glassmorphism Basis */
+  background: var(--lm-glass-bg);
+  border: 1px solid var(--lm-glass-border);
+  box-shadow: -2px 4px 15px var(--lm-glass-shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  color: var(--current-text-color);
+  padding: 0 20px 0 calc(48px / 2); /* oben/unten | rechts | links */
+                                       /* padding-left: 32px (24px Radius + 8px Puffer) */
+  border-radius: 24px; /* Passend zur Höhe */
+  opacity: 0;
+  visibility: hidden; /* Startet an der rechten Kante */
+  min-width: 0; /* Erlaubt Schrumpfen auf 0 */
+  max-width: 280px; /* Maximale Ausfahrbreite */
+  z-index: 1;
+  overflow: hidden; /* Verhindert Textüberlauf während Animation */
+  transition: width 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+              min-width 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+              padding-left 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55), /* padding animieren */
+              opacity 0.25s ease 0.1s, /* Opacity mit Delay */
+              visibility 0s linear 0.35s;
+}
+
+.tag-text-panel span {
+    white-space: nowrap;
+    font-weight: 500;
+    font-size: 0.95rem;
+    opacity: 0; /* Text anfangs unsichtbar, wird auch animiert */
+    transition: opacity 0.2s ease 0.2s; /* Text später einblenden als Panel */
+}
+
+/* Ausgefahrener Zustand - Gesteuert durch JS-Klasse für Touch */
+.tag-wrapper.open .tag-text-panel {
+  opacity: 1;
+  visibility: visible;
+  width: auto; /* Nimmt benötigte Breite oder min/max-width */
+  transition-delay: 0s; /* Alle Delays zurücksetzen */
+}
+.tag-wrapper.open .tag-text-panel span {
+    opacity: 1;
+}
+
+
 /* ───────────────────────── Consent Modal & Overlays ───────────────────────── */
 .consent-overlay {
   position: fixed; inset: 0; background: rgba(0, 0, 0, 0.3); z-index: 9999;
@@ -443,14 +544,74 @@ button:disabled {
 
 .hidden { display: none !important; }
 
+/* Hover-Effekte (Desktop) */
+@media (hover: hover) and (pointer: fine) {
+  .tag-wrapper:hover .tag-text-panel {
+    opacity: 1;
+    visibility: visible;
+    width: auto;
+    min-width: 220px;
+    transition-delay: 0s;
+  }
+  .tag-wrapper:hover .tag-text-panel span {
+    opacity: 1;
+  }
+  .tag-wrapper:hover .tag-icon-circle {
+    transform: scale(1.05);
+  }
+}
+
+/* Hover-Effekte (Desktop) */
+@media (hover: hover) and (pointer: fine) and ((min-width: 481px) and (max-width: 768px)) {
+  .tag-wrapper:hover .tag-text-panel {
+    opacity: 1;
+    visibility: visible;
+    width: auto;
+    min-width: 180px;
+    transition-delay: 0s;
+  }
+}
 /* ───────────────────────── Media Queries (Responsiveness) ───────────────────────── */
-@media (min-width: 481px) and (max-width: 768px) { /* Zwischen Desktop und Mobile */
+@media (min-width: 481px) and (max-width: 795px) { /* Zwischen Desktop und Mobile */
    .chatbot-card {
        height: clamp(460px, 85vh, 720px); /* Etwas mehr Höhe erlauben als ganz Mobile */
    }
 
    .connecting-overlay {
     font-size: 1.2rem;
+  }
+
+  .floating-tags-container {
+    right: 0; /* komplett am Rand */
+  }
+
+  .tag-wrapper {
+    margin-right: 0; /* kein Abstand mehr */
+  }
+
+  .tag-icon-circle {
+    width: 20px;
+    height: 48px;
+    margin-right: 0;              /* sitzt direkt am Rand */
+    border-radius: 8px 0px 0px 8px;   /* nur links abgerundet */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  }
+
+  .tag-icon-circle i {
+    font-size: 0.9rem;
+  }
+
+  /* Panel fährt links vom Icon aus */
+  .tag-text-panel {
+    right: 0;      /* Icon-Breite + kleiner Abstand */
+    height: 32px;
+    transform: translateY(8px);
+  }
+  .tag-wrapper.open .tag-icon-circle {
+    transform: translateX(-4px);  /* leichter „Pull“-Effekt beim Öffnen */
   }
 }
 
@@ -527,6 +688,36 @@ button:disabled {
   }
   .chatbot-header h1 {
      transform: translateX(25.44px);
+  }
+
+  .floating-tags-container {
+    /* statt right:0 und transform:none: */
+    left: 50%;               /* Container-Mitte auf die Viewport-Mitte legen */
+    transform: translateX(-50%); /* wirklich zentrieren */
+    bottom: 0;               /* bleibt unten */
+    top: auto;
+    right: auto;             /* nicht mehr rechts */
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 15px;
+    padding: 0;       /* nur vertikal bisschen Abstand, horizontal weg */
+  }
+
+  .tag-wrapper {
+    /* Kein zusätzlicher Rand */
+    margin: 0;
+  }
+
+  .tag-icon-circle {
+    /* bleibt 48×48, sitzt direkt am Rand */
+    width: 64px;
+    height: 64px;
+    margin: 0;
+    border-radius: 8px 8px 0 0; /* oben abgerundet */
+  }
+
+  .tag-text-panel {
+    display: none;
   }
 
   #avatar-ui .avatar-header h1, .chatbot-header h1 { font-size: 1.1rem; margin-bottom: 0; padding-right: 0.25rem; }
@@ -775,6 +966,24 @@ button:disabled {
   }
   .chatbot-body::-webkit-scrollbar-thumb { background: #c2fe0659;}
 
+  .tag-icon-circle {
+    background: var(--dm-glass-bg);
+    border: 1px solid var(--dm-glass-border);
+    /* Hier kannst du zwischen Glow oder Depth wählen: */
+    box-shadow: 0 4px 15px var(--dm-glass-shadow-glow);
+    /* alternativ: box-shadow: 0 4px 15px var(--dm-glass-shadow-depth); */
+  }
+  .tag-icon-circle i {
+    color: var(--dm-text-color-on-glass);
+  }
+
+  .tag-text-panel {
+    background: var(--dm-glass-bg);
+    border: 1px solid var(--dm-glass-border);
+    box-shadow: -2px 4px 15px var(--dm-glass-shadow-glow);
+    color: var(--dm-text-color-on-glass);
+  }
+
   /* Overlays & Modals Dark Mode */
   .consent-modal { color: var(--dm-text-color-on-glass); } /* Erbt Glas Stile */
   .consent-modal h2 { color: var(--cws-neon); }
@@ -831,3 +1040,35 @@ button:disabled {
     }
   }
 }
+
+/* ── Avatar-Mode: Mobile-Style schon ab 1110px ── */
+@media (max-width: 1110px) {
+  body.mode-avatar .floating-tags-container {
+    /* unten zentriert wie auf Mobile */
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
+    top: auto;
+    right: auto;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 15px;
+    padding: 0;
+  }
+
+  body.mode-avatar .tag-wrapper {
+    margin: 0;
+  }
+
+  body.mode-avatar .tag-icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px 8px 0 0; /* oben abgerundet */
+  }
+
+  /* Text-Panel komplett ausblenden */
+  body.mode-avatar .tag-text-panel {
+    display: none !important;
+  }
+}
+
