@@ -395,7 +395,7 @@ button:disabled {
   /* Verwendet die Stile von 'button' oben */
 }
 .chatbot-input button#chat-send:active:not(:disabled) { transform: scale(.96); }
-.chatbot-input button#chat-send::before { content: "\23CE"; font-family: inherit; }
+.chatbot-input button#chat-send::before { content: "\21B5"; font-family: inherit; }
 
 /* ───────────────────────── Consent Modal & Overlays ───────────────────────── */
 .consent-overlay {
@@ -453,8 +453,8 @@ button:disabled {
   .chatbot-input textarea#chat-input { padding-right: 1rem; }
   .chatbot-input button#chat-send { flex: 0 0 100px; border-radius: 12px; font-size: 1.1rem; max-height: none; }
   .chatbot-input button#chat-send.iso-enter { position: relative; flex: 0 0 50px; height: 90%; max-height: 50px; border-radius: 8px; font-size: 0; overflow: hidden; }
-  .chatbot-input button#chat-send.iso-enter::before { content: "\23CE"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 1.05rem; font-weight: 600; white-space: nowrap; }
-  .chatbot-input button#chat-send.iso-enter::after { content: "\23CE"; position: absolute; top: 57%; right: 20%; transform: translateY(-50%); font-size: 1.4rem; }
+  .chatbot-input button#chat-send.iso-enter::before { content: "\21B5"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 1.05rem; font-weight: 600; white-space: nowrap; }
+  .chatbot-input button#chat-send.iso-enter::after { content: "\21B5"; position: absolute; top: 57%; right: 20%; transform: translateY(-50%); font-size: 1.4rem; }
   .chatbot-input button#chat-send.iso-enter:active:not(:disabled) { transform: translateY(1px); }
 }
 
