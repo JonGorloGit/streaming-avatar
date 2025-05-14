@@ -216,7 +216,7 @@ ul { list-style: none; } li::before { content: '› '; color: var(--list-bullet-
 
 /* ───────────────────────── Video ───────────────────────── */
 video#avatarVideo {
-  display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 600px;
+  display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 600px; min-height: 275px;
   border-radius: 10px; object-fit: cover; aspect-ratio: 16 / 9;
   background: rgba(229, 229, 229, 0.4); position: relative;
 }
@@ -1039,7 +1039,7 @@ button:disabled {
       border-color: var(--lm-button-glass-border) !important;
     }
   }
-  body.mode-avatar .floating-tags-container {
+  .floating-tags-container {
     display: none;
   }
 }
