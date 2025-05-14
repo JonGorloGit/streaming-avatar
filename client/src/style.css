@@ -1254,4 +1254,10 @@ button:disabled {
   body.mode-avatar .tag-icon-circle i {
     font-size: 1.3rem;
   }
+
+  @media (hover: none) and (pointer: coarse) {
+    body.mode-avatar .floating-tags-container {
+      display: none; /* Standardmäßig auf reinen Touch-Geräten ausblenden, da Hover-Interaktion schwierig */
+    }
+  }
 }
