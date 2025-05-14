@@ -369,7 +369,7 @@ button:disabled {
 }
 /* Light Mode Nachrichtenfarben */
 .message.user { align-self: flex-end; background: var(--cws-neon); color: var(--cws-deep-blue); }
-.message.bot { align-self: flex-start; background: rgba(255, 255, 255, 0.4); color: var(--cws-deep-blue); } /* Etwas transparenter weißer Hintergrund */
+.message.bot { align-self: flex-start; background: rgba(255, 255, 255, 0.6); color: var(--cws-deep-blue); } /* Etwas transparenter weißer Hintergrund */
 .message.bot.fading-out { opacity: 0.6; transition: opacity 0.05s ease; }
 .message.bot.fading-in { animation: fadeInText 0.05s ease forwards; }
 @keyframes fadeInText { from { opacity: 0; } to { opacity: 1; } }
@@ -391,11 +391,11 @@ button:disabled {
 }
 /* Button im Chat verwendet generelle Glass-Button-Stile */
 .chatbot-input button#chat-send {
-  flex: 0 0 110px; padding: .7rem 1rem; border-radius: 10px; font-weight: 600;
+  flex: 0 0 110px; padding: .7rem 1rem; border-radius: 10px; font-weight: 600; 
   /* Verwendet die Stile von 'button' oben */
 }
 .chatbot-input button#chat-send:active:not(:disabled) { transform: scale(.96); }
-.chatbot-input button#chat-send::before { content: "⮐"; font-family: inherit; }
+.chatbot-input button#chat-send::before { content: "\23CE"; font-family: inherit; }
 
 /* ───────────────────────── Consent Modal & Overlays ───────────────────────── */
 .consent-overlay {
@@ -451,10 +451,10 @@ button:disabled {
 
 @media (min-width: 481px) { /* Styles für Desktop und größere Tablets */
   .chatbot-input textarea#chat-input { padding-right: 1rem; }
-  .chatbot-input button#chat-send { flex: 0 0 160px; border-radius: 12px; font-size: 1.1rem; max-height: none; }
+  .chatbot-input button#chat-send { flex: 0 0 100px; border-radius: 12px; font-size: 1.1rem; max-height: none; }
   .chatbot-input button#chat-send.iso-enter { position: relative; flex: 0 0 50px; height: 90%; max-height: 50px; border-radius: 8px; font-size: 0; overflow: hidden; }
-  .chatbot-input button#chat-send.iso-enter::before { content: '⮐'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 1.05rem; font-weight: 600; white-space: nowrap; }
-  .chatbot-input button#chat-send.iso-enter::after { content: "⮐"; position: absolute; top: 57%; right: 20%; transform: translateY(-50%); font-size: 1.4rem; }
+  .chatbot-input button#chat-send.iso-enter::before { content: "\23CE"; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 1.05rem; font-weight: 600; white-space: nowrap; }
+  .chatbot-input button#chat-send.iso-enter::after { content: "\23CE"; position: absolute; top: 57%; right: 20%; transform: translateY(-50%); font-size: 1.4rem; }
   .chatbot-input button#chat-send.iso-enter:active:not(:disabled) { transform: translateY(1px); }
 }
 
