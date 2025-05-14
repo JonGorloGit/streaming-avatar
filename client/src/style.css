@@ -3,6 +3,7 @@
   /* Primär */
   --cws-deep-blue: #002733;
   --cws-green: #00806e;
+  --cws-green-rgb: 0, 128, 110; /* Hinzugefügt für rgba() */
   --cws-neon: #c2fe06;
   --cws-neon-rgb: 194, 254, 6; /* RGB für RGBA-Nutzung */
   --grey-6: #626364;
@@ -36,8 +37,8 @@
   --lm-glass-border: rgba(255, 255, 255, 0.5);
   --lm-glass-shadow: rgba(0, 0, 0, 0.1);
   --lm-text-color-on-glass: var(--cws-deep-blue);
-  --lm-input-bg: rgba(255, 255, 255, 0.35); /* Input specific, same as main glass */
-  --lm-input-border: rgba(255, 255, 255, 0.5); /* Input specific, same as main glass */
+  --lm-input-bg: rgba(255, 255, 255, 0.35);
+  --lm-input-border: rgba(255, 255, 255, 0.5);
   --lm-input-focus-border: var(--cws-neon);
   --lm-input-focus-shadow: rgba(var(--cws-neon-rgb), 0.2);
   --lm-button-glass-bg: var(--cws-neon);
@@ -61,18 +62,18 @@ body {
   font-family: 'Inter', sans-serif, Avenir, Helvetica;
   font-weight: 300;
   line-height: 1.5;
-  background-color: var(--body-bg-color); /* Wird durch --lm-body-bg-color überschrieben */
+  background-color: var(--body-bg-color);
   color: var(--text-main-color);
   display: flex;
-  flex-direction: column; /* Geändert */
+  flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Geändert */
+  justify-content: flex-start;
   overflow-x: hidden;
   min-height: 100dvh;
   position: relative;
   z-index: 0;
-  padding-top: 75px; /* Platz für die feste Navbar + etwas Abstand */
-  padding-left: 1rem; /* Seitenabstände wieder hinzufügen */
+  padding-top: 75px;
+  padding-left: 1rem;
   padding-right: 1rem;
   padding-bottom: 1rem;
 }
@@ -81,7 +82,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  background-image: var(--lm-body-bg-image); /* Default zu Light Mode */
+  background-image: var(--lm-body-bg-image);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -93,7 +94,7 @@ body::before {
 
 /* ───────────────────────── Navbar ───────────────────────── */
 .navbar {
-  position: fixed; /* Macht die Navbar fest */
+  position: fixed;
   top: 0;
   left: 0;
   right: 0;
@@ -101,15 +102,13 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 1.5rem; /* Etwas mehr seitlicher Abstand */
-  z-index: 1000; /* Stellt sicher, dass sie über dem Inhalt liegt */
+  padding: 0 1.5rem;
+  z-index: 1000;
   transition: background .3s ease, border-color .3s ease, box-shadow .3s ease;
-
-  /* Light Mode Glass Styles */
   background: var(--lm-glass-bg);
   border-bottom: 1px solid var(--lm-glass-border);
   box-shadow: 0 2px 10px var(--lm-glass-shadow);
-  backdrop-filter: blur(10px); /* Etwas weniger Blur als Karten */
+  backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
 }
 
@@ -117,27 +116,25 @@ body::before {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-weight: 600; /* Fetter für den Titel */
+  font-weight: 600;
 }
 
 .navbar-left-inner {
   display: flex;
   align-items: center;
   flex-direction: column;
-  font-weight: 600; /* Fetter für den Titel */
+  font-weight: 600;
 }
 
 .navbar-left-inner p:first-child {
-  /* Titel */
   color: var(--lm-text-color-on-glass);
   font-size: 1.1rem;
 }
 
 .navbar-left-inner p:last-child {
-  /* Sub-Titel (INTERNAL) */
   color: var(--text-pale-color);
-  font-size: 0.5rem; /* Kleiner */
-  font-weight: 300; /* Dünner */
+  font-size: 0.5rem;
+  font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -145,7 +142,7 @@ body::before {
 .navbar-right {
   display: flex;
   align-items: center;
-  gap: 1rem; /* Etwas weniger Abstand */
+  gap: 1rem;
 }
 
 .navbar-right-mobile {
@@ -153,24 +150,22 @@ body::before {
 }
 
 .circle-icon {
-  width: 32px; /* Größer */
+  width: 32px;
   height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.9rem; /* Angepasst */
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-
-  /* Light Mode */
   background-color: var(--cws-deep-blue);
   color: var(--cws-neon);
   border: 1px solid rgba(0,0,0,0.1);
 }
 
 .icon-placeholder {
-  width: 32px; /* Gleiche Größe wie circle-icon */
+  width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
@@ -178,26 +173,24 @@ body::before {
   border-radius: 50%;
   cursor: pointer;
   transition: background-color 0.2s;
-
-  /* Light Mode */
-  color: var(--grey-7); /* Icon Farbe */
-  background-color: transparent; /* Kein fester Hintergrund */
+  color: var(--grey-7);
+  background-color: transparent;
 }
 .icon-placeholder i {
-  font-size: 1.1rem; /* Größe der FontAwesome Icons */
-  line-height: 1; /* Verhindert Versatz durch Line-Height */
+  font-size: 1.1rem;
+  line-height: 1;
 }
 
 .icon-placeholder:hover {
-  background-color: var(--black-10p); /* Leichter Hover Effekt */
+  background-color: var(--black-10p);
 }
 
 /* ───────────────────────── Top Bar (Carousel-Stil) ───────────────────────── */
 .topbar {
-  display: flex; /* Wichtig für die Anordnung der Buttons und des Wrappers */
+  display: flex;
   justify-content: center;
-  align-items: center; /* Vertikal zentrieren */
-  padding: 0 0px; /* Kleines Padding, damit Buttons nicht ganz am Rand kleben */
+  align-items: center;
+  padding: 0 0px;
   width: 100%;
   box-sizing: border-box;
   border-radius: 20px;
@@ -208,131 +201,105 @@ body::before {
   -webkit-backdrop-filter: blur(10px);
   margin: 5px auto;
   max-width: 95%;
-  height: 36px; /* Feste Höhe für die Top-Bar, anpassen an Link-Höhe + Padding */
-
+  height: 36px;
 }
 
 /* ───────────────────────── Top Bar Navigation Controls Anpassungen ────────────────── */
-
-/* Basis-Stile für die Topbar-Controls, die globale Button-Stile überschreiben */
-.topbar button.topbar-nav-control { /* Erhöhte Spezifität */
-  /* Resets für globale Button-Regel */
-  min-width: auto;             /* Zurücksetzen von min-width */
-  padding: 0 10px;              /* Spezifisches Padding für diese Buttons */
-  font-size: 18px;             /* Eigene Schriftgröße für die Icons */
-  max-height: 100%;            /* Erlaubt dem Button, die Höhe der Topbar anzunehmen */
-  height: 100%;                /* Nimmt volle Höhe der .topbar ein */
-  align-self: stretch;         /* Dehnt sich vertikal aus, falls Topbar flex ist */
-  border-radius: 0;            /* Allgemeiner Radius zurücksetzen, wird spezifischer für .prev/.next */
-  font-weight: normal;         /* Normales Gewicht, statt 600 von global */
-  
-  background-image: none;      /* Sicherstellen, dass kein Hintergrundbild gesetzt ist */
-  background-color: transparent; /* Explizit transparent setzen! */
-  background: transparent;       /* Kurzform für alle background Eigenschaften */
-  
+.topbar button.topbar-nav-control {
+  min-width: auto;
+  padding: 0 10px;
+  font-size: 18px;
+  max-height: 100%;
+  height: 100%;
+  align-self: stretch;
+  border-radius: 0;
+  font-weight: normal;
+  background-image: none;
+  background-color: transparent;
+  background: transparent;
   border: 0.5px solid var(--lm-glass-border);
-  backdrop-filter: none;         /* Globalen Blur-Effekt entfernen */
+  backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  box-shadow: none;              /* Globalen Schatten entfernen */
-  /* Eigene Stile für Topbar Controls */
-  color: var(--lm-text-color-on-glass, --grey-9); /* Icon-Farbe */
+  box-shadow: none;
+  color: var(--cws-green);
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center;     /* Zentriert das Icon im Button */
+  justify-content: center;
   z-index: 2;
-  /* Übergänge nur für die Eigenschaften, die sich tatsächlich ändern */
   transition: color 0.2s, background-color 0.2s;
   min-height: 34px;
-  max-width: 31.75 !important;
+  max-width: 31.75px !important; /* Korrigiert: Einheit hinzugefügt */
 }
 
-/* Spezifische Abrundungen für prev/next, falls die Topbar selbst abgerundet ist */
 .topbar button.topbar-nav-control.prev {
-  border-top-left-radius: 20px;    /* Beispiel: Passend zu einer Topbar mit border-radius: 50px -> halbe Höhe */
+  border-top-left-radius: 20px;
   border-bottom-left-radius: 20px;
   border-right: 0;
-  /* Kein `background: transparent;` hier nötig, wird von der allgemeineren .topbar-nav-control Regel geerbt */
 }
 
 .topbar button.topbar-nav-control.next {
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
   border-left: 0;
-  /* `justify-content: flex-end;` ist hier nicht sinnvoll, da der Button selbst zentriert sein soll.
-     Wenn das Icon rechtsbündig sein soll, wäre das ein Stil für das Icon selbst. */
-  /* Kein `background: transparent !important;` hier nötig, da die Spezifität jetzt ausreichen sollte */
 }
 
-/* Hover-Effekt für Topbar Controls */
 .topbar button.topbar-nav-control:hover:not(:disabled) {
-  background-color: rgba(var(--cws-green-rgb, 0, 128, 110), 0.1); /* Leichter grüner Hintergrund bei Hover */
-  color: var(--cws-green); /* Grüne Icon-Farbe bei Hover */
-  /* Die globalen Hover-Schatten und Ränder werden durch die Resets oben schon verhindert */
+  background-color: rgba(var(--cws-green-rgb), 0.1); /* Verwendet jetzt definierte RGB-Variable */
+  color: var(--cws-green);
 }
 
-/* Disabled-Zustand für Topbar Controls */
 .topbar button.topbar-nav-control:disabled {
-  background-color: transparent; /* Sicherstellen, dass es transparent bleibt */
+  background-color: transparent;
   color: var(--grey-9, #ccc);
   cursor: not-allowed;
   opacity: 0.5;
-  /* Alle anderen störenden Stile sind bereits durch die Basisregel für .topbar-nav-control zurückgesetzt */
 }
 
 .topbar-nav-wrapper {
   flex-grow: 1;
-  overflow: hidden; /* Wichtig, um visuelles Überlappen zu vermeiden, falls JS mal fehlschlägt */
+  overflow: hidden;
   height: 100%;
   display: flex;
   align-items: center;
-  /* Standardmäßig zentriert, wenn kein Overflow (gesteuert durch .has-overflow Klasse) */
   justify-content: center;
 }
 
 .topbar-nav-wrapper.has-overflow {
-  /* Wenn "Paging" aktiv ist, starten die Elemente links */
   justify-content: center;
 }
 
 .topbar-nav {
-  display: flex; /* Für die Anordnung der Kind-Elemente und 'gap' */
+  display: flex;
   align-items: center;
   height: 100%;
-  /* KEIN transform: translateX() mehr hier! */
 }
 
-.topbar-nav > * { /* Gilt für die direkten Kinder (Links/Items) */
-  flex-shrink: 0; /* Verhindert, dass Items schrumpfen */
-  /* Ihr normales Styling hier (padding, margin für den Link selbst etc.) */
-  /* display wird von JavaScript gesteuert ('none' oder originaler Wert) */
+.topbar-nav > * {
+  flex-shrink: 0;
 }
 
 .topbar-nav-control {
-  /* ... Ihr bestehendes Styling für die Buttons ... */
-  display: flex; /* Standard, wird von JS ggf. auf 'none' gesetzt */
+  display: flex;
 }
 
 .topbar-nav-control:disabled {
-  /* Styling für deaktivierte Buttons */
   opacity: 0.5;
   cursor: not-allowed;
 }
 
 .topbar-nav {
-  display: flex; /* Macht die Links zu Flex-Items */
+  display: flex;
   justify-content: center;
-  align-items: center; /* Vertikal zentrieren */
-  gap: 30px; /* Abstand zwischen den Links */
+  align-items: center;
+  gap: 30px;
   font-size: 12px;
-  width: max-content; /* Wichtig: Erlaubt dem Container, so breit wie sein Inhalt zu sein */
-  height: 100%; /* Nimmt Höhe des Wrappers ein */
-
-  /* Wird per JS transformiert */
+  width: max-content;
+  height: 100%;
   transform: translateX(0);
-  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Sanfte Animation */
-  padding-left: 10px;  /* Optional: Kleiner initialer Abstand links */
-  padding-right: 10px; /* Optional: Kleiner Abstand rechts, falls der letzte Link nicht ganz rechts sein soll */
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .topbar-nav a {
@@ -341,9 +308,9 @@ body::before {
   font-weight: 500;
   letter-spacing: 0.5px;
   transition: color 0.2s;
-  white-space: nowrap; /* Verhindert Umbruch der Links */
-  line-height: 1; /* Kann helfen, die Höhe konsistent zu halten */
-  display: flex; /* Um vertikal zu zentrieren, falls nötig */
+  white-space: nowrap;
+  line-height: 1;
+  display: flex;
   align-items: center;
   height: 100%;
 }
@@ -362,39 +329,33 @@ ul { list-style: none; } li::before { content: '› '; color: var(--list-bullet-
   font-size: clamp(1.2rem, 5vw, 1.8rem);
   margin-bottom: 0;
   flex-grow: 1;
-  text-align: center; /* Zentriert den Text */
+  text-align: center;
   padding-right: 0.5rem;
-  color: var(--lm-text-color-on-glass); /* Default zu Light Mode Text */
+  color: var(--lm-text-color-on-glass);
 }
 #avatar-ui .avatar-header h1 {
-  transform: translateX(36.44px); /* Spezifisch nur für Avatar UI Header beibehalten */
+  transform: translateX(36.44px);
 }
 .chatbot-header h1 {
    transform: translateX(36.44px);
 }
-
 
 /* ───────────────────────── Video ───────────────────────── */
 video#avatarVideo {
   display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 600px; min-height: 275px;
   border-radius: 10px; object-fit: cover; aspect-ratio: 16 / 9;
   background: rgba(229, 229, 229, 0.4); position: relative;
-}
-
-video#avatarVideo {
-  aspect-ratio: 9 / 16;    /* <<< SETZT das Hochkant-Format */
-  width: 100%;           /* <<< Nimmt volle Breite INNERHALB des Card-Paddings ein */
-  max-height: 40vh; /* Limit für Video-Höhe */
+  aspect-ratio: 9 / 16;
+  max-height: 40vh;
   height: auto;
-  object-fit: cover; /* Oder contain, je nach gewünschtem Effekt */
-  border-radius: 16px; /* Abgerundete Ecken für Video */
+  border-radius: 16px;
   margin-top: 1rem;
   border: 1px solid white;
 }
 
 /* ───────────────────────── Allgemeine Container / Karten (Glassmorphism) ───────────────────────── */
 .glass-card {
-   margin-top: 3rem; /* Fügt etwas Abstand unter der Navbar hinzu */
+   margin-top: 3rem;
    margin-bottom: 1rem;
    width: 100%; max-width: 920px; padding: 1.5rem;
    text-align: center; position: relative;
@@ -406,12 +367,12 @@ video#avatarVideo {
 }
 
 #avatar-ui .avatar-header {
-    display: flex; /* Aktiviert Flexbox */
-    align-items: center; /* Vertikal zentrieren */
-    justify-content: space-between; /* Verteilt Platz */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     margin-bottom: 1rem;
-    position: relative; /* Bleibt relativ für innere Elemente */
-    min-height: 50px; /* Stellt sicher, dass der Header Höhe hat für den Kreis */
+    position: relative;
+    min-height: 50px;
 }
 
 /* ───────────────────────── Form Controls (Glassmorphism) ───────────────────────── */
@@ -420,23 +381,23 @@ textarea, input[type='text'] {
   flex: 1; min-width: 150px; padding: .75rem 1rem; border-radius: 8px;
   transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
   text-align: left; font-family: inherit; font-size: .95rem; line-height: 1.35;
-  background: var(--lm-input-bg); /* Generische Variable für Input BG */
-  color: var(--lm-text-color-on-glass); /* Generische Variable für Text */
-  border: 1px solid var(--lm-input-border); /* Generische Variable für Input Border */
+  background: var(--lm-input-bg);
+  color: var(--lm-text-color-on-glass);
+  border: 1px solid var(--lm-input-border);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
 }
 
 textarea::-webkit-scrollbar {
   display: none;
-}  
+}
 
 textarea { resize: none; overflow-y: auto; }
 textarea::placeholder, input::placeholder { color: var(--text-pale-color); opacity: 0.8; }
 textarea:focus, input:focus {
-  border-color: var(--lm-input-focus-border); /* Generische Variable */
+  border-color: var(--lm-input-focus-border);
   outline: 0;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 0 0 2px var(--lm-input-focus-shadow); /* Generische Variable */
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05), 0 0 0 2px var(--lm-input-focus-shadow);
 }
 section#avatar-ui textarea#userInput { flex: 1 1 auto; min-height: 2.4rem; max-height: 15vh; }
 
@@ -446,16 +407,16 @@ button {
   max-height: 80px; align-self: center; border-radius: 8px;
   transition: background .2s, color .2s, box-shadow .2s, border-color .2s, transform .15s;
   font-weight: 600;
-  background: var(--lm-button-glass-bg); /* Generische Variable */
-  color: var(--lm-button-glass-fg); /* Generische Variable */
-  border: 1px solid var(--lm-button-glass-border); /* Generische Variable */
+  background: var(--lm-button-glass-bg);
+  color: var(--lm-button-glass-fg);
+  border: 1px solid var(--lm-button-glass-border);
   backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
   box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 button:hover:not(:disabled) {
-  background: var(--lm-button-hover-glass-bg); /* Generische Variable */
-  border-color: var(--lm-button-hover-glass-border); /* Generische Variable */
-  color: var(--lm-button-hover-glass-fg); /* Generische Variable */
+  background: var(--lm-button-hover-glass-bg);
+  border-color: var(--lm-button-hover-glass-border);
+  color: var(--lm-button-hover-glass-fg);
   box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
 button:disabled {
@@ -478,53 +439,45 @@ button:disabled {
 
 /* ───────────────────────── CHATBOT UI (Glassmorphism) ───────────────────────── */
 #chat-ui {
-    /* Stellt sicher, dass die Chat UI nicht die volle Höhe einnimmt,
-       wenn sie zusammen mit der Avatar UI angezeigt wird (falls das passiert) */
-    max-height: calc(100vh - 80px); /* Beispiel: Viewport Höhe minus Navbar Höhe minus etwas Puffer */
-    width: 100%; /* Volle Breite innerhalb des Body Paddings */
-    display: flex; /* Zentriert die chatbot-card */
+    max-height: calc(100vh - 80px);
+    width: 100%;
+    display: flex;
     justify-content: center;
     align-items: center;
 }
 
 .chatbot-card {
    display: flex; flex-direction: column;
-   width: clamp(280px, 90vw, 620px); height: clamp(460px, 80vh, 720px); /* Höhe angepasst an Viewport */
-   margin-top: 1rem; /* Etwas Abstand nach oben */
-   margin-bottom: 0.5rem; /* Etwas Abstand nach unten */
-   border-radius: 20px; /* Behält eigenen Radius */
-   overflow: hidden; position: relative; /* Für ::after im Dark Mode */
-
-  /* Light Mode Glass Styles (werden im Dark Mode überschrieben) */
+   width: clamp(280px, 90vw, 620px); height: clamp(460px, 80vh, 720px);
+   margin-top: 1rem;
+   margin-bottom: 0.5rem;
+   border-radius: 20px;
+   overflow: hidden; position: relative;
   background: var(--lm-glass-bg);
-  border: 2px solid var(--lm-glass-border); /* 2px beibehalten wie original */
+  border: 2px solid var(--lm-glass-border);
   box-shadow: 0 8px 32px var(--lm-glass-shadow);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  color: var(--lm-text-color-on-glass); /* Textfarbe für Body etc. */
+  color: var(--lm-text-color-on-glass);
 }
 
 .chatbot-header {
   flex: 0 0 64px; display: flex; align-items: center; justify-content: space-between;
   padding: 0 1rem; font-size: 1.35rem; font-weight: 600;
-  position: relative; /* Für z-index im Dark Mode */
-  z-index: 1; /* Über ::after im Dark Mode */
-
-  /* Light Mode - Subtile Trennlinie */
+  position: relative;
+  z-index: 1;
   border-bottom: 1px solid var(--lm-glass-border);
-  /* Hintergrund und Farbe werden von .chatbot-card geerbt */
 }
-/* H1 im Header wird durch die generelle Regel oben gestyled */
-.chatbot-header h1 { text-align: center; /* Überschreibt generelles center */ }
+.chatbot-header h1 { text-align: center; }
 
 .chatbot-body {
   flex: 1 1 auto; padding: 1rem .75rem; overflow-y: auto;
   display: flex; flex-direction: column; gap: .5rem;
   scroll-behavior: smooth;
-  position: relative; /* Für z-index im Dark Mode */
-  z-index: 1; /* Über ::after im Dark Mode */
+  position: relative;
+  z-index: 1;
 }
 .chatbot-body::-webkit-scrollbar { width: 5px;}
-.chatbot-body::-webkit-scrollbar-track { background: transparent; } /* Transparent über Glas */
+.chatbot-body::-webkit-scrollbar-track { background: transparent; }
 .chatbot-body::-webkit-scrollbar-thumb { background: #00806e59; border-radius: 10px;}
 
 .message {
@@ -532,9 +485,8 @@ button:disabled {
   font-size: .95rem; line-height: 1.35; word-break: break-word;
   box-shadow: 0 2px 4px rgba(0,0,0,.12);
 }
-/* Light Mode Nachrichtenfarben */
 .message.user { align-self: flex-end; background: var(--cws-neon); color: var(--cws-deep-blue); }
-.message.bot { align-self: flex-start; background: rgba(255, 255, 255, 0.6); color: var(--cws-deep-blue); } /* Etwas transparenter weißer Hintergrund */
+.message.bot { align-self: flex-start; background: rgba(255, 255, 255, 0.6); color: var(--cws-deep-blue); }
 .message.bot.fading-out { opacity: 0.6; transition: opacity 0.05s ease; }
 .message.bot.fading-in { animation: fadeInText 0.05s ease forwards; }
 @keyframes fadeInText { from { opacity: 0; } to { opacity: 1; } }
@@ -542,22 +494,15 @@ button:disabled {
 .chatbot-input {
   flex: 0 0 auto; display: flex; gap: .75rem; align-items: center;
   padding: .75rem 1rem;
-  position: relative; /* Für z-index im Dark Mode */
-  z-index: 1; /* Über ::after im Dark Mode */
-
-  /* Light Mode - Subtile Trennlinie */
+  position: relative;
+  z-index: 1;
   border-top: 1px solid var(--lm-glass-border);
-  /* Hintergrund wird von .chatbot-card geerbt */
 }
-/* Textarea im Chat verwendet generelle Glass-Input-Stile */
 .chatbot-input textarea#chat-input {
   flex: 1 1 auto; min-height: 2.4rem; max-height: 30vh;
-  /* Verwendet die Stile von 'textarea' oben */
 }
-/* Button im Chat verwendet generelle Glass-Button-Stile */
 .chatbot-input button#chat-send {
-  flex: 0 0 110px; padding: .7rem 1rem; border-radius: 10px; font-weight: 600; 
-  /* Verwendet die Stile von 'button' oben */
+  flex: 0 0 110px; padding: .7rem 1rem; border-radius: 10px; font-weight: 600;
 }
 .chatbot-input button#chat-send:active:not(:disabled) { transform: scale(.96); }
 .chatbot-input button#chat-send::before { content: "\21B5"; font-family: inherit; }
@@ -580,66 +525,60 @@ button:disabled {
   align-items: center;
   justify-content: flex-end;
   position: relative;
-  height: 48px; /* Etwas größer für besseres Tappen */
+  height: 48px;
   cursor: pointer;
-  -webkit-tap-highlight-color: transparent; /* Verhindert blauen Kasten bei Tap auf iOS */
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tag-icon-circle {
-  width: 64px; /* Angepasst an Höhe */
+  width: 64px;
   height: 64px;
-  /* Glassmorphism Basis */
   background: #00806e89;
   border: 1px solid var(--lm-glass-border);
   box-shadow: 0 4px 15px var(--lm-glass-shadow);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
   position: relative;
-  margin-right: 15px; /* Etwas mehr Abstand */
+  margin-right: 15px;
   transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .tag-icon-circle i {
-  font-size: 1.3rem; /* Angepasst */
+  font-size: 1.3rem;
   color: var(--cws-neon);
   transition: color 0.2s ease;
 }
 
 .tag-text-panel {
   position: absolute;
-  right: 15px; /* Passend zu margin-right des Icons */
+  right: 15px;
   top: 0;
   height: 100%;
   display: flex;
   align-items: center;
-
-  /* Glassmorphism Basis */
   background: var(--lm-glass-bg);
   border: 1px solid var(--lm-glass-border);
   box-shadow: -2px 4px 15px var(--lm-glass-shadow);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-
-  color: var(--current-text-color);
-  padding: 0 20px 0 calc(48px / 2); /* oben/unten | rechts | links */
-                                       /* padding-left: 32px (24px Radius + 8px Puffer) */
-  border-radius: 24px; /* Passend zur Höhe */
+  color: var(--current-text-color); /* Beachte: --current-text-color ist keine Standard-Variable. Ggf. anpassen! */
+  padding: 0 20px 0 calc(48px / 2 + 8px); /* Leichter Puffer links vom Icon-Radius */
+  border-radius: 24px;
   opacity: 0;
-  visibility: hidden; /* Startet an der rechten Kante */
-  min-width: 0; /* Erlaubt Schrumpfen auf 0 */
-  max-width: 280px; /* Maximale Ausfahrbreite */
+  visibility: hidden;
+  min-width: 0;
+  max-width: 280px;
   z-index: 1;
-  overflow: hidden; /* Verhindert Textüberlauf während Animation */
+  overflow: hidden;
   transition: width 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55),
               min-width 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55),
-              padding-left 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55), /* padding animieren */
-              opacity 0.25s ease 0.1s, /* Opacity mit Delay */
+              padding-left 0.35s cubic-bezier(0.68, -0.55, 0.27, 1.55),
+              opacity 0.25s ease 0.1s,
               visibility 0s linear 0.35s;
 }
 
@@ -647,21 +586,19 @@ button:disabled {
     white-space: nowrap;
     font-weight: 500;
     font-size: 0.95rem;
-    opacity: 0; /* Text anfangs unsichtbar, wird auch animiert */
-    transition: opacity 0.2s ease 0.2s; /* Text später einblenden als Panel */
+    opacity: 0;
+    transition: opacity 0.2s ease 0.2s;
 }
 
-/* Ausgefahrener Zustand - Gesteuert durch JS-Klasse für Touch */
 .tag-wrapper.open .tag-text-panel {
   opacity: 1;
   visibility: visible;
-  width: auto; /* Nimmt benötigte Breite oder min/max-width */
-  transition-delay: 0s; /* Alle Delays zurücksetzen */
+  width: auto;
+  transition-delay: 0s;
 }
 .tag-wrapper.open .tag-text-panel span {
     opacity: 1;
 }
-
 
 /* ───────────────────────── Consent Modal & Overlays ───────────────────────── */
 .consent-overlay {
@@ -669,15 +606,15 @@ button:disabled {
   display: flex; align-items: center; justify-content: center;
   backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
 }
-.consent-modal { /* Erbt jetzt .glass-card Stile */
-  max-width: 600px; border-radius: 24px; /* Eigener Radius */
-  margin-top: 1rem; /* Behält Abstand bei */
+.consent-modal {
+  max-width: 600px; border-radius: 24px;
+  margin-top: 1rem;
   margin-bottom: 1rem;
 }
 
 .consent-modal h2 { font-size: clamp(1.5rem, 4vw, 2rem); margin-bottom: 1rem; color: var(--cws-neon); }
-.consent-modal p { margin-bottom: 1rem; line-height: 1.6; color: white;} /* MB reduziert */
-.consent-modal p:last-of-type { margin-bottom: 2rem; } /* Letzter P hat mehr Abstand zum Button */
+.consent-modal p { margin-bottom: 1rem; line-height: 1.6; color: white;}
+.consent-modal p:last-of-type { margin-bottom: 2rem; }
 .consent-modal p strong { color: var(--cws-neon); }
 .consent-modal button#consent-accept { padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; }
 
@@ -686,9 +623,9 @@ button:disabled {
   backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
   z-index: 9999; display: none; align-items: center; justify-content: center;
 }
-#experiment-complete-banner { /* Erbt jetzt .glass-card Stile */
+#experiment-complete-banner {
   max-width: 480px; border-radius: 20px;
-  margin-top: 1rem; /* Behält Abstand bei */
+  margin-top: 1rem;
   margin-bottom: 1rem;
 }
 #experiment-complete-banner h3 { font-size: 1.5rem; margin-bottom: 1rem; color: var(--cws-neon); }
@@ -710,7 +647,7 @@ button:disabled {
     opacity: 1;
     visibility: visible;
     width: auto;
-    min-width: 220px;
+    min-width: 220px; /* Standard-Ausfahrbreite */
     transition-delay: 0s;
   }
   .tag-wrapper:hover .tag-text-panel span {
@@ -721,20 +658,13 @@ button:disabled {
   }
 }
 
-/* Hover-Effekte (Desktop) */
-@media (hover: hover) and (pointer: fine) and ((min-width: 481px) and (max-width: 768px)) {
-  .tag-wrapper:hover .tag-text-panel {
-    opacity: 1;
-    visibility: visible;
-    width: auto;
-    min-width: 180px;
-    transition-delay: 0s;
-  }
-}
 /* ───────────────────────── Media Queries (Responsiveness) ───────────────────────── */
-@media (min-width: 481px) and (max-width: 795px) { /* Zwischen Desktop und Mobile */
+
+/* Anpassungen für Floating Tags und UI auf mittelgroßen Bildschirmen (Tablets etc.) */
+@media (min-width: 481px) and (max-width: 795px) {
    .chatbot-card {
-       height: clamp(460px, 85vh, 720px); /* Etwas mehr Höhe erlauben als ganz Mobile */
+       height: clamp(460px, 85vh, 720px);
+       margin-bottom: 0;
    }
 
    .connecting-overlay {
@@ -773,6 +703,30 @@ button:disabled {
   .tag-wrapper.open .tag-icon-circle {
     transform: translateX(-4px);  /* leichter „Pull“-Effekt beim Öffnen */
   }
+
+   /* Alte Regel für tag-icon-circle auf dieser Breite wird durch obige spezifischere Regeln ersetzt/überschrieben */
+  /* .tag-icon-circle {
+    width: 20px;
+    height: 48px;
+    margin-right: 0;
+    border-radius: 8px 0px 0px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+  } */
+  /* .tag-icon-circle i { font-size: 0.9rem; } */
+  /* .tag-text-panel { right: 0; height: 32px; transform: translateY(8px); } */
+  /* .tag-wrapper.open .tag-icon-circle { transform: translateX(-4px); } */
+
+  .chatbot-card {
+    margin-top: 0;
+  }
+
+  body.mode-chat {
+    padding-top: 75px;
+    padding-bottom: 5px;
+  }
 }
 
 @media (min-width: 481px) { /* Styles für Desktop und größere Tablets */
@@ -786,13 +740,13 @@ button:disabled {
 
 @media (max-width: 768px) { /* Anpassungen für Navbar auf kleineren Bildschirmen */
     .navbar {
-        padding: 0 1rem; /* Weniger Padding */
+        padding: 0 1rem;
     }
     .navbar-right {
-        gap: 0.6rem; /* Icons näher zusammenrücken */
+        gap: 0.6rem;
     }
     .circle-icon, .icon-placeholder {
-        width: 28px; /* Icons etwas kleiner */
+        width: 28px;
         height: 28px;
     }
     .circle-icon {
@@ -805,16 +759,30 @@ button:disabled {
 
 @media (max-width: 480px) { /* Spezifische Mobile Styles */
   body {
-    display: block; /* Zurück zu block für einfache Layouts */
-    padding-top: 66px; /* Platz für Navbar (56px) + etwas Abstand (10px) */
-    padding-left: 0; /* Kein seitliches Padding am Body */
+    display: block;
+    padding-top: 66px;
+    padding-left: 0;
     padding-right: 0;
-    padding-bottom: 0; /* Kein unteres Padding */
-    min-height: 100dvh; /* Sicherstellen, dass Body Höhe hat */
+    padding-bottom: 0;
+    min-height: 100dvh;
   }
+
+  body.mode-chat {
+    padding-top: 60px;
+    padding-bottom: 35px;
+  }
+
+  body.mode-chat .topbar {
+    margin-top: 0px;
+  }
+
+  body.mode-chat .tag-icon-circle { /* Diese Regel hat weniger Effekt, da .floating-tags-container auf touch oft display:none ist */
+    height: 42px;
+  }
+
   .navbar {
-      padding: 0 0.75rem; /* Noch weniger Padding */
-      height: 56px; /* Höhe beibehalten */
+      padding: 0 0.75rem;
+      height: 56px;
       gap: 1rem;
   }
 
@@ -829,59 +797,56 @@ button:disabled {
   }
 
   #avatar-ui, #chat-ui {
-     max-height: none; /* Beschränkung aufheben, da sie den Hauptinhalt bilden */
-     width: 100%; /* Volle Breite */
-     display: block; /* Standard block layout */
+     max-height: none;
+     width: 100%;
+     display: block;
   }
 
-  .glass-card { /* Passt Padding/Margin für Karten auf Mobile an */
+  .glass-card {
       padding: 1rem;
       margin-top: 1rem;
       margin-bottom: 0.5rem;
-      width: auto; /* Erlaubt Schrumpfen auf Inhaltsbreite minus margin */
-      border-radius: 12px; /* Angepasster Radius mobil */
-      max-width: none; /* Keine Breitenbeschränkung */
+      width: auto;
+      border-radius: 12px;
+      max-width: none;
   }
-  
+
   #avatar-ui .avatar-header h1 {
-    transform: translateX(25.44px); /* Spezifisch nur für Avatar UI Header beibehalten */
+    transform: translateX(25.44px);
   }
   .chatbot-header h1 {
      transform: translateX(25.44px);
   }
 
   .floating-tags-container {
-    /* statt right:0 und transform:none: */
-    left: 50%;               /* Container-Mitte auf die Viewport-Mitte legen */
-    transform: translateX(-50%); /* wirklich zentrieren */
-    bottom: 0;               /* bleibt unten */
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 0;
     top: auto;
-    right: auto;             /* nicht mehr rechts */
+    right: auto;
     flex-direction: row;
     align-items: flex-end;
     gap: 15px;
-    padding: 0;       /* nur vertikal bisschen Abstand, horizontal weg */
+    padding: 0;
   }
 
   .tag-wrapper {
-    /* Kein zusätzlicher Rand */
     margin: 0;
   }
 
   .tag-icon-circle {
-    /* bleibt 48×48, sitzt direkt am Rand */
     width: 64px;
     height: 64px;
     margin: 0;
-    border-radius: 8px 8px 0 0; /* oben abgerundet */
+    border-radius: 8px 8px 0 0;
   }
 
   .tag-text-panel {
-    display: none;
+    display: none; /* Auf Mobile immer ausblenden, da Interaktion via Hover nicht zuverlässig */
   }
 
   #avatar-ui .avatar-header h1, .chatbot-header h1 { font-size: 1.1rem; margin-bottom: 0; padding-right: 0.25rem; }
-  @media (max-width: 360px) { /* Noch kleinere Bildschirme */
+  @media (max-width: 360px) {
     #avatar-ui .avatar-header h1, .chatbot-header h1 { font-size: 1rem; }
   }
 
@@ -889,47 +854,45 @@ button:disabled {
     #avatar-ui .avatar-header h1, .chatbot-header h1 {text-align: left; transform: translateX(0px);}
   }
 
-  .chatbot-card { /* Volle Breite/Höhe mobil anpassen */
-      /* height: 100dvh; */ /* Nimmt zu viel Platz ein */
-      width: 100%; /* Volle Breite */
+  .chatbot-card {
+      width: 100%;
       min-width: 100%;
-      margin: 0; /* Kein Margin */
+      margin: 0;
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   }
   #avatar-ui .avatar-header {margin-bottom: 0.5rem; min-height: 42px; }
 
   video#avatarVideo {
-    aspect-ratio: 9 / 16;    /* <<< SETZT das Hochkant-Format */
-    width: 100%;           /* <<< Nimmt volle Breite INNERHALB des Card-Paddings ein */
+    aspect-ratio: 9 / 16;
+    width: 100%;
     border-radius: 8px;
-    max-height: 40vh; /* Limit für Video-Höhe */
+    max-height: 40vh;
     height: auto;
-    object-fit: cover; /* Oder contain, je nach gewünschtem Effekt */
-    border-radius: 16px; /* Abgerundete Ecken für Video */
+    object-fit: cover;
+    border-radius: 16px;
     margin-top: 1rem;
-    margin-top: 1rem;      /* Behält oberen Abstand bei */
-    margin-bottom: 1rem;   /* Behält unteren Abstand bei */
-    margin-left: 0;        /* <<< Stellt sicher, dass es links beginnt (innerhalb Padding) */
-    margin-right: 0;       /* <<< Stellt sicher, dass es rechts endet (innerhalb Padding) */
-} 
+    margin-bottom: 1rem;
+    margin-left: 0;
+    margin-right: 0;
+}
 
 .connecting-overlay {font-size: 1rem;}
 
   .progress-circle { width: 42px; height: 42px; font-size: 0.7rem; }
 
-  section[role='group'] { flex-direction: column; gap: 0.75rem; padding: 0 1rem 1rem 1rem; /* Padding für Input Gruppe */ }
+  section[role='group'] { flex-direction: column; gap: 0.75rem; padding: 0 1rem 1rem 1rem; }
   button, .btn-secondary, #speakButton, #chat-send, #consent-accept { width: 100%; font-size: 1.1rem; padding: 0.8rem 1rem; border-radius: 10px; min-height: 44px; max-height: none; }
-  textarea, input[type="text"] { font-size: 1rem; padding: 0.8rem; width: 100%; /* Volle Breite erzwingen */}
-  .topbar-nav-control {width: 31.75px;}
-  .chatbot-header { padding: 0 0.75rem; font-size: 1.15rem; flex: 0 0 56px; /* Höhe an Navbar anpassen */}
+  textarea, input[type="text"] { font-size: 1rem; padding: 0.8rem; width: 100%; }
+  .topbar-nav-control {width: 31.75px;} /* Behält die spezifische Breite für mobile Pfeile */
+  .chatbot-header { padding: 0 0.75rem; font-size: 1.15rem; flex: 0 0 56px; }
   .chatbot-header h1 { display: inline; font-size: 1.15rem; margin-left: 0;}
 
-  .chatbot-input { flex-direction: column; gap: .75rem; padding: 0.75rem; /* Padding angepasst */ }
+  .chatbot-input { flex-direction: column; gap: .75rem; padding: 0.75rem; }
   .chatbot-input textarea#chat-input { width: 100%; }
   .chatbot-input button#chat-send { flex-basis: auto; max-height: 50px; }
   .chatbot-input button#chat-send::before { content: "▲"; font-family: inherit; }
 
-  .consent-modal { width: 90%; margin: 0.5rem auto; border-radius: 18px; } /* Modal auch anpassen */
+  .consent-modal { width: 90%; margin: 0.5rem auto; border-radius: 18px; }
   #experiment-complete-banner { width: 90%; margin: 0.5rem auto; }
 }
 
@@ -954,15 +917,15 @@ button:disabled {
     --dm-body-bg-color: #0A192F;
 
     /* Dark Mode Glass Base */
-    --dm-glass-bg: rgba(12, 22, 38, 0.6); /* Etwas deckender */
+    --dm-glass-bg: rgba(12, 22, 38, 0.6);
     --dm-glass-border: var(--cws-green);
     --dm-glass-shadow-glow: rgba(var(--cws-neon-rgb), 0.18);
     --dm-glass-shadow-depth: rgba(0, 0, 0, 0.4);
-    --dm-text-color-on-glass: rgba(229, 229, 229, 0.9); /* Heller für besseren Kontrast */
+    --dm-text-color-on-glass: rgba(229, 229, 229, 0.9);
     --dm-glass-blur: 18px;
 
     /* Dark Mode Navbar */
-    --dm-navbar-border: rgba(var(--cws-neon-rgb), 0.15); /* Subtile Neon-Linie für Navbar */
+    --dm-navbar-border: rgba(var(--cws-neon-rgb), 0.15);
 
     /* Dark Mode Video Frame */
     --dm-video-frame-bg: hsla(0, 0%, 90%, 0.1);
@@ -989,6 +952,11 @@ button:disabled {
     --dm-progress-circle-bg-stroke: rgba(var(--cws-neon-rgb), 0.2);
     --dm-progress-circle-fg-stroke: var(--cws-neon);
     --dm-progress-circle-text-color: var(--cws-neon);
+
+    /* Dark Mode Topbar Controls */
+    --dm-topbar-control-hover-bg: rgba(var(--cws-neon-rgb), 0.15);
+    --dm-topbar-control-hover-color: var(--cws-neon);
+    --dm-topbar-control-disabled-color: var(--grey-7); /* Fallback, falls text-pale-color zu hell */
   }
 
   body {
@@ -1003,27 +971,27 @@ button:disabled {
   /* --- Navbar Dark Mode --- */
   .navbar {
     background: var(--dm-glass-bg);
-    border-bottom-color: var(--dm-navbar-border); /* Subtile Linie */
-    box-shadow: 0 4px 15px var(--dm-glass-shadow-depth); /* Dunkler Schatten */
+    border-bottom-color: var(--dm-navbar-border);
+    box-shadow: 0 4px 15px var(--dm-glass-shadow-depth);
     backdrop-filter: blur(var(--dm-glass-blur));
     -webkit-backdrop-filter: blur(var(--dm-glass-blur));
   }
   .navbar-left-inner p:first-child {
-    color: var(--cws-neon); /* Neon Titel */
+    color: var(--cws-neon);
   }
   .navbar-left-inner p:last-child {
-    color: var(--text-pale-color); /* Blasse Farbe für Subtitel */
+    color: var(--text-pale-color);
   }
   .circle-icon {
-    background-color: var(--cws-neon); /* Hintergrund Neon */
-    color: var(--cws-deep-blue); /* Text dunkel */
-    border: 1px solid rgba(var(--cws-neon-rgb), 0.5); /* Leichter Neon Rand */
+    background-color: var(--cws-neon);
+    color: var(--cws-deep-blue);
+    border: 1px solid rgba(var(--cws-neon-rgb), 0.5);
   }
   .icon-placeholder {
-    color: var(--text-pale-color); /* Blasse Icon Farbe */
+    color: var(--text-pale-color);
   }
   .icon-placeholder:hover {
-     background-color: rgba(var(--cws-neon-rgb), 0.1); /* Leichter Neon Hover */
+     background-color: rgba(var(--cws-neon-rgb), 0.1);
   }
 
   /* General Glass Card Dark Mode */
@@ -1033,8 +1001,7 @@ button:disabled {
     backdrop-filter: blur(var(--dm-glass-blur)); -webkit-backdrop-filter: blur(var(--dm-glass-blur));
     color: var(--dm-text-color-on-glass);
   }
-  .glass-card h1 { color: var(--cws-neon); } /* Neon für H1 in Glas-Karten */
-  /* #avatar-ui .avatar-header h1 { color: var(--dm-text-color-on-glass); } /* Überschrieben von generellem H1 */
+  .glass-card h1 { color: var(--cws-neon); }
 
   /* Noise Overlay for all Glass Elements */
   .glass-card::after, .chatbot-card::after {
@@ -1043,13 +1010,13 @@ button:disabled {
       pointer-events: none; border-radius: inherit; z-index: 0;
   }
   .glass-card > *:not(style):not(script),
-  .chatbot-card > *:not(style):not(script):not(::after) { /* Sicherstellen, dass ::after ausgeschlossen wird */
+  .chatbot-card > *:not(style):not(script):not(::after) {
       position: relative; z-index: 1;
   }
 
   video#avatarVideo {
     background: var(--dm-video-frame-bg); border: 2px solid rgba(var(--cws-neon-rgb), 0.15);
-    box-shadow: inset 0 0 0 1.5px var(--dm-video-frame-border), 0 5px 15px rgba(var(--cws-neon),0.3); /* Angepasster Schatten */
+    box-shadow: inset 0 0 0 1.5px var(--dm-video-frame-border), 0 5px 15px rgba(var(--cws-neon),0.3);
   }
 
   /* Dark Mode Inputs (Textarea, Input) */
@@ -1060,15 +1027,13 @@ button:disabled {
   }
 
   textarea {
-    scrollbar-width: none;           /* Firefox */
-    -ms-overflow-style: none;        /* IE/Edge Legacy */
-    overflow-y: scroll;              /* Scrollfunktion bleibt erhalten */
-  
-    /* Für Webkit-basierte Browser */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow-y: scroll;
   }
   textarea::-webkit-scrollbar {
     display: none;
-  }  
+  }
 
   textarea::placeholder, input::placeholder { color: var(--text-pale-color); opacity: 0.7; }
   textarea:focus, input:focus {
@@ -1097,31 +1062,59 @@ button:disabled {
   .progress-circle .circle { stroke: var(--dm-progress-circle-fg-stroke); }
   .progress-circle .progress-text { color: var(--dm-progress-circle-text-color); }
 
+  .topbar {
+    background: var(--dm-glass-bg); border: 2px solid rgba(var(--cws-neon-rgb), 0.15);
+    box-shadow: 0 0 35px -10px var(--dm-glass-shadow-glow), 0 8px 25px var(--dm-glass-shadow-depth);
+    backdrop-filter: blur(var(--dm-glass-blur)); -webkit-backdrop-filter: blur(var(--dm-glass-blur));
+    color: var(--dm-text-color-on-glass);
+  }
+
+  /* Dark Mode Topbar Controls */
+  .topbar button.topbar-nav-control {
+      color: var(--cws-neon); /* Behält Grün für Sichtbarkeit, oder --cws-neon wenn gewünscht */
+      border-color: rgba(var(--cws-neon-rgb), 0.15);
+  }
+  .topbar button.topbar-nav-control:hover:not(:disabled) {
+    background-color: none;
+    color: var(--dm-topbar-control-hover-color);
+    box-shadow: none;
+  }
+  .topbar button.topbar-nav-control:disabled {
+    background-color: transparent;
+    color: var(--grey-e); /* Angepasste Disabled Farbe */
+    opacity: 0.4;
+  }
+  .topbar-nav a {
+    color: var(--dm-text-color-on-glass);
+  }
+  .topbar-nav a:hover {
+    color: var(--cws-neon);
+  }
+
+
   /* --- Chatbot Specific Dark Mode Overrides --- */
   .chatbot-card {
     background: var(--dm-glass-bg);
-    border: 2px solid  rgba(var(--cws-neon-rgb), 0.15); /* Dünnerer Rand für Chat */
+    border: 2px solid  rgba(var(--cws-neon-rgb), 0.15);
     box-shadow: 0 0 35px -10px var(--dm-glass-shadow-glow), 0 8px 25px var(--dm-glass-shadow-depth);
     backdrop-filter: blur(var(--dm-glass-blur)); -webkit-backdrop-filter: blur(var(--dm-glass-blur));
     color: var(--dm-text-color-on-glass);
   }
 
   .chatbot-header {
-    border-bottom-color: rgba(var(--cws-neon-rgb), 0.15); /* Subtile Neon-Linie */
-    /* Hintergrund & Textfarbe von .chatbot-card geerbt */
+    border-bottom-color: rgba(var(--cws-neon-rgb), 0.15);
   }
-  .chatbot-header h1 { color: var(--cws-neon); } /* Neon für Chatbot Header */
+  .chatbot-header h1 { color: var(--cws-neon); }
 
   .chatbot-input {
-    border-top-color: rgba(var(--cws-neon-rgb), 0.15); /* Subtile Neon-Linie */
-    background: rgba(var(--cws-neon-rgb), 0.03); /* Leichter Hintergrund zur Abhebung */
+    border-top-color: rgba(var(--cws-neon-rgb), 0.15);
+    background: rgba(var(--cws-neon-rgb), 0.03);
   }
-  /* Input & Button im Chat erben die generellen Dark Mode Stile für Inputs/Buttons */
 
-  .message.user { /* Farben bleiben gleich, passen gut */
+  .message.user {
     background: var(--cws-neon); color: #001a20; border: 1px solid #e5e5e559;
   }
-  .message.bot { /* Farben bleiben gleich, passen gut */
+  .message.bot {
     background: rgba(var(--cws-neon-rgb), 0.2); color: var(--dm-text-color-on-glass); border: 1px solid rgba(var(--cws-neon-rgb),0.2);
   }
   .chatbot-body::-webkit-scrollbar-thumb { background: #c2fe0659;}
@@ -1129,12 +1122,10 @@ button:disabled {
   .tag-icon-circle {
     background: var(--dm-glass-bg);
     border: 1px solid var(--dm-glass-border);
-    /* Hier kannst du zwischen Glow oder Depth wählen: */
     box-shadow: 0 4px 15px var(--dm-glass-shadow-glow);
-    /* alternativ: box-shadow: 0 4px 15px var(--dm-glass-shadow-depth); */
   }
   .tag-icon-circle i {
-    color: var(--dm-text-color-on-glass);
+    color: var(--cws-neon); /* Neon für bessere Sichtbarkeit im Dark Mode */
   }
 
   .tag-text-panel {
@@ -1145,29 +1136,29 @@ button:disabled {
   }
 
   /* Overlays & Modals Dark Mode */
-  .consent-modal { color: var(--dm-text-color-on-glass); } /* Erbt Glas Stile */
+  .consent-modal { color: var(--dm-text-color-on-glass); }
   .consent-modal h2 { color: var(--cws-neon); }
   .consent-modal p { color: var(--text-pale-color); }
   .consent-modal p strong { color: var(--cws-neon); }
 
-  #experiment-complete-banner { color: var(--dm-text-color-on-glass); } /* Erbt Glas Stile */
+  #experiment-complete-banner { color: var(--dm-text-color-on-glass); }
   #experiment-complete-banner h3 { color: var(--cws-neon); }
   #experiment-complete-banner p { color: white; }
 
-  .connecting-overlay { color: var(--grey-9); } /* Farbe für Dark Mode */
+  .connecting-overlay { color: var(--grey-9); }
 
    /* Mobile Dark Mode Anpassungen */
    @media (max-width: 480px) {
         .chatbot-card {
-             backdrop-filter: blur(16px); /* Etwas mehr Blur mobil dark */
+             backdrop-filter: blur(16px);
              -webkit-backdrop-filter: blur(16px);
         }
         video#avatarVideo {
-             border: none; /* Kein Rand mobil dark */
+             border: none;
              box-shadow: none;
-             background: transparent; /* Kein heller Hintergrund */
+             background: transparent;
         }
-        .glass-card { /* Leichter Rand für mobile Karten im Dark Mode */
+        .glass-card {
             border: 1px solid rgba(var(--cws-neon-rgb), 0.2);
         }
     }
@@ -1175,39 +1166,65 @@ button:disabled {
 
 /* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
 @media (hover: none) and (pointer: coarse) {
-  button, #speakButton, #chat-send, #consent-accept {
-    box-shadow: none !important; transform: none !important; transition: none; /* Keine Transition/Effekte auf Touch */
+  button, #speakButton, #chat-send, #consent-accept { /* .topbar-nav-control unten separat behandelt */
+    box-shadow: none !important; transform: none !important; transition: none;
   }
-  button:active:not(:disabled) { transform: scale(0.98) !important; } /* Kleiner Klick-Effekt stattdessen */
 
-  .icon-placeholder:hover { background-color: transparent !important; } /* Kein Hover auf Icons */
-  .icon-placeholder:active { background-color: var(--black-10p) !important; } /* Klick-Effekt Light */
+  body.mode-chat {
+    padding-top: 62px;
+    padding-bottom: 1px;
+  }
 
-  /* Verhindern, dass Hover-Styles auf Touch "hängenbleiben" */
+  button:active:not(:disabled) { transform: scale(0.98) !important; }
+
+  .icon-placeholder:hover { background-color: transparent !important; }
+  .icon-placeholder:active { background-color: var(--black-10p) !important; }
+
+  .topbar-nav-control:not(:disabled),
+  .topbar-nav-control:hover:not(:disabled),
+  .topbar-nav-control:active:not(:disabled),
+  .topbar-nav-control:focus:not(:disabled),
+  .topbar-nav-control:focus-visible:not(:disabled) {
+      background-color: transparent !important;
+      color: var(--cws-green) !important; /* Korrigiert: Definierten Variable verwenden */
+      border-color: transparent !important; /* Oder spezifische border-color, wenn vorhanden */
+      outline: none !important;
+      box-shadow: none !important;
+  }
+
+
   @media (prefers-color-scheme: dark) {
-    button:hover:not(:disabled) { /* Keine visuellen Änderungen bei Hover */
+    button:hover:not(:disabled) {
       background: var(--dm-button-bg) !important;
       color: var(--dm-button-fg) !important;
       border-color: var(--dm-button-border) !important;
     }
-     .icon-placeholder:active { background-color: rgba(var(--cws-neon-rgb), 0.1) !important; } /* Klick-Effekt Dark */
+     .icon-placeholder:active { background-color: rgba(var(--cws-neon-rgb), 0.1) !important; }
+     /* Topbar-Controls für Dark Mode Touch bereits durch obige allgemeine Regel abgedeckt,
+        ggf. spezifische Farbe für Dark Mode wenn --cws-green nicht passt. */
+     .topbar-nav-control:not(:disabled) {
+         color: var(--cws-neon) !important; /* Im Dark Mode Neon für bessere Sichtbarkeit auf Touch */
+     }
   }
   @media (prefers-color-scheme: light) {
-     button:hover:not(:disabled) { /* Keine visuellen Änderungen bei Hover */
+     button:hover:not(:disabled) {
       background: var(--lm-button-glass-bg) !important;
       color: var(--lm-button-glass-fg) !important;
       border-color: var(--lm-button-glass-border) !important;
     }
+    /* Topbar-Controls für Light Mode Touch bereits durch obige allgemeine Regel mit --cws-green abgedeckt. */
   }
+
   .floating-tags-container {
-    display: none;
+    display: none; /* Standardmäßig auf reinen Touch-Geräten ausblenden, da Hover-Interaktion schwierig */
   }
 }
 
-/* ── Avatar-Mode: Mobile-Style schon ab 1110px ── */
+/* ── Avatar-Mode: Mobile-Style für Floating Tags schon ab 1110px ── */
 @media (max-width: 1110px) {
   body.mode-avatar .floating-tags-container {
-    /* unten zentriert wie auf Mobile */
+    /* Wenn (hover:none) greift, ist dies irrelevant, da display:none.
+       Ansonsten (z.B. Laptop mit Touch <1110px) werden Tags unten als Icons angezeigt. */
     left: 50%;
     transform: translateX(-50%);
     bottom: 0;
@@ -1217,6 +1234,7 @@ button:disabled {
     align-items: flex-end;
     gap: 15px;
     padding: 0;
+    display: flex; /* Sicherstellen, dass es angezeigt wird, falls (hover:none) es nicht ausblendet */
   }
 
   body.mode-avatar .tag-wrapper {
@@ -1226,16 +1244,14 @@ button:disabled {
   body.mode-avatar .tag-icon-circle {
     width: 64px;
     height: 64px;
-    border-radius: 8px 8px 0 0; /* oben abgerundet */
+    border-radius: 8px 8px 0 0;
   }
 
-  /* Text-Panel komplett ausblenden */
   body.mode-avatar .tag-text-panel {
-    display: none !important;
+    display: none !important; /* Text Panel immer ausblenden in diesem Modus/Größe */
   }
 
   body.mode-avatar .tag-icon-circle i {
     font-size: 1.3rem;
   }
 }
-
