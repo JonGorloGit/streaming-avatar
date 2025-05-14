@@ -358,9 +358,9 @@ button:disabled {
   position: relative; /* Für z-index im Dark Mode */
   z-index: 1; /* Über ::after im Dark Mode */
 }
-.chatbot-body::-webkit-scrollbar { width: 10px; }
+.chatbot-body::-webkit-scrollbar { width: 5px;}
 .chatbot-body::-webkit-scrollbar-track { background: transparent; } /* Transparent über Glas */
-.chatbot-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 10px; }
+.chatbot-body::-webkit-scrollbar-thumb { background: #00806e59; border-radius: 10px;}
 
 .message {
   max-width: 85%; padding: .5rem .75rem; border-radius: 12px;
@@ -703,18 +703,16 @@ button:disabled {
     transition: border-color .2s, background .2s, color .2s, box-shadow .2s;
   }
 
-  /* Entfernt die Pfeile in Webkit-Browsern (Chrome, Safari, Edge) */
-  textarea, input[type="text"]::-webkit-inner-spin-button,
-  input[type="text"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
+  textarea {
+    scrollbar-width: none;           /* Firefox */
+    -ms-overflow-style: none;        /* IE/Edge Legacy */
+    overflow-y: scroll;              /* Scrollfunktion bleibt erhalten */
+  
+    /* Für Webkit-basierte Browser */
   }
-
-  /* Entfernt die Pfeile in Firefox */
-  textarea, input[type="text"] {
-    -webkit-appearance: none; /* Für WebKit-Browser (Chrome, Safari) */
-    -moz-appearance: none;    /* Für Firefox */
-    appearance: none;         /* Standardisierte Eigenschaft */
-  }
+  textarea::-webkit-scrollbar {
+    display: none;
+  }  
 
   textarea::placeholder, input::placeholder { color: var(--text-pale-color); opacity: 0.7; }
   textarea:focus, input:focus {
@@ -765,12 +763,12 @@ button:disabled {
   /* Input & Button im Chat erben die generellen Dark Mode Stile für Inputs/Buttons */
 
   .message.user { /* Farben bleiben gleich, passen gut */
-    background: var(--cws-neon); color: #001a20;
+    background: var(--cws-neon); color: #001a20; border: 1px solid #e5e5e559;
   }
   .message.bot { /* Farben bleiben gleich, passen gut */
-    background: rgba(var(--cws-neon-rgb), 0.1); color: var(--dm-text-color-on-glass); border: 1px solid rgba(var(--cws-neon-rgb),0.2);
+    background: rgba(var(--cws-neon-rgb), 0.2); color: var(--dm-text-color-on-glass); border: 1px solid rgba(var(--cws-neon-rgb),0.2);
   }
-  .chatbot-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); }
+  .chatbot-body::-webkit-scrollbar-thumb { background: #c2fe0659;}
 
   /* Overlays & Modals Dark Mode */
   .consent-modal { color: var(--dm-text-color-on-glass); } /* Erbt Glas Stile */
