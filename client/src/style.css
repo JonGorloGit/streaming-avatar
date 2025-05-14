@@ -437,28 +437,40 @@ button:disabled {
 .progress-circle .circle { fill: none; stroke: var(--lm-progress-circle-fg-stroke); stroke-width: 4; stroke-dasharray: 100.53; stroke-dashoffset: 100.53; transition: stroke-dashoffset 0.4s ease; }
 .progress-circle .progress-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: 600; color: var(--lm-progress-circle-text-color); }
 
-/* ───────────────────────── CHATBOT UI (Glassmorphism) ───────────────────────── */
+/* ───────────────────────── CHATBOT UI (Glassmorphism) - ANGEPASST ───────────────────────── */
 #chat-ui {
-    max-height: calc(100vh - 80px);
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    /* display: flex; justify-content: center; align-items: center; */ /* ENTFERNT */
+    /* max-height: calc(100dvh - 116px - 2rem); */ /* ENTFERNT - Höhe wird durch .chatbot-card bestimmt */
+    width: 100%; /* Damit .chatbot-card sich darin zentrieren kann */
+    margin-top: 1rem;    /* Wichtig für Abstand zur topbar */
+    margin-bottom: 1rem; /* Abstand nach unten */
 }
 
 .chatbot-card {
-   display: flex; flex-direction: column;
-   width: clamp(280px, 90vw, 620px); height: clamp(460px, 80vh, 720px);
-   margin-top: 1rem;
-   margin-bottom: 0.5rem;
+   display: flex; /* Behält seine interne Flex-Struktur für Header, Body, Input */
+   flex-direction: column;
+
+   width: clamp(280px, 90vw, 620px);  /* Definiert die Breite der Karte */
+   height: clamp(460px, 80vh, 720px); /* Definiert die Höhe der Karte */
+
+   /* Zentriert die Karte horizontal innerhalb von #chat-ui (das Block-Verhalten hat) */
+   margin-left: auto;
+   margin-right: auto;
+   margin-top: 0;    /* Wird von #chat-ui gehandhabt */
+   margin-bottom: 0; /* Wird von #chat-ui gehandhabt */
+
+   /* Visuelle Stile der Karte bleiben hier */
    border-radius: 20px;
-   overflow: hidden; position: relative;
-  background: var(--lm-glass-bg);
-  border: 2px solid var(--lm-glass-border);
-  box-shadow: 0 8px 32px var(--lm-glass-shadow);
-  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-  color: var(--lm-text-color-on-glass);
+   overflow: hidden; /* Wichtig, damit abgerundete Ecken auch für Inhalt gelten */
+   position: relative; /* Für internes z-index Management, falls nötig */
+   background: var(--lm-glass-bg);
+   border: 2px solid var(--lm-glass-border);
+   box-shadow: 0 8px 32px var(--lm-glass-shadow);
+   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+   color: var(--lm-text-color-on-glass);
 }
+/* ───────────────────────── ENDE CHATBOT UI ANPASSUNG ───────────────────────── */
+
 
 .chatbot-header {
   flex: 0 0 64px; display: flex; align-items: center; justify-content: space-between;
@@ -664,7 +676,8 @@ button:disabled {
 @media (min-width: 481px) and (max-width: 795px) {
    .chatbot-card {
        height: clamp(460px, 85vh, 720px);
-       margin-bottom: 0;
+       margin-top: 0; /* Zentrierung durch #chat-ui und margin:auto auf .chatbot-card */
+       /* margin-bottom bleibt 0, da es von #chat-ui übernommen wird */
    }
 
    .connecting-overlay {
@@ -704,28 +717,9 @@ button:disabled {
     transform: translateX(-4px);  /* leichter „Pull“-Effekt beim Öffnen */
   }
 
-   /* Alte Regel für tag-icon-circle auf dieser Breite wird durch obige spezifischere Regeln ersetzt/überschrieben */
-  /* .tag-icon-circle {
-    width: 20px;
-    height: 48px;
-    margin-right: 0;
-    border-radius: 8px 0px 0px 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-  } */
-  /* .tag-icon-circle i { font-size: 0.9rem; } */
-  /* .tag-text-panel { right: 0; height: 32px; transform: translateY(8px); } */
-  /* .tag-wrapper.open .tag-icon-circle { transform: translateX(-4px); } */
-
-  .chatbot-card {
-    margin-top: 0;
-  }
-
   body.mode-chat {
-    padding-top: 75px;
-    padding-bottom: 5px;
+    padding-top: 75px; /* Standard-Padding für Navbar */
+    padding-bottom: 5px; /* Spezifischer unterer Abstand für diesen Viewport */
   }
 }
 
@@ -768,15 +762,15 @@ button:disabled {
   }
 
   body.mode-chat {
-    padding-top: 60px;
-    padding-bottom: 35px;
+    padding-top: 60px; /* Spezifisches Navbar-Padding für Mobile Chat */
+    padding-bottom: 35px; /* Spezifischer unterer Abstand für Mobile Chat */
   }
 
   body.mode-chat .topbar {
     margin-top: 0px;
   }
 
-  body.mode-chat .tag-icon-circle { /* Diese Regel hat weniger Effekt, da .floating-tags-container auf touch oft display:none ist */
+  body.mode-chat .tag-icon-circle {
     height: 42px;
   }
 
@@ -796,17 +790,25 @@ button:disabled {
     gap: 1rem;
   }
 
-  #avatar-ui, #chat-ui {
+  #avatar-ui { /* Gilt für beide, #chat-ui ist unten spezifischer */
      max-height: none;
      width: 100%;
      display: block;
   }
 
+  #chat-ui { /* Mobile spezifisch für #chat-ui */
+     max-height: none;
+     display: block;
+     margin-top: 1rem;    /* Behält den oberen Abstand bei */
+     margin-bottom: 0.5rem; /* Spezifischer unterer Abstand für Mobile */
+  }
+
+
   .glass-card {
       padding: 1rem;
       margin-top: 1rem;
       margin-bottom: 0.5rem;
-      width: auto;
+      width: auto; /* Nimmt die Breite von #avatar-ui an */
       border-radius: 12px;
       max-width: none;
   }
@@ -842,7 +844,7 @@ button:disabled {
   }
 
   .tag-text-panel {
-    display: none; /* Auf Mobile immer ausblenden, da Interaktion via Hover nicht zuverlässig */
+    display: none; /* Auf Mobile immer ausblenden */
   }
 
   #avatar-ui .avatar-header h1, .chatbot-header h1 { font-size: 1.1rem; margin-bottom: 0; padding-right: 0.25rem; }
@@ -854,11 +856,12 @@ button:disabled {
     #avatar-ui .avatar-header h1, .chatbot-header h1 {text-align: left; transform: translateX(0px);}
   }
 
-  .chatbot-card {
-      width: 100%;
+  .chatbot-card { /* Mobile spezifisch für .chatbot-card */
+      width: 100%;      /* Füllt #chat-ui aus */
       min-width: 100%;
-      margin: 0;
+      margin: 0;         /* Keine auto-Margins, da width 100% */
       backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+      /* height wird von clamp() in der Hauptregel oder spezifischen Viewport-Regeln bestimmt */
   }
   #avatar-ui .avatar-header {margin-bottom: 0.5rem; min-height: 42px; }
 
@@ -883,7 +886,7 @@ button:disabled {
   section[role='group'] { flex-direction: column; gap: 0.75rem; padding: 0 1rem 1rem 1rem; }
   button, .btn-secondary, #speakButton, #chat-send, #consent-accept { width: 100%; font-size: 1.1rem; padding: 0.8rem 1rem; border-radius: 10px; min-height: 44px; max-height: none; }
   textarea, input[type="text"] { font-size: 1rem; padding: 0.8rem; width: 100%; }
-  .topbar-nav-control {width: 31.75px;} /* Behält die spezifische Breite für mobile Pfeile */
+  .topbar-nav-control {width: 31.75px;}
   .chatbot-header { padding: 0 0.75rem; font-size: 1.15rem; flex: 0 0 56px; }
   .chatbot-header h1 { display: inline; font-size: 1.15rem; margin-left: 0;}
 
@@ -956,7 +959,7 @@ button:disabled {
     /* Dark Mode Topbar Controls */
     --dm-topbar-control-hover-bg: rgba(var(--cws-neon-rgb), 0.15);
     --dm-topbar-control-hover-color: var(--cws-neon);
-    --dm-topbar-control-disabled-color: var(--grey-7); /* Fallback, falls text-pale-color zu hell */
+    --dm-topbar-control-disabled-color: var(--grey-7);
   }
 
   body {
@@ -1071,7 +1074,7 @@ button:disabled {
 
   /* Dark Mode Topbar Controls */
   .topbar button.topbar-nav-control {
-      color: var(--cws-neon); /* Behält Grün für Sichtbarkeit, oder --cws-neon wenn gewünscht */
+      color: var(--cws-neon);
       border-color: rgba(var(--cws-neon-rgb), 0.15);
   }
   .topbar button.topbar-nav-control:hover:not(:disabled) {
@@ -1081,7 +1084,7 @@ button:disabled {
   }
   .topbar button.topbar-nav-control:disabled {
     background-color: transparent;
-    color: var(--grey-e); /* Angepasste Disabled Farbe */
+    color: var(--grey-e);
     opacity: 0.4;
   }
   .topbar-nav a {
@@ -1093,7 +1096,7 @@ button:disabled {
 
 
   /* --- Chatbot Specific Dark Mode Overrides --- */
-  .chatbot-card {
+  .chatbot-card { /* Erbt die meisten Stile von .glass-card, hier spezifische Overrides falls nötig */
     background: var(--dm-glass-bg);
     border: 2px solid  rgba(var(--cws-neon-rgb), 0.15);
     box-shadow: 0 0 35px -10px var(--dm-glass-shadow-glow), 0 8px 25px var(--dm-glass-shadow-depth);
@@ -1125,7 +1128,7 @@ button:disabled {
     box-shadow: 0 4px 15px var(--dm-glass-shadow-glow);
   }
   .tag-icon-circle i {
-    color: var(--cws-neon); /* Neon für bessere Sichtbarkeit im Dark Mode */
+    color: var(--cws-neon);
   }
 
   .tag-text-panel {
@@ -1154,9 +1157,8 @@ button:disabled {
              -webkit-backdrop-filter: blur(16px);
         }
         video#avatarVideo {
-             border: none;
-             box-shadow: none;
-             background: transparent;
+            background: var(--dm-video-frame-bg); border: 2px solid rgba(var(--cws-neon-rgb), 0.15);
+            box-shadow: inset 0 0 0 1.5px var(--dm-video-frame-border), 0 5px 15px rgba(var(--cws-neon),0.3);
         }
         .glass-card {
             border: 1px solid rgba(var(--cws-neon-rgb), 0.2);
@@ -1166,7 +1168,7 @@ button:disabled {
 
 /* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
 @media (hover: none) and (pointer: coarse) {
-  button, #speakButton, #chat-send, #consent-accept { /* .topbar-nav-control unten separat behandelt */
+  button, #speakButton, #chat-send, #consent-accept {
     box-shadow: none !important; transform: none !important; transition: none;
   }
 
@@ -1186,8 +1188,8 @@ button:disabled {
   .topbar-nav-control:focus:not(:disabled),
   .topbar-nav-control:focus-visible:not(:disabled) {
       background-color: transparent !important;
-      color: var(--cws-green) !important; /* Korrigiert: Definierten Variable verwenden */
-      border-color: transparent !important; /* Oder spezifische border-color, wenn vorhanden */
+      color: var(--cws-green) !important;
+      border-color: transparent !important;
       outline: none !important;
       box-shadow: none !important;
   }
@@ -1200,10 +1202,8 @@ button:disabled {
       border-color: var(--dm-button-border) !important;
     }
      .icon-placeholder:active { background-color: rgba(var(--cws-neon-rgb), 0.1) !important; }
-     /* Topbar-Controls für Dark Mode Touch bereits durch obige allgemeine Regel abgedeckt,
-        ggf. spezifische Farbe für Dark Mode wenn --cws-green nicht passt. */
      .topbar-nav-control:not(:disabled) {
-         color: var(--cws-neon) !important; /* Im Dark Mode Neon für bessere Sichtbarkeit auf Touch */
+         color: var(--cws-neon) !important;
      }
   }
   @media (prefers-color-scheme: light) {
@@ -1212,19 +1212,16 @@ button:disabled {
       color: var(--lm-button-glass-fg) !important;
       border-color: var(--lm-button-glass-border) !important;
     }
-    /* Topbar-Controls für Light Mode Touch bereits durch obige allgemeine Regel mit --cws-green abgedeckt. */
   }
 
   .floating-tags-container {
-    display: none; /* Standardmäßig auf reinen Touch-Geräten ausblenden, da Hover-Interaktion schwierig */
+    display: none;
   }
 }
 
 /* ── Avatar-Mode: Mobile-Style für Floating Tags schon ab 1110px ── */
 @media (max-width: 1110px) {
   body.mode-avatar .floating-tags-container {
-    /* Wenn (hover:none) greift, ist dies irrelevant, da display:none.
-       Ansonsten (z.B. Laptop mit Touch <1110px) werden Tags unten als Icons angezeigt. */
     left: 50%;
     transform: translateX(-50%);
     bottom: 0;
@@ -1234,7 +1231,7 @@ button:disabled {
     align-items: flex-end;
     gap: 15px;
     padding: 0;
-    display: flex; /* Sicherstellen, dass es angezeigt wird, falls (hover:none) es nicht ausblendet */
+    display: flex;
   }
 
   body.mode-avatar .tag-wrapper {
@@ -1248,7 +1245,7 @@ button:disabled {
   }
 
   body.mode-avatar .tag-text-panel {
-    display: none !important; /* Text Panel immer ausblenden in diesem Modus/Größe */
+    display: none !important;
   }
 
   body.mode-avatar .tag-icon-circle i {
@@ -1257,7 +1254,7 @@ button:disabled {
 
   @media (hover: none) and (pointer: coarse) {
     body.mode-avatar .floating-tags-container {
-      display: none; /* Standardmäßig auf reinen Touch-Geräten ausblenden, da Hover-Interaktion schwierig */
+      display: none;
     }
   }
 }
