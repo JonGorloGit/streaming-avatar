@@ -1039,6 +1039,9 @@ button:disabled {
       border-color: var(--lm-button-glass-border) !important;
     }
   }
+  body.mode-avatar .floating-tags-container {
+    display: none;
+  }
 }
 
 /* ── Avatar-Mode: Mobile-Style schon ab 1110px ── */
@@ -1069,6 +1072,10 @@ button:disabled {
   /* Text-Panel komplett ausblenden */
   body.mode-avatar .tag-text-panel {
     display: none !important;
+  }
+
+  body.mode-avatar .tag-icon-circle i {
+    font-size: 1.3rem;
   }
 }
 
