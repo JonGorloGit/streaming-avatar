@@ -200,6 +200,7 @@ body::before {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   margin: 5px auto;
+  margin-bottom: 0;
   max-width: 95%;
   height: 36px;
 }
@@ -355,7 +356,7 @@ video#avatarVideo {
 
 /* ───────────────────────── Allgemeine Container / Karten (Glassmorphism) ───────────────────────── */
 .glass-card {
-   margin-top: 1rem;
+   margin-top: 0.5rem;
    margin-bottom: 1rem;
    width: 100%; max-width: 920px; padding: 1.5rem;
    text-align: center; position: relative;
@@ -442,7 +443,7 @@ button:disabled {
     /* display: flex; justify-content: center; align-items: center; */ /* ENTFERNT */
     /* max-height: calc(100dvh - 116px - 2rem); */ /* ENTFERNT - Höhe wird durch .chatbot-card bestimmt */
     width: 100%; /* Damit .chatbot-card sich darin zentrieren kann */
-    margin-top: 1rem;    /* Wichtig für Abstand zur topbar */
+    margin-top: 0.5rem;    /* Wichtig für Abstand zur topbar */
     margin-bottom: 1rem; /* Abstand nach unten */
 }
 
@@ -457,7 +458,7 @@ button:disabled {
    margin-left: auto;
    margin-right: auto;
    margin-top: 0;    /* Wird von #chat-ui gehandhabt */
-   margin-bottom: 0; /* Wird von #chat-ui gehandhabt */
+   margin-bottom: 0;
 
    /* Visuelle Stile der Karte bleiben hier */
    border-radius: 20px;
@@ -675,7 +676,7 @@ button:disabled {
 /* Anpassungen für Floating Tags und UI auf mittelgroßen Bildschirmen (Tablets etc.) */
 @media (min-width: 481px) and (max-width: 795px) {
    .chatbot-card {
-       height: clamp(460px, 85vh, 720px);
+       height: clamp(460px, 80vh, 720px);
        margin-top: 0; /* Zentrierung durch #chat-ui und margin:auto auf .chatbot-card */
        /* margin-bottom bleibt 0, da es von #chat-ui übernommen wird */
    }
