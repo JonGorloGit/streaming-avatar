@@ -355,7 +355,7 @@ video#avatarVideo {
 
 /* ───────────────────────── Allgemeine Container / Karten (Glassmorphism) ───────────────────────── */
 .glass-card {
-   margin-top: 3rem;
+   margin-top: 1rem;
    margin-bottom: 1rem;
    width: 100%; max-width: 920px; padding: 1.5rem;
    text-align: center; position: relative;
