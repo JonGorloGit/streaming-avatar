@@ -14,20 +14,17 @@
 
 <body>
 
-  <!-- NEU: Feste Navbar -->
+  <!-- Feste Navbar -->
   <header class="navbar">
     <div class="navbar-left-outer">
-    <div class="navbar-left-inner">
-      <!-- Du kannst hier den Text anpassen, z.B. HR-Service -->
-      <p>VOLKSWAGEN</p>
-      <p>PERSONAL PORTAL</p>
-    </div>
-    <div class="icon-placeholder">
-    <i class="fa-solid fa-circle-chevron-down"></i>
-    </div>
-  </div>
-      
-    </div>
+      <div class="navbar-left-inner">
+        <!-- Du kannst hier den Text anpassen, z.B. HR-Service -->
+        <p>VOLKSWAGEN</p>
+        <p>PERSONAL PORTAL</p>
+      </div>
+      <div class="icon-placeholder">
+        <i class="fa-solid fa-circle-chevron-down"></i>
+      </div>
     </div>
     <div class="navbar-right">
       <!-- Icons können durch FontAwesome oder echte SVGs ersetzt werden -->
@@ -45,6 +42,25 @@
     </div>
   </header>
   <!-- Ende Navbar -->
+
+  <!-- NEUE Top-Bar -->
+<header class="topbar">
+  <button id="Topbar-control" class="topbar-nav-control prev" aria-label="Vorherige Elemente"><i class="fa-solid fa-chevron-left"></i></button>
+  <div class="topbar-nav-wrapper">
+    <nav class="topbar-nav">
+      <!-- Die Links bleiben hier drin -->
+      <a href="#">ME@VOLKSWAGEN</a>
+      <a href="#">MEINE MITARBEITER</a>
+      <a href="#">MEIN BETREUUNGSBEREICH</a>
+      <a href="#">HR PROZESSE</a>
+      <a href="#">HR PRODUKTKATALOG</a>
+      <a href="#">WISSEN A - Z</a>
+      <!-- Füge hier ggf. weitere Links hinzu -->
+    </nav>
+  </div>
+  <button id="Topbar-control" class="topbar-nav-control next" aria-label="Nächste Elemente"><i class="fa-solid fa-chevron-right"></i></button>
+</header>
+<!-- ENDE NEUE Top-Bar -->
 
   <!-- Datenschutz-Banner -->
   <div id="consent-overlay" class="consent-overlay hidden">
@@ -140,7 +156,7 @@
         <div class="tag-text-panel" title="Systeme"><span>Systeme</span></div>
         <div class="tag-icon-circle" title="Systeme"><i class="fa-solid fa-circle-nodes"></i></div>
       </div>
-    </div>  
+    </div>
   <!-- Vite Entry -->
   <script type="module" src="/src/main.ts"></script>
 </body>

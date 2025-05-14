@@ -71,7 +71,7 @@ body {
   min-height: 100dvh;
   position: relative;
   z-index: 0;
-  padding-top: 72px; /* Platz für die feste Navbar + etwas Abstand */
+  padding-top: 75px; /* Platz für die feste Navbar + etwas Abstand */
   padding-left: 1rem; /* Seitenabstände wieder hinzufügen */
   padding-right: 1rem;
   padding-bottom: 1rem;
@@ -190,6 +190,166 @@ body::before {
 
 .icon-placeholder:hover {
   background-color: var(--black-10p); /* Leichter Hover Effekt */
+}
+
+/* ───────────────────────── Top Bar (Carousel-Stil) ───────────────────────── */
+.topbar {
+  display: flex; /* Wichtig für die Anordnung der Buttons und des Wrappers */
+  justify-content: center;
+  align-items: center; /* Vertikal zentrieren */
+  padding: 0 0px; /* Kleines Padding, damit Buttons nicht ganz am Rand kleben */
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: var(--lm-glass-bg);
+  border: 1px solid var(--lm-glass-border);
+  box-shadow: 0 2px 10px var(--lm-glass-shadow);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  margin: 5px auto;
+  max-width: 95%;
+  height: 36px; /* Feste Höhe für die Top-Bar, anpassen an Link-Höhe + Padding */
+
+}
+
+/* ───────────────────────── Top Bar Navigation Controls Anpassungen ────────────────── */
+
+/* Basis-Stile für die Topbar-Controls, die globale Button-Stile überschreiben */
+.topbar button.topbar-nav-control { /* Erhöhte Spezifität */
+  /* Resets für globale Button-Regel */
+  min-width: auto;             /* Zurücksetzen von min-width */
+  padding: 0 10px;              /* Spezifisches Padding für diese Buttons */
+  font-size: 18px;             /* Eigene Schriftgröße für die Icons */
+  max-height: 100%;            /* Erlaubt dem Button, die Höhe der Topbar anzunehmen */
+  height: 100%;                /* Nimmt volle Höhe der .topbar ein */
+  align-self: stretch;         /* Dehnt sich vertikal aus, falls Topbar flex ist */
+  border-radius: 0;            /* Allgemeiner Radius zurücksetzen, wird spezifischer für .prev/.next */
+  font-weight: normal;         /* Normales Gewicht, statt 600 von global */
+  
+  background-image: none;      /* Sicherstellen, dass kein Hintergrundbild gesetzt ist */
+  background-color: transparent; /* Explizit transparent setzen! */
+  background: transparent;       /* Kurzform für alle background Eigenschaften */
+  
+  border: 0.5px solid var(--lm-glass-border);
+  backdrop-filter: none;         /* Globalen Blur-Effekt entfernen */
+  -webkit-backdrop-filter: none;
+  box-shadow: none;              /* Globalen Schatten entfernen */
+  /* Eigene Stile für Topbar Controls */
+  color: var(--lm-text-color-on-glass, --grey-9); /* Icon-Farbe */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;     /* Zentriert das Icon im Button */
+  z-index: 2;
+  /* Übergänge nur für die Eigenschaften, die sich tatsächlich ändern */
+  transition: color 0.2s, background-color 0.2s;
+  min-height: 34px;
+  max-width: 31.75 !important;
+}
+
+/* Spezifische Abrundungen für prev/next, falls die Topbar selbst abgerundet ist */
+.topbar button.topbar-nav-control.prev {
+  border-top-left-radius: 20px;    /* Beispiel: Passend zu einer Topbar mit border-radius: 50px -> halbe Höhe */
+  border-bottom-left-radius: 20px;
+  border-right: 0;
+  /* Kein `background: transparent;` hier nötig, wird von der allgemeineren .topbar-nav-control Regel geerbt */
+}
+
+.topbar button.topbar-nav-control.next {
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  border-left: 0;
+  /* `justify-content: flex-end;` ist hier nicht sinnvoll, da der Button selbst zentriert sein soll.
+     Wenn das Icon rechtsbündig sein soll, wäre das ein Stil für das Icon selbst. */
+  /* Kein `background: transparent !important;` hier nötig, da die Spezifität jetzt ausreichen sollte */
+}
+
+/* Hover-Effekt für Topbar Controls */
+.topbar button.topbar-nav-control:hover:not(:disabled) {
+  background-color: rgba(var(--cws-green-rgb, 0, 128, 110), 0.1); /* Leichter grüner Hintergrund bei Hover */
+  color: var(--cws-green); /* Grüne Icon-Farbe bei Hover */
+  /* Die globalen Hover-Schatten und Ränder werden durch die Resets oben schon verhindert */
+}
+
+/* Disabled-Zustand für Topbar Controls */
+.topbar button.topbar-nav-control:disabled {
+  background-color: transparent; /* Sicherstellen, dass es transparent bleibt */
+  color: var(--grey-9, #ccc);
+  cursor: not-allowed;
+  opacity: 0.5;
+  /* Alle anderen störenden Stile sind bereits durch die Basisregel für .topbar-nav-control zurückgesetzt */
+}
+
+.topbar-nav-wrapper {
+  flex-grow: 1;
+  overflow: hidden; /* Wichtig, um visuelles Überlappen zu vermeiden, falls JS mal fehlschlägt */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  /* Standardmäßig zentriert, wenn kein Overflow (gesteuert durch .has-overflow Klasse) */
+  justify-content: center;
+}
+
+.topbar-nav-wrapper.has-overflow {
+  /* Wenn "Paging" aktiv ist, starten die Elemente links */
+  justify-content: center;
+}
+
+.topbar-nav {
+  display: flex; /* Für die Anordnung der Kind-Elemente und 'gap' */
+  align-items: center;
+  height: 100%;
+  /* KEIN transform: translateX() mehr hier! */
+}
+
+.topbar-nav > * { /* Gilt für die direkten Kinder (Links/Items) */
+  flex-shrink: 0; /* Verhindert, dass Items schrumpfen */
+  /* Ihr normales Styling hier (padding, margin für den Link selbst etc.) */
+  /* display wird von JavaScript gesteuert ('none' oder originaler Wert) */
+}
+
+.topbar-nav-control {
+  /* ... Ihr bestehendes Styling für die Buttons ... */
+  display: flex; /* Standard, wird von JS ggf. auf 'none' gesetzt */
+}
+
+.topbar-nav-control:disabled {
+  /* Styling für deaktivierte Buttons */
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.topbar-nav {
+  display: flex; /* Macht die Links zu Flex-Items */
+  justify-content: center;
+  align-items: center; /* Vertikal zentrieren */
+  gap: 30px; /* Abstand zwischen den Links */
+  font-size: 12px;
+  width: max-content; /* Wichtig: Erlaubt dem Container, so breit wie sein Inhalt zu sein */
+  height: 100%; /* Nimmt Höhe des Wrappers ein */
+
+  /* Wird per JS transformiert */
+  transform: translateX(0);
+  transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); /* Sanfte Animation */
+  padding-left: 10px;  /* Optional: Kleiner initialer Abstand links */
+  padding-right: 10px; /* Optional: Kleiner Abstand rechts, falls der letzte Link nicht ganz rechts sein soll */
+}
+
+.topbar-nav a {
+  text-decoration: none;
+  color: var(--lm-text-color-on-glass, #555);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  transition: color 0.2s;
+  white-space: nowrap; /* Verhindert Umbruch der Links */
+  line-height: 1; /* Kann helfen, die Höhe konsistent zu halten */
+  display: flex; /* Um vertikal zu zentrieren, falls nötig */
+  align-items: center;
+  height: 100%;
+}
+
+.topbar-nav a:hover {
+  color: #000;
 }
 
 /* ───────────────────────── Links & Listen ───────────────────────── */
@@ -330,8 +490,8 @@ button:disabled {
 .chatbot-card {
    display: flex; flex-direction: column;
    width: clamp(280px, 90vw, 620px); height: clamp(460px, 80vh, 720px); /* Höhe angepasst an Viewport */
-   margin-top: 2.5rem; /* Etwas Abstand nach oben */
-   margin-bottom: 1rem; /* Etwas Abstand nach unten */
+   margin-top: 1rem; /* Etwas Abstand nach oben */
+   margin-bottom: 0.5rem; /* Etwas Abstand nach unten */
    border-radius: 20px; /* Behält eigenen Radius */
    overflow: hidden; position: relative; /* Für ::after im Dark Mode */
 
@@ -760,7 +920,7 @@ button:disabled {
   section[role='group'] { flex-direction: column; gap: 0.75rem; padding: 0 1rem 1rem 1rem; /* Padding für Input Gruppe */ }
   button, .btn-secondary, #speakButton, #chat-send, #consent-accept { width: 100%; font-size: 1.1rem; padding: 0.8rem 1rem; border-radius: 10px; min-height: 44px; max-height: none; }
   textarea, input[type="text"] { font-size: 1rem; padding: 0.8rem; width: 100%; /* Volle Breite erzwingen */}
-
+  .topbar-nav-control {width: 31.75px;}
   .chatbot-header { padding: 0 0.75rem; font-size: 1.15rem; flex: 0 0 56px; /* Höhe an Navbar anpassen */}
   .chatbot-header h1 { display: inline; font-size: 1.15rem; margin-left: 0;}
 
