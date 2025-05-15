@@ -654,6 +654,13 @@ button:disabled {
 
 .hidden { display: none !important; }
 
+@media (max-height: 630px) {
+  .chatbot-card {
+    height: clamp(400px, 75dvh, 780px);
+
+  }
+}
+
 /* Hover-Effekte (Desktop) */
 @media (hover: hover) and (pointer: fine) {
   .tag-wrapper:hover .tag-text-panel {
@@ -1179,7 +1186,7 @@ button:disabled {
 @media (hover: none) and (pointer: coarse) {
 
   .chatbot-card {
-    height: clamp(400px, 80vh, 780px);
+    height: clamp(400px, 80dvh, 780px);
 
   }
 
@@ -1266,12 +1273,5 @@ button:disabled {
     body.mode-avatar .floating-tags-container {
       display: none;
     }
-  }
-}
-
-@media (max-height: 630px) {
-  .chatbot-card {
-    height: clamp(400px, 75vh, 780px);
-
   }
 }
