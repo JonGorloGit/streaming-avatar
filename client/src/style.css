@@ -452,7 +452,7 @@ button:disabled {
    flex-direction: column;
 
    width: clamp(280px, 90vw, 620px);  /* Definiert die Breite der Karte */
-   height: clamp(460px, 80vh, 720px); /* Definiert die Höhe der Karte */
+   height: clamp(400px, 80vh, 780px); /* Definiert die Höhe der Karte */
 
    /* Zentriert die Karte horizontal innerhalb von #chat-ui (das Block-Verhalten hat) */
    margin-left: auto;
@@ -676,7 +676,7 @@ button:disabled {
 /* Anpassungen für Floating Tags und UI auf mittelgroßen Bildschirmen (Tablets etc.) */
 @media (min-width: 481px) and (max-width: 795px) {
    .chatbot-card {
-       height: clamp(460px, 80vh, 720px);
+       height: clamp(400px, 80vh, 780px);
        margin-top: 0; /* Zentrierung durch #chat-ui und margin:auto auf .chatbot-card */
        /* margin-bottom bleibt 0, da es von #chat-ui übernommen wird */
    }
@@ -1177,13 +1177,14 @@ button:disabled {
 
 /* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
 @media (hover: none) and (pointer: coarse) {
-  button, #speakButton, #chat-send, #consent-accept {
-    box-shadow: none !important; transform: none !important; transition: none;
+
+  .chatbot-card {
+    height: clamp(400px, 75vh, 780px);
+
   }
 
-  body.mode-chat {
-    padding-top: 62px;
-    padding-bottom: 35px;
+  button, #speakButton, #chat-send, #consent-accept {
+    box-shadow: none !important; transform: none !important; transition: none;
   }
 
   button:active:not(:disabled) { transform: scale(0.98) !important; }
