@@ -203,8 +203,6 @@ body::before {
   margin-bottom: 0;
   max-width: 95%;
   height: 36px;
-  padding-bottom: 2px;
-  padding-top: 2px;
 }
 
 /* ───────────────────────── Top Bar Navigation Controls Anpassungen ────────────────── */
@@ -454,7 +452,6 @@ button:disabled {
   width: 100%;
   min-height: 0; /* LAYOUT: Wichtig für Flex-Kinder, die schrumpfen sollen */
   /* margin-bottom ist nicht nötig, da es bis zum Rand des body geht */
-  padding-bottom: 1rem; /* LAYOUT: Gibt etwas Platz am unteren Rand des UI-Bereichs (innerhalb dieses Containers) */
   margin-top: 0.5rem;    /* Wichtig für Abstand zur topbar */
   margin-bottom: 1rem; /* Abstand nach unten */
 }
