@@ -61,8 +61,6 @@ window.addEventListener('DOMContentLoaded', () => {
     initApp();
   });
 
-  setBrowserAndDeviceSpecificStyles(); // Funktion aufrufen
-
   const topbarElement = document.querySelector<HTMLElement>('.topbar');
   if (topbarElement) {
     const navWrapper = topbarElement.querySelector<HTMLElement>('.topbar-nav-wrapper');
@@ -335,54 +333,6 @@ async function setMode(mode: Mode, style: Style) {
     if (linkMode === currentMode) isActive = linkStyle ? linkStyle === currentStyle : true;
     link.classList.toggle('active', isActive);
   });
-}
-
-function setBrowserAndDeviceSpecificStyles(): void {
-  const userAgent = navigator.userAgent.toLowerCase();
-  const rootStyle = document.documentElement.style;
-
-  // Einfache Prüfung auf ein Mobilgerät (nicht 100% narrensicher, aber oft ausreichend)
-  // Man könnte auch auf Bildschirmbreite prüfen, aber User Agent ist hier oft gezielter
-  // für Browser-spezifische Rendering-Unterschiede auf Mobilgeräten.
-  const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
-
-  let chatbotHeightVhPart: string; // Wir ändern nur den vh-Teil für Smartphones
-
-  if (isMobile) {
-    console.log("Mobile device detected.");
-    if (userAgent.includes("firefox")) {
-      chatbotHeightVhPart = '85vh'; // Firefox auf Smartphone
-      console.log("Mobile Firefox, setting height to 80vh");
-    } else if (userAgent.includes("edg/") || userAgent.includes("edge/")) {
-      chatbotHeightVhPart = '83vh'; // Edge auf Smartphone
-      console.log("Mobile Edge, setting height to 80vh");
-    } else if (userAgent.includes("safari") && !userAgent.includes("chrome") && !userAgent.includes("crios") && !userAgent.includes("fxios")) {
-      // Safari auf iOS (nicht Chrome oder Firefox für iOS, die andere UAs haben)
-      chatbotHeightVhPart = '74vh'; // Safari auf Smartphone
-      console.log("Mobile Safari, setting height to 75vh");
-    } else if (userAgent.includes("chrome") || userAgent.includes("crios")) {
-      // Chrome (Android oder iOS - crios)
-      chatbotHeightVhPart = '73vh'; // Chrome auf Smartphone
-      console.log("Mobile Chrome, setting height to 73vh");
-    } else {
-      // Fallback für andere mobile Browser, nimm den allgemeinen mobilen Chrome-Wert oder einen Standard
-      chatbotHeightVhPart = '73vh';
-      console.log("Other mobile browser, defaulting to 73vh");
-    }
-    // Aktualisiere die CSS-Variable mit dem neuen vh-Wert, behalte min/max bei
-    // Wichtig: Die min/max Werte im clamp müssen ggf. auch angepasst werden,
-    // wenn die vh-Werte stark abweichen, damit clamp noch sinnvoll funktioniert.
-    // Hier vereinfacht, nur den vh-Teil zu ändern:
-    rootStyle.setProperty('--chatbot-card-height-mobile', `clamp(400px, ${chatbotHeightVhPart}, 780px)`);
-
-  } else {
-    // Für Desktop-Browser könntest du hier eine andere Logik haben
-    // oder einfach den Standardwert aus dem CSS :root belassen.
-    // Für dieses Beispiel belassen wir es beim CSS-Standard für Desktop.
-    console.log("Desktop device or unhandled mobile, using default CSS height.");
-    // Optional: Explizit den Standardwert setzen, falls nötig.
-    // rootStyle.setProperty('--chatbot-card-height', 'clamp(400px, 73vh, 780px)');
-  }
 }
 
 document.querySelectorAll<HTMLAnchorElement>('.topbar-nav a[data-mode]').forEach(link => {

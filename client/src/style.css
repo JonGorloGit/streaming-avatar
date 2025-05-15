@@ -1,8 +1,5 @@
 /* ───────────────────────── Farb-Variablen ───────────────────────── */
 :root {
-
-  --chatbot-card-height-mobile: clamp(400px, 73vh, 780px);
-
   /* Primär */
   --cws-deep-blue: #002733;
   --cws-green: #00806e;
@@ -65,20 +62,20 @@ body {
   font-family: 'Inter', sans-serif, Avenir, Helvetica;
   font-weight: 300;
   line-height: 1.5;
-  background-color: var(--body-bg-color);
+  background-color: var(--body-bg-color); /* Wird von ::before überlagert */
   color: var(--text-main-color);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  overflow-x: hidden;
-  min-height: 100dvh;
+  display: flex; /* LAYOUT: Flex-Container für vertikale Anordnung */
+  flex-direction: column; /* LAYOUT: Kinder untereinander */
+  align-items: center; /* Zentriert Topbar und UI-Container horizontal */
+  /* justify-content: flex-start; /* Nicht mehr nötig, da UI-Container flex-grow bekommt */
+  overflow-x: hidden; /* LAYOUT: Verhindert Scrollen des Body */
+  height: 100dvh; /* LAYOUT: Body füllt die gesamte Viewport-Höhe */
   position: relative;
   z-index: 0;
-  padding-top: 75px;
-  padding-left: 1rem;
-  padding-right: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 75px; /* LAYOUT: Platz für die fixe Navbar */
+  padding-left: 1rem; /* Beibehalten für seitlichen Abstand auf Desktop */
+  padding-right: 1rem; /* Beibehalten für seitlichen Abstand auf Desktop */
+  /* padding-bottom: 1rem; /* LAYOUT: Entfernt, UI soll bis unten gehen */
 }
 
 body::before {
@@ -206,6 +203,8 @@ body::before {
   margin-bottom: 0;
   max-width: 95%;
   height: 36px;
+  padding-bottom: 2px;
+  padding-top: 2px;
 }
 
 /* ───────────────────────── Top Bar Navigation Controls Anpassungen ────────────────── */
@@ -343,10 +342,10 @@ ul { list-style: none; } li::before { content: '› '; color: var(--list-bullet-
 .chatbot-header h1 {
    transform: translateX(36.44px);
 }
-
+ 
 /* ───────────────────────── Video ───────────────────────── */
 video#avatarVideo {
-  display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 600px; min-height: 275px;
+  display: block; margin: 0 auto 1.5rem; width: 100%; max-width: 600px; min-height: 250px;
   border-radius: 10px; object-fit: cover; aspect-ratio: 16 / 9;
   background: rgba(229, 229, 229, 0.4); position: relative;
   aspect-ratio: 9 / 16;
@@ -358,12 +357,14 @@ video#avatarVideo {
 }
 
 /* ───────────────────────── Allgemeine Container / Karten (Glassmorphism) ───────────────────────── */
+
 .glass-card {
    margin-top: 0.5rem;
    margin-bottom: 1rem;
    width: 100%; max-width: 920px; padding: 1.5rem;
    text-align: center; position: relative;
-   border-radius: 18px; overflow: hidden;
+   border-radius: 18px;
+   height: auto;
    background: var(--lm-glass-bg); border: 2px solid var(--lm-glass-border);
    box-shadow: 0 8px 32px var(--lm-glass-shadow);
    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
@@ -377,6 +378,7 @@ video#avatarVideo {
     margin-bottom: 1rem;
     position: relative;
     min-height: 50px;
+    flex-shrink: 0;
 }
 
 /* ───────────────────────── Form Controls (Glassmorphism) ───────────────────────── */
@@ -390,6 +392,7 @@ textarea, input[type='text'] {
   border: 1px solid var(--lm-input-border);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+  flex-shrink: 0
 }
 
 textarea::-webkit-scrollbar {
@@ -443,35 +446,35 @@ button:disabled {
 
 /* ───────────────────────── CHATBOT UI (Glassmorphism) - ANGEPASST ───────────────────────── */
 #chat-ui {
-    /* display: flex; justify-content: center; align-items: center; */ /* ENTFERNT */
-    /* max-height: calc(100dvh - 116px - 2rem); */ /* ENTFERNT - Höhe wird durch .chatbot-card bestimmt */
-    width: 100%; /* Damit .chatbot-card sich darin zentrieren kann */
-    margin-top: 0.5rem;    /* Wichtig für Abstand zur topbar */
-    margin-bottom: 1rem; /* Abstand nach unten */
+  flex-grow: 1; /* LAYOUT: Nimmt den restlichen vertikalen Platz ein */
+  display: flex;
+  flex-direction: column; /* Stellt sicher, dass die innere Karte korrekt ausgerichtet wird */
+  align-items: center; /* Zentriert die innere Karte horizontal */
+  justify-content: flex-start; /* Richtet die Karte oben aus, wenn sie kleiner als der Bereich ist */
+  width: 100%;
+  min-height: 0; /* LAYOUT: Wichtig für Flex-Kinder, die schrumpfen sollen */
+  /* margin-bottom ist nicht nötig, da es bis zum Rand des body geht */
+  padding-bottom: 1rem; /* LAYOUT: Gibt etwas Platz am unteren Rand des UI-Bereichs (innerhalb dieses Containers) */
+  margin-top: 0.5rem;    /* Wichtig für Abstand zur topbar */
+  margin-bottom: 1rem; /* Abstand nach unten */
 }
 
 .chatbot-card {
-   display: flex; /* Behält seine interne Flex-Struktur für Header, Body, Input */
-   flex-direction: column;
-
-   width: clamp(280px, 90vw, 620px);  /* Definiert die Breite der Karte */
-   height: clamp(400px, 80vh, 780px); /* Definiert die Höhe der Karte */
-
-   /* Zentriert die Karte horizontal innerhalb von #chat-ui (das Block-Verhalten hat) */
-   margin-left: auto;
-   margin-right: auto;
-   margin-top: 0;    /* Wird von #chat-ui gehandhabt */
-   margin-bottom: 0;
-
-   /* Visuelle Stile der Karte bleiben hier */
-   border-radius: 20px;
-   overflow: hidden; /* Wichtig, damit abgerundete Ecken auch für Inhalt gelten */
-   position: relative; /* Für internes z-index Management, falls nötig */
-   background: var(--lm-glass-bg);
-   border: 2px solid var(--lm-glass-border);
-   box-shadow: 0 8px 32px var(--lm-glass-shadow);
-   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-   color: var(--lm-text-color-on-glass);
+  display: flex;
+  flex-direction: column;
+  width: clamp(320px, 90vw, 620px);
+  height: 100%; /* LAYOUT: Füllt die von #chat-ui gegebene Höhe aus */
+  min-height: 350px; /* LAYOUT: Mindesthöhe für Desktop */
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: var(--lm-glass-bg);
+  border: 2px solid var(--lm-glass-border);
+  box-shadow: 0 8px 32px var(--lm-glass-shadow);
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  color: var(--lm-text-color-on-glass);
 }
 /* ───────────────────────── ENDE CHATBOT UI ANPASSUNG ───────────────────────── */
 
@@ -541,7 +544,6 @@ button:disabled {
   align-items: center;
   justify-content: flex-end;
   position: relative;
-  height: 48px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
@@ -608,7 +610,7 @@ button:disabled {
 
 .tag-wrapper.open .tag-text-panel {
   opacity: 1;
-  visibility: visible;
+  visibility: none;
   width: auto;
   transition-delay: 0s;
 }
@@ -678,11 +680,6 @@ button:disabled {
 
 /* Anpassungen für Floating Tags und UI auf mittelgroßen Bildschirmen (Tablets etc.) */
 @media (min-width: 481px) and (max-width: 795px) {
-   .chatbot-card {
-       height: clamp(400px, 80vh, 780px);
-       margin-top: 0; /* Zentrierung durch #chat-ui und margin:auto auf .chatbot-card */
-       /* margin-bottom bleibt 0, da es von #chat-ui übernommen wird */
-   }
 
    .connecting-overlay {
     font-size: 1.2rem;
@@ -716,9 +713,6 @@ button:disabled {
     right: 0;      /* Icon-Breite + kleiner Abstand */
     height: 32px;
     transform: translateY(8px);
-  }
-  .tag-wrapper.open .tag-icon-circle {
-    transform: translateX(-4px);  /* leichter „Pull“-Effekt beim Öffnen */
   }
 
   body.mode-chat {
@@ -757,12 +751,9 @@ button:disabled {
 
 @media (max-width: 480px) { /* Spezifische Mobile Styles */
   body {
-    display: block;
     padding-top: 66px;
     padding-left: 0;
     padding-right: 0;
-    padding-bottom: 0;
-    min-height: 100dvh;
   }
 
   body.mode-chat {
@@ -808,10 +799,12 @@ button:disabled {
   }
 
   #chat-ui { /* Mobile spezifisch für #chat-ui */
-     max-height: none;
-     display: block;
      margin-top: 0.3rem;    /* Behält den oberen Abstand bei */
      margin-bottom: 0.5rem; /* Spezifischer unterer Abstand für Mobile */
+  }
+
+  .chatbot-card { 
+    width: 100%;
   }
 
 
@@ -867,13 +860,6 @@ button:disabled {
     #avatar-ui .avatar-header h1, .chatbot-header h1 {text-align: left; transform: translateX(0px);}
   }
 
-  .chatbot-card { /* Mobile spezifisch für .chatbot-card */
-      width: 100%;      /* Füllt #chat-ui aus */
-      min-width: 100%;
-      margin: 0;         /* Keine auto-Margins, da width 100% */
-      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-      /* height wird von clamp() in der Hauptregel oder spezifischen Viewport-Regeln bestimmt */
-  }
   #avatar-ui .avatar-header {margin-bottom: 0.5rem; min-height: 42px; }
 
   video#avatarVideo {
@@ -901,13 +887,30 @@ button:disabled {
   .chatbot-header { padding: 0 0.75rem; font-size: 1.15rem; flex: 0 0 56px; }
   .chatbot-header h1 { display: inline; font-size: 1.15rem; margin-left: 0;}
 
-  .chatbot-input { flex-direction: column; gap: .75rem; padding: 0.75rem; }
+  .chatbot-input { flex-direction: row; gap: .75rem; padding: 0.75rem; }
   .chatbot-input textarea#chat-input { width: 100%; }
-  .chatbot-input button#chat-send { flex-basis: auto; max-height: 50px; }
+  .chatbot-input button#chat-send { max-width: 44px;}
   .chatbot-input button#chat-send::before { content: "▲"; font-family: inherit; }
 
   .consent-modal { width: 90%; margin: 0.5rem auto; border-radius: 18px; }
   #experiment-complete-banner { width: 90%; margin: 0.5rem auto; }
+  
+  @media (max-height: 488px) {
+    body.mode-chat .tag-icon-circle {
+      height: 24px;
+    }
+  
+    body.mode-chat .tag-wrapper {
+      align-items: end;
+    }
+  }
+
+  @media (max-height: 465px) {
+    body.mode-chat .chatbot-input {
+      margin-bottom: 15px;
+    }
+  }
+
 }
 
 /* ───────────────────────── Dark-Mode ───────────────────────── */
@@ -1180,10 +1183,6 @@ button:disabled {
 /* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
 @media (hover: none) and (pointer: coarse) {
 
-  .chatbot-card {
-    height: var(--chatbot-card-height-mobile);
-  }
-
   button, #speakButton, #chat-send, #consent-accept {
     box-shadow: none !important; transform: none !important; transition: none;
   }
@@ -1266,6 +1265,22 @@ button:disabled {
   @media (hover: none) and (pointer: coarse) {
     body.mode-avatar .floating-tags-container {
       display: none;
+    }
+  }
+
+  @media (max-height: 640px) {
+    body.mode-avatar .tag-icon-circle {
+      height: 24px;
+    }
+  
+    body.mode-avatar .tag-wrapper {
+      align-items: end;
+    }
+  }
+
+  @media (max-height: 570px) {
+    body.mode-avatar section[role='group'] {
+      margin-bottom: 15px;
     }
   }
 }
