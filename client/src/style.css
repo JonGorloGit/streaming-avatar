@@ -1177,9 +1177,7 @@ button:disabled {
 /* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
 @media (hover: none) and (pointer: coarse) {
 
-  .chatbot-card {
-    height: clamp(400px, 73vh, 780px);
-  }
+  
 
   button, #speakButton, #chat-send, #consent-accept {
     box-shadow: none !important; transform: none !important; transition: none;
