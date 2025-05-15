@@ -1178,7 +1178,7 @@ button:disabled {
 @media (hover: none) and (pointer: coarse) {
 
   .chatbot-card {
-    height: clamp(400px, 72.5vh, 780px);
+    height: clamp(400px, 73vh, 780px);
 
   }
 
