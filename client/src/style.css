@@ -332,7 +332,7 @@ ul { list-style: none; } li::before { content: '› '; color: var(--list-bullet-
   flex-grow: 1;
   text-align: center;
   padding-right: 0.5rem;
-  color: var(--lm-text-color-on-glass);
+  color: var(--cws-green);
 }
 #avatar-ui .avatar-header h1 {
   transform: translateX(36.44px);
