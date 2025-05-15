@@ -1195,7 +1195,7 @@ button:disabled {
   .topbar-nav-control:focus:not(:disabled),
   .topbar-nav-control:focus-visible:not(:disabled) {
       background-color: transparent !important;
-      color: var(--cws-neon) !important;
+      color: var(--cws-green) !important;
       border-color: transparent !important;
       outline: none !important;
       box-shadow: none !important;
