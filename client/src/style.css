@@ -1179,7 +1179,6 @@ button:disabled {
 
   .chatbot-card {
     height: clamp(400px, 73vh, 780px);
-
   }
 
   button, #speakButton, #chat-send, #consent-accept {
@@ -1197,7 +1196,7 @@ button:disabled {
   .topbar-nav-control:focus:not(:disabled),
   .topbar-nav-control:focus-visible:not(:disabled) {
       background-color: transparent !important;
-      color: var(--cws-green) !important;
+      color: var(--cws-neon) !important;
       border-color: transparent !important;
       outline: none !important;
       box-shadow: none !important;
