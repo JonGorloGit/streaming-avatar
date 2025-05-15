@@ -771,6 +771,14 @@ button:disabled {
     margin-top: 0px;
   }
 
+  body.mode-avatar {
+    padding-top: 60px;
+  }
+
+  body.mode-avatar .topbar {
+    margin-top: 0px;
+  }
+
   body.mode-chat .tag-icon-circle {
     height: 42px;
   }
@@ -800,14 +808,14 @@ button:disabled {
   #chat-ui { /* Mobile spezifisch für #chat-ui */
      max-height: none;
      display: block;
-     margin-top: 1rem;    /* Behält den oberen Abstand bei */
+     margin-top: 0.3rem;    /* Behält den oberen Abstand bei */
      margin-bottom: 0.5rem; /* Spezifischer unterer Abstand für Mobile */
   }
 
 
   .glass-card {
       padding: 1rem;
-      margin-top: 1rem;
+      margin-top: 0.3rem;
       margin-bottom: 0.5rem;
       width: auto; /* Nimmt die Breite von #avatar-ui an */
       border-radius: 12px;
@@ -1175,7 +1183,7 @@ button:disabled {
 
   body.mode-chat {
     padding-top: 62px;
-    padding-bottom: 1px;
+    padding-bottom: 35px;
   }
 
   button:active:not(:disabled) { transform: scale(0.98) !important; }
