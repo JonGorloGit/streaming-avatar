@@ -351,14 +351,14 @@ function setBrowserAndDeviceSpecificStyles(): void {
   if (isMobile) {
     console.log("Mobile device detected.");
     if (userAgent.includes("firefox")) {
-      chatbotHeightVhPart = '80vh'; // Firefox auf Smartphone
+      chatbotHeightVhPart = '83vh'; // Firefox auf Smartphone
       console.log("Mobile Firefox, setting height to 80vh");
     } else if (userAgent.includes("edg/") || userAgent.includes("edge/")) {
-      chatbotHeightVhPart = '80vh'; // Edge auf Smartphone
+      chatbotHeightVhPart = '85vh'; // Edge auf Smartphone
       console.log("Mobile Edge, setting height to 80vh");
     } else if (userAgent.includes("safari") && !userAgent.includes("chrome") && !userAgent.includes("crios") && !userAgent.includes("fxios")) {
       // Safari auf iOS (nicht Chrome oder Firefox für iOS, die andere UAs haben)
-      chatbotHeightVhPart = '75vh'; // Safari auf Smartphone
+      chatbotHeightVhPart = '74vh'; // Safari auf Smartphone
       console.log("Mobile Safari, setting height to 75vh");
     } else if (userAgent.includes("chrome") || userAgent.includes("crios")) {
       // Chrome (Android oder iOS - crios)

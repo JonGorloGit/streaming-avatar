@@ -1,5 +1,8 @@
 /* ───────────────────────── Farb-Variablen ───────────────────────── */
 :root {
+
+  --chatbot-card-height-mobile: clamp(400px, 73vh, 780px);
+
   /* Primär */
   --cws-deep-blue: #002733;
   --cws-green: #00806e;
@@ -1177,7 +1180,9 @@ button:disabled {
 /* ───────────────────────── Touch Device Hover Fix ───────────────────────── */
 @media (hover: none) and (pointer: coarse) {
 
-  
+  .chatbot-card {
+    height: var(--chatbot-card-height-mobile);
+  }
 
   button, #speakButton, #chat-send, #consent-accept {
     box-shadow: none !important; transform: none !important; transition: none;
