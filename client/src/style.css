@@ -910,7 +910,7 @@ button:disabled {
 
 @media (max-height: 630px) {
   .chatbot-card {
-    height: clamp(400px, 80dvh, 780px);
+    height: clamp(400px, 75dvh, 780px);
 
   }
 }
@@ -1186,7 +1186,7 @@ button:disabled {
 @media (hover: none) and (pointer: coarse) {
 
   .chatbot-card {
-    height: clamp(400px, 80dvh, 720px);
+    height: clamp(400px, 80dvh, 780px);
 
   }
 
