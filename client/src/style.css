@@ -1212,6 +1212,7 @@ button:disabled {
      .topbar-nav-control:not(:disabled) {
          color: var(--cws-neon) !important;
      }
+     .topbar-nav-control:focus-visible:not(:disabled) { color: var(--cws-green) !important; }
   }
   @media (prefers-color-scheme: light) {
      button:hover:not(:disabled) {
