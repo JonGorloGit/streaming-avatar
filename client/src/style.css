@@ -764,7 +764,6 @@ button:disabled {
 
   body.mode-chat {
     padding-top: 60px; /* Spezifisches Navbar-Padding für Mobile Chat */
-    padding-bottom: 35px; /* Spezifischer unterer Abstand für Mobile Chat */
   }
 
   body.mode-chat .topbar {
