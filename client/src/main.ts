@@ -351,10 +351,10 @@ function setBrowserAndDeviceSpecificStyles(): void {
   if (isMobile) {
     console.log("Mobile device detected.");
     if (userAgent.includes("firefox")) {
-      chatbotHeightVhPart = '83vh'; // Firefox auf Smartphone
+      chatbotHeightVhPart = '85vh'; // Firefox auf Smartphone
       console.log("Mobile Firefox, setting height to 80vh");
     } else if (userAgent.includes("edg/") || userAgent.includes("edge/")) {
-      chatbotHeightVhPart = '85vh'; // Edge auf Smartphone
+      chatbotHeightVhPart = '83vh'; // Edge auf Smartphone
       console.log("Mobile Edge, setting height to 80vh");
     } else if (userAgent.includes("safari") && !userAgent.includes("chrome") && !userAgent.includes("crios") && !userAgent.includes("fxios")) {
       // Safari auf iOS (nicht Chrome oder Firefox für iOS, die andere UAs haben)
@@ -373,7 +373,7 @@ function setBrowserAndDeviceSpecificStyles(): void {
     // Wichtig: Die min/max Werte im clamp müssen ggf. auch angepasst werden,
     // wenn die vh-Werte stark abweichen, damit clamp noch sinnvoll funktioniert.
     // Hier vereinfacht, nur den vh-Teil zu ändern:
-    rootStyle.setProperty('--chatbot-card-height', `clamp(400px, ${chatbotHeightVhPart}, 780px)`);
+    rootStyle.setProperty('--chatbot-card-height-mobile', `clamp(400px, ${chatbotHeightVhPart}, 780px)`);
 
   } else {
     // Für Desktop-Browser könntest du hier eine andere Logik haben
