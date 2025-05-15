@@ -59,9 +59,6 @@ window.addEventListener('DOMContentLoaded', () => {
     overlay.remove();
     document.body.style.overflow = '';
     initApp();
-
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-
   });
 
   const topbarElement = document.querySelector<HTMLElement>('.topbar');
