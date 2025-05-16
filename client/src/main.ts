@@ -348,8 +348,12 @@ document.querySelectorAll<HTMLAnchorElement>('.topbar-nav a[data-mode]').forEach
 });
 
 function vibrate() {
-  if (navigator.vibrate) {
-    navigator.vibrate(100); // vibriert für 100 Millisekunden
+  if ('vibrate' in navigator) {
+    const success = navigator.vibrate(100);
+    console.log("Vibration gestartet:", success);
+  } else {
+    console.warn("Vibration wird nicht unterstützt");
   }
 }
+// Funktion global machen, damit sie über `onclick` im HTML sichtbar ist:
 (window as any).vibrate = vibrate;
