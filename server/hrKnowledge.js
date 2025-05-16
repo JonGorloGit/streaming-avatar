@@ -7,30 +7,81 @@
 // Kernwissen – neutral, ohne Tonfall
 // ---------------------------------
 const HR_KB = `
-HR-Themen Arbeitszeitveränderung für Mitarbeitende:
+## 1. Elternzeit  
+- **Gesetzliche Grundlage**  
+  - BEEG § 16: Bis zu 3 Jahre pro Kind, Aufteilung und gleichzeitige Inanspruchnahme beider Elternteile möglich.  
+- **VW-Betriebsvereinbarung „Elternzeit“**  
+  - Zusätzliche FAQs, Musterformulare und Beratung über das HR-Portal (SAP SuccessFactors).  
+  - Betriebsratsbeteiligung: Information und Stellungnahme durch den örtlichen Betriebsrat.  
+- **Antragstellung**  
+  - Schriftlich über das HR-Portal oder per Brief an die Personalabteilung mindestens 7 Wochen vor Beginn (§ 16 BEEG).  
+  - Fristwahrung: Bei verspäteter Antragstellung können Ansprüche verloren gehen.  
+- **Gehalts- und Sozialversicherungswirkung**  
+  - Elterngeld ersetzt ca. 65 % des letzten Netto-Einkommens (max. 1.800 €).  
+  - VW-Elternzeitbeihilfe: Zuschuss auf Elterngeld („Top-Up“) für Tarifbeschäftigte bis zu 10 % des letzten Nettogehalts (gem. Betriebsvereinbarung).  
+- **Rückkehr aus der Elternzeit**  
+  - Wiederbesetzung der bisherigen Tätigkeit oder gleichwertige Position.  
+  - Optional: Anschluss an Altersteilzeit-Modelle.
 
-1. Elternzeit
-   • Bis 3 Jahre pro Kind, Aufteilung möglich.
-   • Antrag 7 Wochen vor Beginn (§16 BEEG).
-   • Gehaltsauswirkungen: Elterngeld ersetzt ca. 65% des letzten Netto.
+## 2. Teilzeit (Reduzierung)  
+- **Gesetzlicher Anspruch**  
+  - §§ 8 ff. TzBfG: Anspruch bei ≥ 6 Monaten Betriebszugehörigkeit und ≥ 15 Mitarbeitenden.  
+- **Tarif- und Betriebsvereinbarungen bei VW**  
+  - Konzern-Tarifvertrag (KTV) VW‑AG: Entgeltgruppen, Staffelung nach Arbeitszeit.  
+  - Betriebsvereinbarung „Lebensphasengerechte Arbeitszeit“ (LPZG):  
+    - Flexible Verteilung von Soll-Stunden, Gleitzeitrahmen (z. B. Kernarbeitszeit 9–15 Uhr).  
+    - Option auf Korridormodell (unterschiedliche Wochenarbeitszeiten innerhalb eines Jahres).  
+- **Antrag & Fristen**  
+  - Antrag über das HR-Portal 3 Monate vor gewünschtem Beginn.  
+  - Ablehnung nur aus dringenden betrieblichen Gründen (z. B. Projekt- oder Produktionsengpässe) möglich.  
+- **Urlaubsanspruch**  
+  - Anteilig nach reduzierten Arbeitstagen (z. B. 30 Tage × (verringerte Wochenstunden/40 Std.)).  
+- **Sozialversicherung**  
+  - Beitragspflicht bleibt bestehen, Bemessungsgrundlage entsprechend der reduzierten Brutto-Bezüge.
 
-2. Teilzeit (Reduzierung)
-   • Anspruch bei >6 Monaten Betriebszugehörigkeit und >15 Mitarbeitenden (§8 TzBfG).
-   • Antrag 3 Monate vorher; Ablehnung nur aus dringenden betrieblichen Gründen.
-   • Urlaubsanspruch: anteilig nach reduzierten Arbeitstagen.
+## 3. Rückkehr in Vollzeit  
+- **Gesetzlicher Rahmen**  
+  - § 9a TzBfG: Anspruch auf Rückkehr innerhalb von 3 Monaten nach Teilzeit.  
+- **VW-Prozess**  
+  - Antrag über HR-Portal oder Mail an HR-Service-Center mindestens 3 Monate vorher.  
+  - Abstimmung mit Führungskraft und Personalabteilung zur termingerechten Gehaltsanpassung.  
+- **Gehaltsanpassung**  
+  - Zurück auf Vollzeit-Entgeltgruppe gemäß KTV; geänderte Entgeltmerkmale werden in SAP nachträglich angepasst.  
+- **Onboarding**  
+  - Rückkehrgespräch (Wieder­eingliederung), ggfs. Einarbeitung in neue Prozesse.
 
-3. Rückkehr Vollzeit
-   • Beantragung 3 Monate vorher (§9a TzBfG).
-   • Gehaltsanpassung auf Vollzeitniveau.
+## 4. Altersteilzeit  
+- **Voraussetzungen**  
+  - VW-Tarifvertrag „Altersteilzeit“: ab 55 Jahren, mind. 60 Monate VW-Betriebszugehörigkeit.  
+- **Modelle**  
+  - **Blockmodell**: Erst Vollzeitphase, dann Freistellungsphase.  
+  - **Gleichmäßig (1:1-Modell)**: Halbierung der Arbeitszeit für gesamten Zeitraum.  
+- **Betriebsvereinbarung**  
+  - Zuschussregelungen: Arbeitgeberzuschuss bis zu 20 % der Brutto-Bezüge während der Arbeitsphase.  
+  - Sozialversicherungsrecht: Reduzierte Beiträge in Freistellungsphasen, Rentenanspruch bleibt erhalten.  
+- **Antrag & Fristen**  
+  - Dienstvereinbarung 6 Monate vor Beginn, Abstimmung mit Betriebsrat und HR.
 
-4. Altersteilzeit
-   • Vereinbarung ab 55 Jahren möglich; Teilzeitphase + Restarbeitsphase.
-   • Gehaltsreduktion anteilig; Zuschläge möglich.
+## 5. Sabbatical / Langzeitkonto  
+- **Vertragliche Grundlagen**  
+  - VW-Betriebsvereinbarung „Arbeitszeitkonto TÄKKO“ (Tätigkeitskonto).  
+  - TV-Langzeitkonto (TV-LZK) für tarifbeschäftigte Mitarbeitende.  
+- **Modelle**  
+  - **Überstundenguthaben**: Freizeitausgleich durch Anwesenheitskonto.  
+  - **Entgeltguthaben**: Ansparen von Gehalt für späteres Sabbatical.  
+- **Beantragung**  
+  - Formular im HR-Portal – Genehmigung durch Führungskraft und HR-Kontrolle.  
+  - Rücksprache mit Steuer-/Sozialversicherungsexperten (je nach Modell).  
+- **Dauer & Zahlungsmodell**  
+  - Flexibel: 1 Monat bis mehrere Jahre.  
+  - Auszahlung oder Freistellung während Sabbatical, Restarbeitsfähigkeit danach.
 
-5. Sabbatical / Langzeitkonto
-   • Vertragliche Vereinbarung oder TV-Langzeitkonto.
-   • Dauer und Zahlungsmodell flexibel vereinbarbar.
-   • Sozialversicherungsschutz prüfen.
+### Weitere VW-Betriebsvereinbarungen & Services  
+- **BV „Mobile Arbeit“**: Home-Office-Regelungen, Höchstgrenzen, Spesen.  
+- **BV Überstundenausgleich**: Tarifliche Freizeitausgleichsquoten.  
+- **HR-Self-Services**: SAP SuccessFactors, VW-PeoplePortal für alle Anträge und Formulare.  
+- **Betriebsrat & Job-Center**: Beratung und Unterstützung bei allen Lebensphasenmodellen.
+
 `;
 
 // ---------------------------------
