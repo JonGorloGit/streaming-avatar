@@ -45,7 +45,7 @@
 
   <!-- NEUE Top-Bar -->
 <header class="topbar">
-  <button id="Topbar-control" class="topbar-nav-control prev" aria-label="Vorherige Elemente"><i class="fa-solid fa-chevron-left"></i></button>
+  <button onclick="vibrate()" id="Topbar-control" class="topbar-nav-control prev" aria-label="Vorherige Elemente"><i class="fa-solid fa-chevron-left"></i></button>
   <div class="topbar-nav-wrapper">
     <nav class="topbar-nav">
       <!-- Die Links bleiben hier drin -->
@@ -58,7 +58,7 @@
       <!-- Füge hier ggf. weitere Links hinzu -->
     </nav>
   </div>
-  <button id="Topbar-control" class="topbar-nav-control next" aria-label="Nächste Elemente"><i class="fa-solid fa-chevron-right"></i></button>
+  <button onclick="vibrate()" id="Topbar-control" class="topbar-nav-control next" aria-label="Nächste Elemente"><i class="fa-solid fa-chevron-right"></i></button>
 </header>
 <!-- ENDE NEUE Top-Bar -->
 
@@ -76,7 +76,7 @@
           <p style="margin-top:1rem;">
             Mit „Zustimmen & Fortfahren“ bestätigen Sie, dass Sie diese Hinweise verstanden haben.
           </p>
-          <button id="consent-accept">Zustimmen & Fortfahren</button>
+          <button onclick="vibrate()" id="consent-accept">Zustimmen & Fortfahren</button>
       </div>
     </div>
   </div>
@@ -97,7 +97,7 @@
     <div id="connecting-overlay" class="connecting-overlay">Verbindung wird hergestellt<span id="dots">.</span></div>
     <section role="group">
       <textarea id="userInput" rows="1" placeholder="Stellen Sie eine Frage..."></textarea>
-      <button id="speakButton">Sprechen</button>
+      <button onclick="vibrate()" id="speakButton">Sprechen</button>
     </section>
   </section>
 
@@ -123,7 +123,7 @@
       <!-- Eingabe -->
       <footer class="chatbot-input">
         <textarea id="chat-input" placeholder="Stellen Sie eine Frage..." rows="1"></textarea>
-        <button id="chat-send" title="Senden (Strg+Enter)">
+        <button onclick="vibrate()" id="chat-send" title="Senden (Strg+Enter)">
           <!-- Button-Text wird per CSS ::before eingefügt -->
         </button>
       </footer>

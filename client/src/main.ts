@@ -346,3 +346,10 @@ document.querySelectorAll<HTMLAnchorElement>('.topbar-nav a[data-mode]').forEach
     }
   });
 });
+
+function vibrate() {
+  if (navigator.vibrate) {
+    navigator.vibrate(100); // vibriert für 100 Millisekunden
+  }
+}
+(window as any).vibrate = vibrate;
