@@ -1189,18 +1189,6 @@ button:disabled {
   .icon-placeholder:hover { background-color: transparent !important; }
   .icon-placeholder:active { background-color: var(--black-10p) !important; }
 
-  .topbar-nav-control:not(:disabled),
-  .topbar-nav-control:hover:not(:disabled),
-  .topbar-nav-control:active:not(:disabled),
-  .topbar-nav-control:focus:not(:disabled),
-  .topbar-nav-control:focus-visible:not(:disabled) {
-      background-color: transparent !important;
-      color: var(--cws-green) !important;
-      border-color: transparent !important;
-      outline: none !important;
-      box-shadow: none !important;
-  }
-
 
   @media (prefers-color-scheme: dark) {
     button:hover:not(:disabled) {
@@ -1209,10 +1197,18 @@ button:disabled {
       border-color: var(--dm-button-border) !important;
     }
      .icon-placeholder:active { background-color: rgba(var(--cws-neon-rgb), 0.1) !important; }
-     .topbar-nav-control:not(:disabled) {
-         color: var(--cws-neon) !important;
-     }
-     .topbar-nav-control:focus-visible:not(:disabled) { color: var(--cws-green) !important; }
+
+     .topbar-nav-control:not(:disabled),
+     .topbar-nav-control:hover:not(:disabled),
+     .topbar-nav-control:active:not(:disabled),
+     .topbar-nav-control:focus:not(:disabled),
+     .topbar-nav-control:focus-visible:not(:disabled) {
+      background-color: transparent !important;
+      color: var(--cws-neon) !important;
+      border-color: transparent !important;
+      outline: none !important;
+      box-shadow: none !important;
+      }
 
      .topbar-nav a:hover {
       color: var(--dm-text-color-on-glass);
@@ -1224,6 +1220,21 @@ button:disabled {
       color: var(--lm-button-glass-fg) !important;
       border-color: var(--lm-button-glass-border) !important;
     }
+     .topbar-nav-control:not(:disabled),
+     .topbar-nav-control:hover:not(:disabled),
+     .topbar-nav-control:active:not(:disabled),
+     .topbar-nav-control:focus:not(:disabled),
+     .topbar-nav-control:focus-visible:not(:disabled) {
+      background-color: transparent !important;
+      color: var(--cws-green) !important;
+      border-color: transparent !important;
+      outline: none !important;
+      box-shadow: none !important;
+      }
+
+      .topbar-nav a:hover {
+        color: var(--lm-text-color-on-glass);
+      }
   }
 
   .floating-tags-container {
