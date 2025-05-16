@@ -462,6 +462,7 @@ button:disabled {
   width: clamp(320px, 90vw, 620px);
   height: 100%; /* LAYOUT: Füllt die von #chat-ui gegebene Höhe aus */
   min-height: 350px; /* LAYOUT: Mindesthöhe für Desktop */
+  height: clamp(350px, 100%, 780px);
   margin-left: auto;
   margin-right: auto;
   border-radius: 20px;
