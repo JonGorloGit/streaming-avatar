@@ -58,7 +58,7 @@ app.post('/api/message', async (req, res) => {
 
   try {
     const completion = await openai.chat.completions.create({
-      model   : 'gpt-4o',      // ersatzweise gpt-4o
+      model   : 'o4-mini-high',      // ersatzweise gpt-4o
       messages,
     });
     const answer = completion.choices[0]?.message?.content?.trim() ?? '';
