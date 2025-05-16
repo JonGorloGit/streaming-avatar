@@ -758,6 +758,10 @@ button:disabled {
     padding-top: 60px; /* Spezifisches Navbar-Padding für Mobile Chat */
   }
 
+  body.mode-chat .chatbot-card{
+    height: 93%;
+  }
+
   body.mode-chat .topbar {
     margin-top: 0px;
   }
@@ -872,6 +876,10 @@ button:disabled {
     margin-bottom: 1rem;
     margin-left: 0;
     margin-right: 0;
+}
+
+.chatbot-card {
+  height: 100%;
 }
 
 .connecting-overlay {font-size: 1rem;}
