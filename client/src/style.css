@@ -878,10 +878,6 @@ button:disabled {
     margin-right: 0;
 }
 
-.chatbot-card {
-  height: 100% !important;
-}
-
 .connecting-overlay {font-size: 1rem;}
 
   .progress-circle { width: 42px; height: 42px; font-size: 0.7rem; }
@@ -1248,6 +1244,10 @@ button:disabled {
 
   .floating-tags-container {
     display: none;
+  }
+
+  .chatbot-card {
+    height: 100% !important;
   }
 }
 
