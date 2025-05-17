@@ -11,39 +11,50 @@ let currentStyle: Style | null = null;
 let cleanup: () => Promise<void> | void = () => {};
 
 /* ─────────── on load ─────────── */
+// Initialisiere Zustände und Nutzer-Overlay nur einmal nach vollständigem Laden des DOMs
 window.addEventListener('DOMContentLoaded', () => {
   const overlay = document.getElementById('consent-overlay')!;
   const params = new URLSearchParams(window.location.search);
 
+  // Ermöglicht Entwicklern, den Experiment-Status gezielt zurückzusetzen
   if (params.get('reset') === '1') {
     localStorage.removeItem('experimentDone');
     console.log('Experiment-Status zurückgesetzt');
   }
 
+  // Zeige Abschluss-Overlay, wenn Experiment bereits beendet wurde
   if (localStorage.getItem('experimentDone') === 'true') {
     document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
     return;
   }
 
+  // Verhindere Scrollen bis zur Zustimmung des Nutzers
   overlay.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 
+  // Setze Interaktionen für schwebende Tags auf, um Benutzerfeedback zu steuern
   const floatingTagsContainer = document.getElementById('floatingTagsContainer');
   if (floatingTagsContainer) {
     const tagWrappers = floatingTagsContainer.querySelectorAll<HTMLElement>('.tag-wrapper');
     const closeAllTags = () => tagWrappers.forEach(tw => tw.classList.remove('open'));
+
     tagWrappers.forEach(wrapper => {
       wrapper.addEventListener('click', (event) => {
-        const targetElement = event.currentTarget as HTMLElement;
-        const isLink = targetElement.tagName === 'A' && (targetElement as HTMLAnchorElement).href && (targetElement as HTMLAnchorElement).href !== '#';
-        if (!isLink || (isLink && (targetElement as HTMLAnchorElement).getAttribute('href') === '#')) {
-            event.preventDefault(); event.stopPropagation();
+        const target = event.currentTarget as HTMLElement;
+        // Unterdrücke Standardverhalten nur für Pseudo-Links ohne echten href
+        const isLink = target.tagName === 'A' && (target as HTMLAnchorElement).href !== '#' && !!(target as HTMLAnchorElement).href;
+        if (!isLink || (isLink && (target as HTMLAnchorElement).getAttribute('href') === '#')) {
+          event.preventDefault();
+          event.stopPropagation();
         }
+        // Öffne oder schließe das Tag basierend auf vorherigem Zustand
         const wasOpen = wrapper.classList.contains('open');
         closeAllTags();
         if (!wasOpen) wrapper.classList.add('open');
       });
     });
+
+    // Schließe Tags bei Klick außerhalb
     document.body.addEventListener('click', (event) => {
       if (!Array.from(tagWrappers).some(tw => tw.contains(event.target as Node))) {
         closeAllTags();
@@ -51,6 +62,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Setze Einverständnis und starte App bei Zustimmung des Nutzers
   document.getElementById('consent-accept')?.addEventListener('click', () => {
     if (localStorage.getItem('experimentDone') === 'true') {
       document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
@@ -61,292 +73,212 @@ window.addEventListener('DOMContentLoaded', () => {
     initApp();
   });
 
-  const topbarElement = document.querySelector<HTMLElement>('.topbar');
-  if (topbarElement) {
-    const navWrapper = topbarElement.querySelector<HTMLElement>('.topbar-nav-wrapper');
-    const navInner = topbarElement.querySelector<HTMLElement>('.topbar-nav');
-    const prevButton = topbarElement.querySelector<HTMLButtonElement>('.topbar-nav-control.prev');
-    const nextButton = topbarElement.querySelector<HTMLButtonElement>('.topbar-nav-control.next');
+  // Initialisiere Topbar-Navigation, um Überlauf und Scroll-Controls zu verwalten
+  const topbar = document.querySelector<HTMLElement>('.topbar');
+  if (topbar) {
+    const navWrapper = topbar.querySelector<HTMLElement>('.topbar-nav-wrapper');
+    const navInner   = topbar.querySelector<HTMLElement>('.topbar-nav');
+    const prevBtn    = topbar.querySelector<HTMLButtonElement>('.topbar-nav-control.prev');
+    const nextBtn    = topbar.querySelector<HTMLButtonElement>('.topbar-nav-control.next');
 
-    if (navWrapper && navInner && prevButton && nextButton) {
-        let allNavItems: HTMLElement[] = [];
-        let itemWidths: number[] = [];
-        let visibleWrapperWidth = 0;
-        let totalContentWidth = 0;
-        let gapBetweenItems = 0;
+    if (navWrapper && navInner && prevBtn && nextBtn) {
+      // Warum: Wir benötigen Dimensionsdaten, um Überlauf und Sichtbarkeit dynamisch anzupassen
+      let allNavItems: HTMLElement[] = [];
+      let itemWidths:   number[]    = [];
+      let visibleWidth = 0;
+      let totalWidth   = 0;
+      let gapWidth     = 0;
 
-        let currentStartIndex = 0;
-        let lastVisibleItemIndex = -1; // Index des *tatsächlich* letzten sichtbaren Elements
-        let currentlyVisibleItemsCount = 0; // Anzahl der aktuell sichtbaren Elemente
+      let startIndex = 0;
+      let endIndex   = -1;
+      let visibleCount = 0;
 
-        const updateVisibleItems = () => {
-            if (allNavItems.length === 0) {
-                currentlyVisibleItemsCount = 0;
-                return;
+      // Aktiviere/Deaktiviere aufeinanderfolgende Navigationselemente
+      const updateVisibleItems = () => {
+        if (allNavItems.length === 0) { visibleCount = 0; return; }
+        let renderedWidth = 0;
+        let lastIndex = -1;
+        visibleCount = 0;
+        allNavItems.forEach(item => item.style.display = 'none');
+
+        // Sicherstellung des Startindex innerhalb gültiger Grenzen
+        if (startIndex >= allNavItems.length) {
+          startIndex = Math.max(0, allNavItems.length - 1);
+        }
+
+        // Berechne, welche Elemente angezeigt werden können
+        for (let i = startIndex; i < allNavItems.length; i++) {
+          const width = itemWidths[i] + (visibleCount ? gapWidth : 0);
+          if (renderedWidth + width <= visibleWidth + 2) {
+            allNavItems[i].style.display = '';
+            renderedWidth += width;
+            lastIndex = i;
+            visibleCount++;
+          } else break;
+        }
+        endIndex = lastIndex;
+      };
+
+      // Ermittle und speichere Dimensionen für alle Navigationselemente
+      const calculateDimensionsAndRefreshUI = () => {
+        allNavItems = Array.from(navInner.children) as HTMLElement[];
+        gapWidth = parseInt(getComputedStyle(navInner).gap) || 0;
+        itemWidths = [];
+        totalWidth = 0;
+
+        allNavItems.forEach((item, idx) => {
+          const prevDisplay = item.style.display;
+          item.style.display = '';
+          itemWidths[idx] = item.offsetWidth;
+          totalWidth += item.offsetWidth + (idx < allNavItems.length - 1 ? gapWidth : 0);
+          item.style.display = prevDisplay;
+        });
+
+        const padLeft  = parseInt(getComputedStyle(navInner).paddingLeft)  || 0;
+        const padRight = parseInt(getComputedStyle(navInner).paddingRight) || 0;
+        totalWidth += padLeft + padRight;
+        visibleWidth = navWrapper.offsetWidth;
+
+        // Warum: Lege Overflow-Zustand fest und berechne sinnvollen Startindex neu
+        if (totalWidth <= visibleWidth) {
+          navWrapper.classList.remove('has-overflow');
+          startIndex = 0;
+        } else {
+          navWrapper.classList.add('has-overflow');
+          // Vereinfachte Logik, um möglichst viele alte sichtbare Items beizubehalten
+          let found = false;
+          for (let i = startIndex; i < allNavItems.length && !found; i++) {
+            let w = 0, count = 0;
+            for (let j = i; j < allNavItems.length; j++) {
+              const wi = itemWidths[j] + (count ? gapWidth : 0);
+              if (w + wi <= visibleWidth + 2) { w += wi; count++; }
+              else break;
             }
+            if (count) { startIndex = i; found = true; }
+          }
+          if (!found) startIndex = 0;
+          if (startIndex >= allNavItems.length) startIndex = allNavItems.length - 1;
+        }
 
-            let currentRenderedWidthOnPage = 0;
-            let tempLastVisibleIndex = -1;
-            currentlyVisibleItemsCount = 0;
+        updateVisibleItems();
+        updateButtonStates();
+      };
 
-            allNavItems.forEach(item => item.style.display = 'none');
+      // Steuerung der Aktiv-/Inaktiv-Zustände der Scroll-Buttons
+      const updateButtonStates = () => {
+        const noOverflow = totalWidth <= visibleWidth;
+        prevBtn.style.display = noOverflow ? 'none' : 'flex';
+        nextBtn.style.display = noOverflow ? 'none' : 'flex';
+        prevBtn.disabled = startIndex === 0;
+        nextBtn.disabled = endIndex >= allNavItems.length - 1;
+      };
 
-            if (currentStartIndex >= allNavItems.length && allNavItems.length > 0) {
-                currentStartIndex = Math.max(0, allNavItems.length -1); // Fallback
+      // Verschiebe Ansicht nach rechts, sodass nächstes Nav-Item vorne steht
+      const moveToNext = () => {
+        if (nextBtn.disabled) return;
+        startIndex = Math.min(startIndex + 1, allNavItems.length - 1);
+        updateVisibleItems();
+        if (!visibleCount && startIndex > 0) {
+          // Fallback: finde letzten möglichen Start, falls nichts passt
+          for (let i = allNavItems.length - 1; i >= 0; i--) {
+            let w = 0, canFit = false;
+            for (let j = i; j < allNavItems.length; j++) {
+              const wi = itemWidths[j] + (j > i ? gapWidth : 0);
+              if (w + wi <= visibleWidth + 2) { w += wi; canFit = true; } else break;
             }
+            if (canFit) { startIndex = i; break; }
+          }
+          updateVisibleItems();
+        }
+        updateButtonStates();
+      };
 
-            for (let i = currentStartIndex; i < allNavItems.length; i++) {
-                const item = allNavItems[i];
-                const itemActualWidth = itemWidths[i];
-                const widthWithGap = itemActualWidth + (currentlyVisibleItemsCount > 0 ? gapBetweenItems : 0);
+      // Verschiebe Ansicht nach links, sodass vorheriges Nav-Item vorne steht
+      const moveToPrev = () => {
+        if (prevBtn.disabled) return;
+        startIndex = Math.max(0, startIndex - 1);
+        updateVisibleItems();
+        updateButtonStates();
+      };
 
-                if (currentRenderedWidthOnPage + widthWithGap <= visibleWrapperWidth + 2) {
-                    item.style.display = '';
-                    currentRenderedWidthOnPage += widthWithGap;
-                    tempLastVisibleIndex = i;
-                    currentlyVisibleItemsCount++;
-                } else {
-                    break;
-                }
-            }
-            lastVisibleItemIndex = tempLastVisibleIndex; // Aktualisiere den globalen Index
-        };
+      nextBtn.addEventListener('click', moveToNext);
+      prevBtn.addEventListener('click', moveToPrev);
+      window.addEventListener('resize', calculateDimensionsAndRefreshUI);
 
-        const calculateDimensionsAndRefreshUI = () => {
-            if (!navInner || !navWrapper) return;
-
-            allNavItems = Array.from(navInner.children) as HTMLElement[];
-            if (allNavItems.length === 0) {
-                totalContentWidth = 0; // Wichtig für updateButtonStates
-                updateVisibleItems(); // Setzt currentlyVisibleItemsCount auf 0
-                updateButtonStates();
-                return;
-            }
-
-            gapBetweenItems = parseInt(getComputedStyle(navInner).gap || '0');
-            itemWidths = [];
-            totalContentWidth = 0;
-
-            allNavItems.forEach((item, index) => {
-                const originalDisplay = item.style.display;
-                if (originalDisplay === 'none') item.style.display = '';
-                itemWidths.push(item.offsetWidth);
-                totalContentWidth += item.offsetWidth;
-                if (originalDisplay === 'none') item.style.display = 'none';
-                if (index < allNavItems.length - 1) {
-                    totalContentWidth += gapBetweenItems;
-                }
-            });
-            const innerPaddingLeft = parseInt(getComputedStyle(navInner).paddingLeft || '0');
-            const innerPaddingRight = parseInt(getComputedStyle(navInner).paddingRight || '0');
-            totalContentWidth += innerPaddingLeft + innerPaddingRight;
-
-            visibleWrapperWidth = navWrapper.offsetWidth;
-
-            if (totalContentWidth <= visibleWrapperWidth) {
-                navWrapper.classList.remove('has-overflow');
-                currentStartIndex = 0;
-            } else {
-                navWrapper.classList.add('has-overflow');
-                // Beim Resize: Versuchen, currentStartIndex so anzupassen, dass möglichst viele
-                // der zuvor sichtbaren Elemente sichtbar bleiben, beginnend mit dem alten currentStartIndex.
-                // Diese Logik kann sehr komplex werden. Eine einfache Neuberechnung:
-                let newCalculatedStartIndex = currentStartIndex; // Behalte alten Start bei, wenn möglich
-                let foundValidStartIndex = false;
-                for (let i = currentStartIndex; i < allNavItems.length; i++) {
-                    let pageTempWidth = 0;
-                    let itemsOnThisPotentialPage = 0;
-                    for (let j = i; j < allNavItems.length; j++) {
-                        const itemW = itemWidths[j] + (itemsOnThisPotentialPage > 0 ? gapBetweenItems : 0);
-                        if (pageTempWidth + itemW <= visibleWrapperWidth +2) {
-                            pageTempWidth += itemW;
-                            itemsOnThisPotentialPage++;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (itemsOnThisPotentialPage > 0) { // Es passt mindestens ein Item ab hier
-                        newCalculatedStartIndex = i;
-                        foundValidStartIndex = true;
-                        break;
-                    }
-                }
-                if (!foundValidStartIndex && allNavItems.length > 0) { // Wenn vom alten Start nichts passt, von vorne
-                    currentStartIndex = 0;
-                } else if (foundValidStartIndex) {
-                    currentStartIndex = newCalculatedStartIndex;
-                }
-
-            }
-             if(currentStartIndex >= allNavItems.length) currentStartIndex = Math.max(0, allNavItems.length -1);
-
-
-            updateVisibleItems();
-            updateButtonStates();
-        };
-
-        const updateButtonStates = () => {
-            if (!prevButton || !nextButton ) return;
-             if (allNavItems.length === 0 || totalContentWidth <= visibleWrapperWidth) {
-                prevButton.style.display = 'none';
-                nextButton.style.display = 'none';
-                prevButton.disabled = true;
-                nextButton.disabled = true;
-            } else {
-                prevButton.style.display = 'flex';
-                nextButton.style.display = 'flex';
-                prevButton.disabled = currentStartIndex === 0;
-                // Next Button ist disabled, wenn das (global) letzte sichtbare Item auch das letzte aller Items ist.
-                nextButton.disabled = lastVisibleItemIndex >= allNavItems.length - 1;
-            }
-        };
-
-        const moveToNext = () => {
-            if (nextButton.disabled) return;
-
-            // Neuer Startindex ist der Index des zweiten Elements der aktuellen Ansicht.
-            // Wenn nur ein Element sichtbar war, ist der neue Start der Index des Elements
-            // direkt nach dem aktuell (einzigen) sichtbaren.
-            let newStartIndex = currentStartIndex + 1;
-
-            if (newStartIndex > allNavItems.length - 1) {
-                // Sollte durch nextButton.disabled verhindert werden, aber als Sicherheit
-                newStartIndex = allNavItems.length - 1;
-            }
-            // Stelle sicher, dass der newStartIndex nicht dazu führt, dass weniger Items als vorher angezeigt werden,
-            // es sei denn, wir sind am Ende.
-            // Wir wollen, dass das (ehemals) zweite Element das erste wird.
-            // Die Logik wird nun sein, den startIndex so zu wählen, dass das nächste Element
-            // rechts vom aktuellen *Sichtbereich* das erste wird.
-            // Das ist komplizierter als "nächstes Item".
-            // Die einfachere Variante gemäß deiner Beschreibung:
-            // Wenn "Wissen A-Z" rausfliegt (war erstes), soll das nächste Element rechts davon das erste werden.
-            if (currentlyVisibleItemsCount > 0 && currentStartIndex < allNavItems.length -1) {
-                 currentStartIndex = currentStartIndex +1; // Das ehemals zweite (oder erste + 1) wird das neue erste.
-            } else if (currentlyVisibleItemsCount === 0 && currentStartIndex < allNavItems.length -1) {
-                // Nichts war sichtbar, aber wir sind nicht am Ende -> versuche nächstes
-                currentStartIndex++;
-            }
-            // Am Ende sicherstellen, dass nicht über das Ende hinausgegangen wird
-            currentStartIndex = Math.min(currentStartIndex, allNavItems.length - 1);
-
-            updateVisibleItems();
-
-            // Wenn nach dem Verschieben nach rechts keine Elemente mehr angezeigt werden könnten
-            // (z.B. das letzte Element ist zu breit), dann müssen wir evtl. zurückspringen.
-            // Aber updateButtonStates sollte das eigentlich abfangen.
-            if (currentlyVisibleItemsCount === 0 && currentStartIndex > 0) {
-                // Dieser Fall sollte idealerweise nicht eintreten, wenn Buttons korrekt sind.
-                // Es bedeutet, wir sind nach rechts gesprungen und nichts passt.
-                // Versuche, zum letzten möglichen Startpunkt zurückzuspringen.
-                let lastPossibleStart = 0;
-                for (let i = allNavItems.length - 1; i >= 0; i--) {
-                    let tempWidth = 0;
-                    let canFit = false;
-                    for (let j = i; j < allNavItems.length; j++) {
-                        const itemW = itemWidths[j] + ( (j > i) ? gapBetweenItems : 0);
-                        if (tempWidth + itemW <= visibleWrapperWidth + 2) {
-                            tempWidth += itemW;
-                            canFit = true;
-                        } else {
-                            break;
-                        }
-                    }
-                    if (canFit) {
-                        lastPossibleStart = i;
-                        break;
-                    }
-                }
-                currentStartIndex = lastPossibleStart;
-                updateVisibleItems();
-            }
-            updateButtonStates();
-        };
-
-        const moveToPrev = () => {
-            if (prevButton.disabled) return;
-
-            // Ziel: Das Element, das *vor* dem aktuellen currentStartIndex liegt,
-            // soll das *erste* Element der neuen Ansicht werden, wenn möglich.
-            // Oder, um deine Logik "das rechte Element raus, das ganz linke wieder rein" zu treffen:
-            // Wir wollen, dass das Element, das *vor* dem aktuellen currentStartIndex liegt,
-            // das neue *erste* sichtbare Element wird.
-            if (currentStartIndex > 0) {
-                currentStartIndex = currentStartIndex - 1;
-            }
-
-            currentStartIndex = Math.max(0, currentStartIndex); // Nicht unter 0 gehen
-
-            updateVisibleItems();
-            updateButtonStates();
-        };
-
-        nextButton.addEventListener('click', moveToNext);
-        prevButton.addEventListener('click', moveToPrev);
-        window.addEventListener('resize', calculateDimensionsAndRefreshUI);
-
-        setTimeout(() => {
-            calculateDimensionsAndRefreshUI();
-        }, 100);
+      // Initiale Größenberechnung nach kurzer Verzögerung
+      setTimeout(calculateDimensionsAndRefreshUI, 100);
     }
   }
-
 });
 
+/**
+ * Starte Anwendung nach Zustimmung des Nutzers
+ */
 function initApp() {
-  const p = new URLSearchParams(location.search);
-  const initialMode  = (p.get('mode')  ?? 'avatar') as Mode;
-  const initialStyle = (p.get('style') ?? 'soc')    as Style;
+  const params = new URLSearchParams(location.search);
+  const initialMode  = (params.get('mode')  ?? 'avatar') as Mode;
+  const initialStyle = (params.get('style') ?? 'soc')    as Style;
+
   if (localStorage.getItem('experimentDone') === 'true') {
     document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
     return;
   }
+
+  // Setze UI-Klasse basierend auf Modus
   setMode(initialMode, initialStyle);
   document.body.classList.toggle('mode-avatar', initialMode === 'avatar');
 }
 
+/**
+ * Wechsel zwischen Avatar- und Chat-Modus und lade benötigte Module
+ */
 async function setMode(mode: Mode, style: Style) {
-  if (mode === currentMode && style === currentStyle) return;
-  await cleanup();
+  if (mode === currentMode && style === currentStyle) return; // Kein Wechsel nötig
+  await cleanup();                                   // Bereinige vorherigen Zustand
   document.body.classList.toggle('mode-avatar', mode === 'avatar');
-  document.body.classList.toggle('mode-chat', mode === 'chat');
+  document.body.classList.toggle('mode-chat',   mode === 'chat');
 
   if (mode === 'chat') {
-    avatarUI.classList.add('hidden');
-    chatUI.classList.remove('hidden');
-    const mod = await import('./features/chatbot');
+    avatarUI.classList.add('hidden');               // Blende Avatar-UI aus
+    chatUI.classList.remove('hidden');              // Zeige Chat-UI
+    const mod = await import('./features/chatbot'); // Lade Chatbot-Modul dynamisch
     cleanup = mod.stopChatbot;
     mod.startChatbot(style);
   } else {
     chatUI.classList.add('hidden');
-    avatarUI.classList.remove('hidden');
-    const mod = await import('./features/avatar');
+    avatarUI.classList.remove('hidden');            // Zeige Avatar-UI
+    const mod = await import('./features/avatar');  // Lade Avatar-Modul dynamisch
     cleanup = mod.stopAvatar;
     mod.startAvatar(style);
   }
+
   currentMode  = mode;
   currentStyle = style;
+
+  // Markiere aktiven Link in Topbar basierend auf Mode/Style
   document.querySelectorAll<HTMLAnchorElement>('.topbar-nav a').forEach(link => {
-    const linkMode = link.dataset.mode as Mode | undefined;
-    const linkStyle = link.dataset.style as Style | undefined;
+    const linkMode  = link.dataset.mode as Mode | undefined;
+    const linkStyle = link.dataset.style as Style| undefined;
     let isActive = false;
     if (linkMode === currentMode) isActive = linkStyle ? linkStyle === currentStyle : true;
     link.classList.toggle('active', isActive);
   });
 }
 
+// Registriere Klick-Handler für Topbar-Links, um Modus-Wechsel zu ermöglichen
 document.querySelectorAll<HTMLAnchorElement>('.topbar-nav a[data-mode]').forEach(link => {
   link.addEventListener('click', (e) => {
     const targetMode = link.dataset.mode as Mode | undefined;
-    let targetStyle = link.dataset.style as Style | undefined;
-    if (targetMode) {
-      e.preventDefault();
-      if (!targetStyle) targetStyle = (targetMode === currentMode && currentStyle) ? currentStyle : 'soc';
-      setMode(targetMode, targetStyle);
-    }
+    let targetStyle  = link.dataset.style as Style| undefined;
+    if (!targetMode) return;
+    e.preventDefault();
+    // Fallback: Erhalte aktuellen Style, wenn keiner im Link definiert
+    if (!targetStyle) targetStyle = (targetMode === currentMode && currentStyle) ? currentStyle : 'soc';
+    setMode(targetMode, targetStyle);
   });
 });
 
+// Vibrieren auf unterstützten Geräten zur haptischen Rückmeldung
 function vibrate() {
   if ('vibrate' in navigator) {
     const success = navigator.vibrate(100);
@@ -355,5 +287,5 @@ function vibrate() {
     console.warn("Vibration wird nicht unterstützt");
   }
 }
-// Funktion global machen, damit sie über `onclick` im HTML sichtbar ist:
+// Globale Exposition für HTML onclick-Handler
 (window as any).vibrate = vibrate;
