@@ -25,13 +25,14 @@ const HR_KB = `
 
 ## 2. Teilzeit (Reduzierung)  
 - **Gesetzlicher Anspruch**  
-  - §§ 8 ff. TzBfG: Anspruch bei ≥ 6 Monaten Betriebszugehörigkeit und ≥ 15 Mitarbeitenden.  
+  - §§ 8 ff. TzBfG: Anspruch bei ≥ 6 Monaten Betriebszugehörigkeit.  
 - **Tarif- und Betriebsvereinbarungen bei VW**  
   - Konzern-Tarifvertrag (KTV) VW‑AG: Entgeltgruppen, Staffelung nach Arbeitszeit.  
   - Betriebsvereinbarung „Lebensphasengerechte Arbeitszeit“ (LPZG):  
     - Flexible Verteilung von Soll-Stunden, Gleitzeitrahmen (z. B. Kernarbeitszeit 9–15 Uhr).  
     - Option auf Korridormodell (unterschiedliche Wochenarbeitszeiten innerhalb eines Jahres).  
-- **Antrag & Fristen**  
+- **Antrag & Fristen**
+  - gewünschtes Modell mit Vorgesetztem Abstimmen
   - Antrag über das HR-Portal 3 Monate vor gewünschtem Beginn.  
   - Ablehnung nur aus dringenden betrieblichen Gründen (z. B. Projekt- oder Produktionsengpässe) möglich.  
 - **Urlaubsanspruch**  
@@ -96,7 +97,7 @@ const META_PREFIX = `
 • Halte alle Antworten konsequent auf Deutsch.
 • Du repräsentierst als Personaler den Arbeitgeber, du bist die Personalabteilung!
 • Sag also nicht hole informationen bei Ihrem Arbeitgeber oder der Personalabteilung ein - erfinde etwas plausibles.
-• Antworte mit 60 Wörtern plaintext (Keine Formatierung).
+• Antworte mit 45 bis 55 Wörtern plaintext (Keine Formatierung).
 `;
 
 // ---------------------------------
