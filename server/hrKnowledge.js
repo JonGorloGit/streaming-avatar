@@ -21,7 +21,6 @@ const HR_KB = `
   - VW-Elternzeitbeihilfe: Zuschuss auf Elterngeld („Top-Up“) für Tarifbeschäftigte bis zu 10 % des letzten Nettogehalts (gem. Betriebsvereinbarung).  
 - **Rückkehr aus der Elternzeit**  
   - Wiederbesetzung der bisherigen Tätigkeit oder gleichwertige Position.  
-  - Optional: Anschluss an Altersteilzeit-Modelle.
 
 ## 2. Teilzeit (Reduzierung)  
 - **Gesetzlicher Anspruch**  
