@@ -94,6 +94,7 @@ export function startChatbot(selectedStyle: Style) {
     clearInterval(chatCountdownInterval);
     chatCountdownInterval = null;
   }
+  
   updateChatProgress();
 
   sendBtn = document.getElementById('chat-send')  as HTMLButtonElement;
