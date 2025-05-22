@@ -1,4 +1,8 @@
-const API_BASE = import.meta.env.VITE_API_BASE || '';
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000'; // Fallback for API_BASE
+
+// Chat-specific redirect URLs
+const REDIRECT_URL_CHAT_SOC   = import.meta.env.VITE_REDIRECT_URL_CHAT_SOC   || 'https://amazon.com';
+const REDIRECT_URL_CHAT_INS   = import.meta.env.VITE_REDIRECT_URL_CHAT_INS   || 'https://youtube.com';
 
 type Style = 'soc' | 'ins';
 type Role  = 'user' | 'assistant';
@@ -8,20 +12,20 @@ interface ChatMsg {
   content: string;
 }
 
-// Behalte Referenzen auf UI-Elemente und aktuellen Zustand für Neustarts
-let sendBtn : HTMLButtonElement;
-let inputEl : HTMLTextAreaElement;
-let bodyEl  : HTMLElement;
+let sendBtn : HTMLButtonElement | null = null;
+let inputEl : HTMLTextAreaElement | null = null;
+let bodyEl  : HTMLElement | null = null;
 
-let style       : Style;
+let currentChatbotStyle : Style;
 let conversation: ChatMsg[] = [];
 
 let progress      = 0;
 const MAX_PROGRESS = 5;
+let chatCountdownInterval: number | null = null;
+let chatFinalCountdownStarted = false;
 
 /**
- * Aktualisiert Fortschrittsanzeige mit Kreis und Text.
- * Zeigt nach Erreichen des Limits einen Countdown bis Abschluss.
+ * Aktualisiert Fortschrittsanzeige und startet Countdown bei MAX_PROGRESS.
  */
 function updateChatProgress() {
   const el = document.getElementById('chat-progress');
@@ -29,25 +33,46 @@ function updateChatProgress() {
   const circle = el.querySelector('.circle') as SVGPathElement;
   const text   = el.querySelector('.progress-text')!;
 
-  // Prozentuelle Darstellung basierend auf aktuellem Fortschritt
   const percent = (progress / MAX_PROGRESS) * 100;
   text.textContent = progress < MAX_PROGRESS ? `${progress}/${MAX_PROGRESS}` : '✓';
   circle.style.strokeDashoffset = (100 - percent).toString();
 
-  // Sobald volles Fortschrittsziel erreicht ist, starte Timer bis Experimentabschluss
-  if (progress === MAX_PROGRESS) {
-    let seconds = 15;
+  if (progress >= MAX_PROGRESS && !chatFinalCountdownStarted) {
+    chatFinalCountdownStarted = true;
+    if(sendBtn) sendBtn.disabled = true; // Disable input during countdown
+    if(inputEl) inputEl.disabled = true;
+
+    let seconds = 10; // Countdown duration
     text.textContent = `${seconds}s`;
 
-    const countdown = setInterval(() => {
+    if (chatCountdownInterval) clearInterval(chatCountdownInterval);
+
+    chatCountdownInterval = window.setInterval(async () => {
       seconds--;
       text.textContent = seconds > 0 ? `${seconds}s` : '✓';
 
       if (seconds === 0) {
-        clearInterval(countdown);
-        // Markiere Experiment als abgeschlossen und zeige Abschluss-Overlay
+        if (chatCountdownInterval) clearInterval(chatCountdownInterval);
+        
+        localStorage.setItem('experimentRedirectMode', 'chat');
+        localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
         localStorage.setItem('experimentDone', 'true');
-        document.getElementById('experiment-complete-overlay')!.style.display = 'flex';
+        
+        const experimentCompleteOverlay = document.getElementById('experiment-complete-overlay');
+        const manualRedirectLink = document.getElementById('manualRedirectLink') as HTMLAnchorElement | null;
+
+        const redirectUrl = currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC : REDIRECT_URL_CHAT_INS;
+
+        if (experimentCompleteOverlay) {
+          experimentCompleteOverlay.style.display = 'flex';
+          if (manualRedirectLink) {
+            manualRedirectLink.href = redirectUrl;
+          }
+        }
+        
+        // stopChatbot(); // Cleanup is called by main.ts's setMode logic
+
+        window.location.href = redirectUrl;
       }
     }, 1000);
   }
@@ -57,183 +82,212 @@ function updateChatProgress() {
  * Initialisiert Chatbot mit ausgewähltem Stil und zeigt Willkommensnachricht.
  */
 export function startChatbot(selectedStyle: Style) {
-  style        = selectedStyle;
+  if (localStorage.getItem('experimentDone') === 'true') {
+    return;
+  }
+
+  currentChatbotStyle = selectedStyle;
   conversation = [];
   progress     = 0;
-  updateChatProgress();  // Setze Fortschrittsanzeige zurück
+  chatFinalCountdownStarted = false;
+  if (chatCountdownInterval) {
+    clearInterval(chatCountdownInterval);
+    chatCountdownInterval = null;
+  }
+  updateChatProgress();
 
-  // Element-Referenzen aufbauen
   sendBtn = document.getElementById('chat-send')  as HTMLButtonElement;
   inputEl = document.getElementById('chat-input') as HTMLTextAreaElement;
   bodyEl  = document.getElementById('chatbot-body')!;
 
-  // Auto-Resize aktivieren, um Textarea-Höhe dynamisch an Inhalt anzupassen
-  ['input','keyup','change'].forEach(evt =>
-    inputEl.addEventListener(evt as any, autoResize)
-  );
+  if (!sendBtn || !inputEl || !bodyEl) {
+    console.error("Chatbot UI elements not found!");
+    return;
+  }
+  bodyEl.innerHTML = ''; // Clear previous messages
+
+  // Remove existing listeners before adding new ones to prevent duplication
+  ['input','keyup','change'].forEach(evtType => {
+    inputEl!.removeEventListener(evtType, autoResize);
+    inputEl!.addEventListener(evtType, autoResize);
+  });
+  inputEl.removeEventListener('keydown', onKeyPress);
   inputEl.addEventListener('keydown', onKeyPress);
+  inputEl.removeEventListener('focus', handleChatInputFocus);
+  inputEl.addEventListener('focus', handleChatInputFocus);
+  
+  window.removeEventListener('resize', autoResize); // Add if it was added before
   window.addEventListener('resize', autoResize);
+  window.removeEventListener('orientationchange', autoResize); // Add if it was added before
   window.addEventListener('orientationchange', autoResize);
+  
+  sendBtn.onclick = null; // Clear previous
   sendBtn.onclick = onSend;
 
-  // Mobile: Scroll-Inputfeld in Sicht bringen, wenn Fokus
-  inputEl.addEventListener('focus', () => {
-    setTimeout(() => inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
-  });
-
+  inputEl.disabled = false;
+  sendBtn.disabled = false;
   autoResize();
 
-  // Unterschiedliche Begrüßung je nach Stil
-  const welcomeMessage = style === 'soc'
+  const welcomeMessage = currentChatbotStyle === 'soc'
     ? 'Hallo! Schön, dass du da bist. Ich bin hier um dich zu unterstützen. Was beschäftigt dich gerade am meisten?'
     : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
 
-  showTypingMessage(welcomeMessage);
+  showTypingMessage(welcomeMessage, 1000); // Reduced delay for quicker welcome
   conversation.push({ role: 'assistant', content: welcomeMessage });
 }
 
 /**
- * Stoppt Chatbot und bereinigt alle Event-Listener und Nachrichten.
+ * Stoppt Chatbot und bereinigt alle Event-Listener.
  */
 export function stopChatbot() {
-  sendBtn.onclick = null;
-  inputEl.value = '';
-  inputEl.removeEventListener('input', autoResize);
-  inputEl.removeEventListener('keydown', onKeyPress);
-  bodyEl.innerHTML = '';
+  if (sendBtn) {
+    sendBtn.onclick = null;
+    sendBtn.disabled = true;
+  }
+  if (inputEl) {
+    inputEl.value = '';
+    ['input','keyup','change'].forEach(evtType => inputEl!.removeEventListener(evtType, autoResize));
+    inputEl.removeEventListener('keydown', onKeyPress);
+    inputEl.removeEventListener('focus', handleChatInputFocus);
+    inputEl.disabled = true;
+  }
+  window.removeEventListener('resize', autoResize);
+  window.removeEventListener('orientationchange', autoResize);
 
-  conversation = [];
-  progress = 0;
-  updateChatProgress();
+  if (chatCountdownInterval) {
+    clearInterval(chatCountdownInterval);
+    chatCountdownInterval = null;
+  }
+  // Do not clear bodyEl.innerHTML here, so messages remain if user comes back before redirect.
+  console.log("Chatbot stopped");
 }
 
-/**
- * Passt Höhe des Eingabefeldes an, um Text vollständig anzuzeigen.
- */
 function autoResize() {
+  if (!inputEl) return;
   requestAnimationFrame(() => {
-    inputEl.style.height = 'auto';
-    // Begrenze Höhe auf 30% des Viewports, um Platz für Chatverlauf zu sichern
+    inputEl!.style.height = 'auto';
     const maxH = Math.min(window.innerHeight, document.documentElement.clientHeight) * 0.3;
-    const newH = Math.min(inputEl.scrollHeight, maxH);
-    inputEl.style.height = `${newH}px`;
+    const newH = Math.min(inputEl!.scrollHeight, maxH);
+    inputEl!.style.height = `${newH}px`;
   });
 }
 
-/**
- * Sendet Nachricht bei Enter (ohne Shift), verhindert Zeilenumbruch.
- */
+const handleChatInputFocus = () => {
+  if (!inputEl) return;
+  setTimeout(() => inputEl!.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+};
+
 function onKeyPress(ev: KeyboardEvent) {
   if (ev.key === 'Enter' && !ev.shiftKey) {
     ev.preventDefault();
-    sendBtn.click();
+    if (sendBtn && !sendBtn.disabled && !chatFinalCountdownStarted) sendBtn.click();
   }
 }
 
-/**
- * Sendet Eingabe an API, steuert Typing-Animation und Fortschritt.
- */
 async function onSend() {
+  if (!inputEl || !sendBtn || sendBtn.disabled || chatFinalCountdownStarted) return;
+
   const txt = inputEl.value.trim();
   if (!txt) return;
 
   append('user', txt);
   inputEl.value = '';
   autoResize();
-  inputEl.focus();
+  
+  // Disable input and button while waiting for the bot's response
   sendBtn.disabled = true;
-
-  // Mobile UX: Keyboard verstecken und Chat nach oben scrollen
-  inputEl.blur();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // REMOVED: inputEl.blur(); // Helps hide keyboard - This was causing the focus loss
 
   const [typingEl, stopTyping] = startTypingAnimation();
-  const minDelay = new Promise(res => setTimeout(res, 2000));
+  const minDelay = new Promise(res => setTimeout(res, 1000));
 
   try {
-    // Simultanes Warten auf API-Antwort und Mindestwartezeit
-    const [response] = await Promise.all([
+    const response = await Promise.all([
       fetch(`${API_BASE}/api/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ message: txt, history: conversation, style }),
-      }).then(r => r.json()).then(r => r.response),
+        body: JSON.stringify({ message: txt, history: conversation, style: currentChatbotStyle }),
+      }).then(r => {
+        if (!r.ok) throw new Error(`Server responded with ${r.status}`);
+        return r.json();
+      }).then(r => r.response),
       minDelay,
-    ]);
+    ]).then(results => results[0]);
 
     stopTyping();
     stopTypingAnimation(typingEl, response);
 
-    // Protokolliere Benutzer- und Bot-Nachricht
     conversation.push({ role: 'user', content: txt });
     conversation.push({ role: 'assistant', content: response });
 
-    // Erhöhe Fortschritt bis Limit und aktualisiere Anzeige
-    if (progress < MAX_PROGRESS) {
+    // updateChatProgress is called AFTER the message is successfully processed
+    // and before the finally block.
+    if (progress < MAX_PROGRESS && !chatFinalCountdownStarted) {
       progress++;
-      updateChatProgress();
+      updateChatProgress(); // This will check for MAX_PROGRESS and might start the countdown
     }
 
-    // Begrenze Gesprächslänge, um Speicherbedarf zu kontrollieren
-    if (conversation.length > 10) {
-      conversation.splice(0, conversation.length - 10);
+    if (conversation.length > 20) {
+      conversation.splice(0, conversation.length - 20);
     }
   } catch (err) {
-    console.error(err);
+    console.error("Error sending message or processing response:", err);
     stopTyping();
-    stopTypingAnimation(typingEl, '⚠️ Server-Fehler');
+    stopTypingAnimation(typingEl, '⚠️ Entschuldigung, ein Fehler ist aufgetreten.');
   } finally {
-    sendBtn.disabled = false;
+    // Re-enable controls and focus input IF the final countdown hasn't started.
+    // updateChatProgress (called in try block) would have set chatFinalCountdownStarted
+    // and disabled controls if MAX_PROGRESS was reached.
+    if (!chatFinalCountdownStarted) {
+      if(sendBtn) sendBtn.disabled = false;
+      if(inputEl) {
+        inputEl.disabled = false;
+        inputEl.focus(); // Restore focus to the input element
+      }
+    }
+    // If chatFinalCountdownStarted is true, controls remain disabled (as set by updateChatProgress)
   }
 }
 
-/**
- * Fügt neue Nachricht zum Chat-Container und scrollt nach unten.
- */
 function append(sender: Role, text: string) {
+  if (!bodyEl) return;
   const el = document.createElement('article');
   el.className = `message ${sender === 'assistant' ? 'bot' : 'user'}`;
   el.textContent = text;
   bodyEl.appendChild(el);
-  // Stelle sicher, dass neueste Nachricht sichtbar ist
   bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 }
 
-/**
- * Zeigt anhaltende Tipp-Animation mit Punkten, bis stop-Funktion aufgerufen wird.
- */
 function startTypingAnimation(): [HTMLElement, () => void] {
+  if (!bodyEl) {
+      const dummyEl = document.createElement('article'); // Should not happen if elements are checked
+      return [dummyEl, () => {}];
+  }
   const el = document.createElement('article');
   el.className = 'message bot typing';
   el.textContent = '•';
   bodyEl.appendChild(el);
   bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 
-  const symbols = ['•  ', '•• ', '•••'];
+  const symbols = ['•  ', '•• ', '•••']; // Using non-breaking spaces for consistent width
   let i = 0;
   const interval = setInterval(() => {
-    el.textContent = symbols[i % symbols.length];
-    i++;
+    el.innerHTML = symbols[i++ % symbols.length]; // Use innerHTML for  
   }, 300);
 
   return [el, () => clearInterval(interval)];
 }
 
-/**
- * Ersetzt Tipp-Animation durch endgültigen Text und blendet ihn ein.
- */
 function stopTypingAnimation(el: HTMLElement, finalText: string) {
+  if (!el) return;
   el.classList.remove('typing');
-  el.textContent = finalText;
+  el.textContent = finalText; // Set text content
   el.classList.add('fade-in');
-  bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
+  if (bodyEl) bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 }
 
-/**
- * Kombiniert Typing-Animation und verzögertes Anzeigen einer festen Nachricht.
- */
-function showTypingMessage(finalText: string, delay = 2000) {
+function showTypingMessage(finalText: string, delay = 1500) {
   const [el, stopTyping] = startTypingAnimation();
   setTimeout(() => {
     stopTyping();
