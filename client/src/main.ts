@@ -5,80 +5,120 @@ type Style = 'soc' | 'ins';
 
 const avatarUI = document.getElementById('avatar-ui')!;
 const chatUI = document.getElementById('chat-ui')!;
-const consentOverlayGlobal = document.getElementById('consent-overlay')!; // For global access if needed
+const consentOverlayGlobal = document.getElementById('consent-overlay')!;
 
-let currentAppMode: Mode | null = null; // Renamed to avoid conflict with local 'currentMode'
-let currentAppStyle: Style | null = null; // Renamed to avoid conflict with local 'currentStyle'
+let currentAppMode: Mode | null = null;
+let currentAppStyle: Style | null = null;
 let cleanup: () => Promise<void> | void = async () => {};
 
-// Define all four redirect URL constants from .env, with fallbacks
-const REDIRECT_URL_AVATAR_SOC_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC || 'https://google.com';
-const REDIRECT_URL_AVATAR_INS_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS || 'https://meta.com';
-const REDIRECT_URL_CHAT_SOC_MAIN   = import.meta.env.VITE_REDIRECT_URL_CHAT_SOC   || 'https://amazon.com';
-const REDIRECT_URL_CHAT_INS_MAIN   = import.meta.env.VITE_REDIRECT_URL_CHAT_INS   || 'https://youtube.com';
+// ----- WICHTIG: Diese URLs müssen jetzt auf deine SoSci Survey Instanz zeigen! -----
+// Fallback-URLs, falls VITE-Variablen nicht gesetzt sind.
+const FALLBACK_SOSCI_SURVEY_URL = 'https://www.soscisurvey.de/digital_HR_agents/';
+
+const REDIRECT_URL_AVATAR_SOC_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_AVATAR_INS_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_CHAT_SOC_MAIN = import.meta.env.VITE_REDIRECT_URL_CHAT_SOC || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_CHAT_INS_MAIN = import.meta.env.VITE_REDIRECT_URL_CHAT_INS || FALLBACK_SOSCI_SURVEY_URL;
+
+// Schlüssel für LocalStorage
+const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken';
+const SURVEY_CASE_NUMBER_KEY = 'surveyCaseNumber'; // NEU
+
+/**
+ * Hängt die gespeicherten Survey Parameter (Token und CaseNumber) an eine Basis-URL an.
+ */
+function appendSurveyParamsToUrl(baseUrlString: string): string {
+  const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY);
+  const url = new URL(baseUrlString);
+  if (token) url.searchParams.append('i', token); // ✅ korrekt
+  return url.toString();
+}
 
 
 function getRedirectUrlForBanner(mode: Mode, style: Style): string {
-    if (mode === 'avatar') {
-        return style === 'soc' ? REDIRECT_URL_AVATAR_SOC_MAIN : REDIRECT_URL_AVATAR_INS_MAIN;
-    } else { // mode === 'chat'
-        return style === 'soc' ? REDIRECT_URL_CHAT_SOC_MAIN : REDIRECT_URL_CHAT_INS_MAIN;
-    }
+  let baseUrl: string;
+  if (mode === 'avatar') {
+    baseUrl = style === 'soc' ? REDIRECT_URL_AVATAR_SOC_MAIN : REDIRECT_URL_AVATAR_INS_MAIN;
+  } else { // mode === 'chat'
+    baseUrl = style === 'soc' ? REDIRECT_URL_CHAT_SOC_MAIN : REDIRECT_URL_CHAT_INS_MAIN;
+  }
+  return appendSurveyParamsToUrl(baseUrl);
 }
 
-/**
- * Shows the experiment complete overlay and sets the manual redirect link.
- */
 function showExperimentCompleteOverlayAndSetLink() {
   const overlay = document.getElementById('experiment-complete-overlay')!;
-  overlay.style.display = 'flex'; // Ensure it's visible
+  overlay.style.display = 'flex';
 
   const manualRedirectLink = document.getElementById('manualRedirectLink') as HTMLAnchorElement | null;
   
-  const storedMode  = localStorage.getItem('experimentRedirectMode') as Mode | null;
+  const storedMode = localStorage.getItem('experimentRedirectMode') as Mode | null;
   const storedStyle = localStorage.getItem('experimentRedirectStyle') as Style | null;
 
   if (manualRedirectLink && storedMode && storedStyle) {
     manualRedirectLink.href = getRedirectUrlForBanner(storedMode, storedStyle);
   } else if (manualRedirectLink) {
-    console.warn('Experiment done, but redirect mode/style not found for manualRedirectLink. Using default href (#).');
-    manualRedirectLink.href = '#'; // Fallback
+    console.warn('Experiment done, but redirect mode/style not found for manualRedirectLink. Using default SoSci URL.');
+    const fallbackSoSciUrl = FALLBACK_SOSCI_SURVEY_URL; 
+    manualRedirectLink.href = appendSurveyParamsToUrl(fallbackSoSciUrl);
   }
-  // Hide main UI sections to prevent interaction
   avatarUI.classList.add('hidden');
   chatUI.classList.add('hidden');
   const floatingTags = document.getElementById('floatingTagsContainer');
-  if (floatingTags) floatingTags.style.display = 'none'; // Hide floating tags too
-  if (consentOverlayGlobal) consentOverlayGlobal.classList.add('hidden'); // Ensure consent is hidden if it wasn't removed
-  document.body.style.overflow = ''; // Allow scrolling if needed for the banner's content
+  if (floatingTags) floatingTags.style.display = 'none';
+  if (consentOverlayGlobal) consentOverlayGlobal.classList.add('hidden');
+  document.body.style.overflow = '';
 }
 
-
-/* ─────────── on load ─────────── */
-// Behalte die ursprüngliche Struktur von DOMContentLoaded bei
 window.addEventListener('DOMContentLoaded', () => {
-  // Holen Sie sich das Consent-Overlay-Element hier, falls es nicht global ist
-  const localConsentOverlay = document.getElementById('consent-overlay')!; // Verwenden Sie localConsentOverlay
+  const localConsentOverlay = document.getElementById('consent-overlay')!;
   const params = new URLSearchParams(window.location.search);
+  const newUrlInstance = new URL(window.location.href); // Für URL-Bereinigung
+
+  // rid (caseToken) aus URL auslesen und speichern
+  const redirectTokenFromUrl = params.get('rid');
+  if (redirectTokenFromUrl) {
+    localStorage.setItem(SURVEY_REDIRECT_TOKEN_KEY, redirectTokenFromUrl);
+    console.log('Survey redirect token (rid) stored:', redirectTokenFromUrl);
+    newUrlInstance.searchParams.delete('rid');
+  }
+
+  // NEU: num (caseNumber) aus URL auslesen und speichern
+  const caseNumberFromUrl = params.get('num');
+  if (caseNumberFromUrl) {
+    localStorage.setItem(SURVEY_CASE_NUMBER_KEY, caseNumberFromUrl);
+    console.log('Survey case number (num) stored:', caseNumberFromUrl);
+    newUrlInstance.searchParams.delete('num');
+  }
+
+  // URL in der Adressleiste bereinigen, falls Parameter gelesen wurden
+  if (redirectTokenFromUrl || caseNumberFromUrl) {
+    window.history.replaceState({}, document.title, newUrlInstance.toString());
+  }
+  
 
   if (params.get('reset') === '1') {
     localStorage.removeItem('experimentDone');
     localStorage.removeItem('experimentRedirectMode');
     localStorage.removeItem('experimentRedirectStyle');
+    localStorage.removeItem(SURVEY_REDIRECT_TOKEN_KEY); // Auch Token entfernen beim Reset
+    localStorage.removeItem(SURVEY_CASE_NUMBER_KEY);  // Auch CaseNumber entfernen beim Reset
     console.log('Experiment-Status zurückgesetzt');
-    // window.history.replaceState({}, document.title, window.location.pathname); // Optional
+    const resetUrl = new URL(window.location.href);
+    resetUrl.searchParams.delete('reset');
+    // Auch rid und num aus der URL entfernen, falls sie nach dem Reset noch da wären
+    resetUrl.searchParams.delete('rid');
+    resetUrl.searchParams.delete('num');
+    window.history.replaceState({}, document.title, resetUrl.toString());
   }
 
   if (localStorage.getItem('experimentDone') === 'true') {
     showExperimentCompleteOverlayAndSetLink();
-    return; // Wichtig: Stoppt weitere Initialisierung, wenn Experiment abgeschlossen ist
+    return;
   }
 
-  // Ursprüngliche Consent-Logik
   localConsentOverlay.classList.remove('hidden');
   document.body.style.overflow = 'hidden';
 
-  // Ursprüngliche Floating-Tags-Logik
   const floatingTagsContainer = document.getElementById('floatingTagsContainer');
   if (floatingTagsContainer) {
     const tagWrappers = floatingTagsContainer.querySelectorAll<HTMLElement>('.tag-wrapper');
@@ -99,64 +139,56 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     document.body.addEventListener('click', (event) => {
-       // Überprüfen, ob der Klick außerhalb des gesamten Containers für schwebende Tags oder auf einem Tag-Wrapper erfolgt ist
       if (floatingTagsContainer.contains(event.target as Node)) {
-          if (!Array.from(tagWrappers).some(tw => tw.contains(event.target as Node))) {
-            // Klick ist im Container, aber nicht auf einem Wrapper (z.B. zwischen den Tags)
-            closeAllTags();
-          }
-      } else {
-          // Klick ist vollständig außerhalb des Containers
+        if (!Array.from(tagWrappers).some(tw => tw.contains(event.target as Node))) {
           closeAllTags();
+        }
+      } else {
+        closeAllTags();
       }
     });
   }
 
-  // Ursprüngliche Consent-Accept-Logik
   document.getElementById('consent-accept')?.addEventListener('click', () => {
-    if (localStorage.getItem('experimentDone') === 'true') { // Double check
+    if (localStorage.getItem('experimentDone') === 'true') {
       showExperimentCompleteOverlayAndSetLink();
       return;
     }
-    localConsentOverlay.remove(); // Oder localConsentOverlay.classList.add('hidden');
+    localConsentOverlay.remove();
     document.body.style.overflow = '';
     initApp();
   });
 
-  // Ursprüngliche Topbar-Logik
   const topbar = document.querySelector<HTMLElement>('.topbar');
   if (topbar) {
     const navWrapper = topbar.querySelector<HTMLElement>('.topbar-nav-wrapper');
-    const navInner   = topbar.querySelector<HTMLElement>('.topbar-nav');
-    const prevBtn    = topbar.querySelector<HTMLButtonElement>('.topbar-nav-control.prev');
-    const nextBtn    = topbar.querySelector<HTMLButtonElement>('.topbar-nav-control.next');
+    const navInner = topbar.querySelector<HTMLElement>('.topbar-nav');
+    const prevBtn = topbar.querySelector<HTMLButtonElement>('.topbar-nav-control.prev');
+    const nextBtn = topbar.querySelector<HTMLButtonElement>('.topbar-nav-control.next');
 
     if (navWrapper && navInner && prevBtn && nextBtn) {
       let allNavItems: HTMLElement[] = [];
-      let itemWidths:   number[]    = [];
+      let itemWidths: number[] = [];
       let visibleWidth = 0;
-      let totalWidth   = 0;
-      let gapWidth     = 0;
+      let totalWidth = 0;
+      let gapWidth = 0;
       let startIndex = 0;
-      let endIndex   = -1;
+      let endIndex = -1;
 
       const updateVisibleItems = () => {
-        if (allNavItems.length === 0) { /*visibleCount = 0;*/ return; } // visibleCount nicht verwendet
+        if (allNavItems.length === 0) return;
         let renderedWidth = 0;
         let lastIndex = -1;
-        // visibleCount = 0; // visibleCount nicht verwendet
         allNavItems.forEach(item => item.style.display = 'none');
         if (startIndex >= allNavItems.length) {
           startIndex = Math.max(0, allNavItems.length - 1);
         }
         for (let i = startIndex; i < allNavItems.length; i++) {
-          // Ihre Original-Logik verwendet visibleCount, um den Abstand für das erste Element zu behandeln
-          const width = itemWidths[i] + (lastIndex !== -1 ? gapWidth : 0); // Angepasst, um `visibleCount` zu ähneln
+          const width = itemWidths[i] + (lastIndex !== -1 ? gapWidth : 0);
           if (renderedWidth + width <= visibleWidth + 2) {
             allNavItems[i].style.display = '';
             renderedWidth += width;
             lastIndex = i;
-            // visibleCount++; // visibleCount nicht verwendet
           } else break;
         }
         endIndex = lastIndex;
@@ -164,25 +196,24 @@ window.addEventListener('DOMContentLoaded', () => {
 
       const calculateDimensionsAndRefreshUI = () => {
         allNavItems = Array.from(navInner.children) as HTMLElement[];
-        if(allNavItems.length === 0) { // Guard, falls keine Elemente vorhanden sind
-            prevBtn.style.display = 'none';
-            nextBtn.style.display = 'none';
-            return;
+        if (allNavItems.length === 0) {
+          prevBtn.style.display = 'none';
+          nextBtn.style.display = 'none';
+          return;
         }
         gapWidth = parseInt(getComputedStyle(navInner).gap) || 0;
-        itemWidths = []; // Zurücksetzen vor Neuberechnung
-        totalWidth = 0; // Zurücksetzen vor Neuberechnung
+        itemWidths = [];
+        totalWidth = 0;
 
         allNavItems.forEach((item, idx) => {
           const prevDisplay = item.style.display;
           item.style.display = '';
           itemWidths[idx] = item.offsetWidth;
-          // Ihre Original-Logik für totalWidth
           totalWidth += item.offsetWidth + (idx < allNavItems.length - 1 ? gapWidth : 0);
           item.style.display = prevDisplay;
         });
 
-        const padLeft  = parseInt(getComputedStyle(navInner).paddingLeft)  || 0;
+        const padLeft = parseInt(getComputedStyle(navInner).paddingLeft) || 0;
         const padRight = parseInt(getComputedStyle(navInner).paddingRight) || 0;
         totalWidth += padLeft + padRight;
         visibleWidth = navWrapper.offsetWidth;
@@ -192,24 +223,21 @@ window.addEventListener('DOMContentLoaded', () => {
           startIndex = 0;
         } else {
           navWrapper.classList.add('has-overflow');
-          // Ihre Original-Logik für startIndex bei Überlauf
           let found = false;
           for (let i = startIndex; i < allNavItems.length && !found; i++) {
             let w = 0, count = 0;
             for (let j = i; j < allNavItems.length; j++) {
-              const wi = itemWidths[j] + (count > 0 ? gapWidth : 0); // count > 0 für gap
-              if (w + wi <= visibleWidth + 2) { w += wi; count++; }
-              else break;
+              const wi = itemWidths[j] + (count > 0 ? gapWidth : 0);
+              if (w + wi <= visibleWidth + 2) { w += wi; count++; } else break;
             }
             if (count > 0) { startIndex = i; found = true; }
           }
-          if (!found) startIndex = 0; // Fallback
-          // Stellen Sie sicher, dass der StartIndex gültig ist, falls die obige Logik ihn außerhalb der Grenzen setzt
-           if (startIndex >= allNavItems.length && allNavItems.length > 0) {
-             startIndex = allNavItems.length - 1;
-           } else if (startIndex < 0) {
-               startIndex = 0;
-           }
+          if (!found) startIndex = 0;
+          if (startIndex >= allNavItems.length && allNavItems.length > 0) {
+            startIndex = allNavItems.length - 1;
+          } else if (startIndex < 0) {
+            startIndex = 0;
+          }
         }
         updateVisibleItems();
         updateButtonStates();
@@ -220,16 +248,14 @@ window.addEventListener('DOMContentLoaded', () => {
         prevBtn.style.display = noOverflow ? 'none' : 'flex';
         nextBtn.style.display = noOverflow ? 'none' : 'flex';
         prevBtn.disabled = startIndex === 0;
-        nextBtn.disabled = endIndex >= allNavItems.length - 1 || endIndex === -1; // endIndex === -1 bedeutet, dass nichts sichtbar ist
+        nextBtn.disabled = endIndex >= allNavItems.length - 1 || endIndex === -1;
       };
 
       const moveToNext = () => {
         if (nextBtn.disabled) return;
-        // Ihre Original-Logik für moveToNext
         startIndex = Math.min(startIndex + 1, allNavItems.length - 1);
         updateVisibleItems();
-        // Die folgende Logik ist aus Ihrer Originaldatei, wenn visibleCount 0 ist
-        if (endIndex === -1 && startIndex > 0) { // Angepasst, um endIndex zu verwenden
+        if (endIndex === -1 && startIndex > 0) {
           for (let i = allNavItems.length - 1; i >= 0; i--) {
             let w = 0, canFit = false;
             for (let j = i; j < allNavItems.length; j++) {
@@ -253,19 +279,15 @@ window.addEventListener('DOMContentLoaded', () => {
       nextBtn.addEventListener('click', moveToNext);
       prevBtn.addEventListener('click', moveToPrev);
       window.addEventListener('resize', calculateDimensionsAndRefreshUI);
-      setTimeout(calculateDimensionsAndRefreshUI, 100); // Ihre Original-Verzögerung
+      setTimeout(calculateDimensionsAndRefreshUI, 100);
     }
   }
 });
 
-/**
- * Starte Anwendung nach Zustimmung des Nutzers
- */
 function initApp() {
   const params = new URLSearchParams(location.search);
-  // Beachten Sie, dass currentMode/currentStyle hier currentAppMode/currentAppStyle heißen
-  const initialMode  = (params.get('mode')  ?? 'avatar') as Mode;
-  const initialStyle = (params.get('style') ?? 'soc')    as Style;
+  const initialMode = (params.get('mode') ?? 'avatar') as Mode;
+  const initialStyle = (params.get('style') ?? 'soc') as Style;
 
   if (localStorage.getItem('experimentDone') === 'true') {
     showExperimentCompleteOverlayAndSetLink();
@@ -273,18 +295,12 @@ function initApp() {
   }
 
   setMode(initialMode, initialStyle);
-  // Die mode-avatar-Klasse wird jetzt in setMode umgeschaltet
-  // document.body.classList.toggle('mode-avatar', initialMode === 'avatar');
 }
 
-/**
- * Wechsel zwischen Avatar- und Chat-Modus und lade benötigte Module
- */
 async function setMode(mode: Mode, style: Style) {
-  // Überprüfen, ob das Experiment abgeschlossen ist, bevor der Modus geändert wird
   if (localStorage.getItem('experimentDone') === 'true') {
-      showExperimentCompleteOverlayAndSetLink();
-      return;
+    showExperimentCompleteOverlayAndSetLink();
+    return;
   }
 
   if (mode === currentAppMode && style === currentAppStyle) return;
@@ -294,7 +310,7 @@ async function setMode(mode: Mode, style: Style) {
   }
 
   document.body.classList.toggle('mode-avatar', mode === 'avatar');
-  document.body.classList.toggle('mode-chat',   mode === 'chat');
+  document.body.classList.toggle('mode-chat', mode === 'chat');
 
   if (mode === 'chat') {
     avatarUI.classList.add('hidden');
@@ -302,7 +318,7 @@ async function setMode(mode: Mode, style: Style) {
     const { startChatbot, stopChatbot } = await import('./features/chatbot');
     cleanup = stopChatbot;
     startChatbot(style);
-  } else { // mode === 'avatar'
+  } else {
     chatUI.classList.add('hidden');
     avatarUI.classList.remove('hidden');
     const { startAvatar, stopAvatar } = await import('./features/avatar');
@@ -310,42 +326,37 @@ async function setMode(mode: Mode, style: Style) {
     startAvatar(style);
   }
 
-  currentAppMode  = mode;
+  currentAppMode = mode;
   currentAppStyle = style;
 
-  // Update active link in topbar (Original-Logik)
   document.querySelectorAll<HTMLAnchorElement>('.topbar-nav a').forEach(link => {
-    const linkMode  = link.dataset.mode as Mode | undefined;
-    const linkStyleFromData = link.dataset.style as Style| undefined; // Verwenden Sie einen anderen Namen als 'style'
+    const linkMode = link.dataset.mode as Mode | undefined;
+    const linkStyleFromData = link.dataset.style as Style | undefined;
     let isActive = false;
-    // Ihre Original-Logik für isActive
     if (linkMode === currentAppMode) {
-        isActive = linkStyleFromData ? linkStyleFromData === currentAppStyle : true;
+      isActive = linkStyleFromData ? linkStyleFromData === currentAppStyle : true;
     }
     link.classList.toggle('active', isActive);
   });
 }
 
-// Event listener für Topbar-Links (Original-Logik)
 document.querySelectorAll<HTMLAnchorElement>('.topbar-nav a[data-mode]').forEach(link => {
   link.addEventListener('click', (e) => {
     const targetMode = link.dataset.mode as Mode | undefined;
-    let targetStyle  = link.dataset.style as Style| undefined; // Hier ist 'style' okay, da es lokal ist
+    let targetStyle = link.dataset.style as Style | undefined;
     if (!targetMode) return;
     e.preventDefault();
-    // Ihre Original-Fallback-Logik für targetStyle
     if (!targetStyle) {
-        targetStyle = (targetMode === currentAppMode && currentAppStyle) ? currentAppStyle : 'soc';
+      targetStyle = (targetMode === currentAppMode && currentAppStyle) ? currentAppStyle : 'soc';
     }
     setMode(targetMode, targetStyle);
   });
 });
 
-// Globale Vibrate-Funktion (Original-Logik)
 function vibrate() {
   if ('vibrate' in navigator) {
-    const success = navigator.vibrate(100); // success wird in Ihrer Originaldatei verwendet
-    console.log("Vibration gestartet:", success); // Behalten Sie dies bei, wenn Sie es verwenden
+    const success = navigator.vibrate(100);
+    console.log("Vibration gestartet:", success);
   } else {
     console.warn("Vibration wird nicht unterstützt");
   }
