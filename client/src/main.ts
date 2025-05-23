@@ -22,7 +22,6 @@ const REDIRECT_URL_CHAT_INS_MAIN = import.meta.env.VITE_REDIRECT_URL_CHAT_INS ||
 
 // Schlüssel für LocalStorage
 const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken';
-const SURVEY_CASE_NUMBER_KEY = 'surveyCaseNumber'; // NEU
 
 /**
  * Hängt die gespeicherten Survey Parameter (Token und CaseNumber) an eine Basis-URL an.
@@ -81,19 +80,6 @@ window.addEventListener('DOMContentLoaded', () => {
     console.log('Survey redirect token (rid) stored:', redirectTokenFromUrl);
     newUrlInstance.searchParams.delete('rid');
   }
-
-  // NEU: num (caseNumber) aus URL auslesen und speichern
-  const caseNumberFromUrl = params.get('num');
-  if (caseNumberFromUrl) {
-    localStorage.setItem(SURVEY_CASE_NUMBER_KEY, caseNumberFromUrl);
-    console.log('Survey case number (num) stored:', caseNumberFromUrl);
-    newUrlInstance.searchParams.delete('num');
-  }
-
-  // URL in der Adressleiste bereinigen, falls Parameter gelesen wurden
-  if (redirectTokenFromUrl || caseNumberFromUrl) {
-    window.history.replaceState({}, document.title, newUrlInstance.toString());
-  }
   
 
   if (params.get('reset') === '1') {
@@ -101,7 +87,6 @@ window.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('experimentRedirectMode');
     localStorage.removeItem('experimentRedirectStyle');
     localStorage.removeItem(SURVEY_REDIRECT_TOKEN_KEY); // Auch Token entfernen beim Reset
-    localStorage.removeItem(SURVEY_CASE_NUMBER_KEY);  // Auch CaseNumber entfernen beim Reset
     console.log('Experiment-Status zurückgesetzt');
     const resetUrl = new URL(window.location.href);
     resetUrl.searchParams.delete('reset');

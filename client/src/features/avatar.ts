@@ -32,7 +32,6 @@ let dotInterval: number | null = null;
 
 // Schlüssel für LocalStorage (sollten mit main.ts übereinstimmen)
 const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken';
-const SURVEY_CASE_NUMBER_KEY = 'surveyCaseNumber'; // NEU
 
 
 /**
@@ -40,26 +39,18 @@ const SURVEY_CASE_NUMBER_KEY = 'surveyCaseNumber'; // NEU
  */
 function appendSurveyParamsToUrl(baseUrlString: string): string {
     const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY); // caseToken
-    const caseNum = localStorage.getItem(SURVEY_CASE_NUMBER_KEY); // caseNumber
 
     try {
         const url = new URL(baseUrlString);
-
         if (token) {
-            url.searchParams.append('l', token); // SoSci erwartet den Token oft als 'l'
+            url.searchParams.append('i', token); // SoSci erwartet den Token oft als 'l'
         }
-        if (caseNum) {
-            url.searchParams.append('sosci_casenumber', caseNum);
-        }
-        url.searchParams.append('ext_complete', '1'); 
-
         return url.toString();
     } catch (error) {
         console.error("Error constructing URL with params:", error, "Base URL was:", baseUrlString);
         let fallbackUrl = baseUrlString;
         const params: string[] = [];
         if (token) params.push(`l=${encodeURIComponent(token)}`);
-        if (caseNum) params.push(`sosci_casenumber=${encodeURIComponent(caseNum)}`);
         params.push(`ext_complete=1`);
 
         if (params.length > 0) {

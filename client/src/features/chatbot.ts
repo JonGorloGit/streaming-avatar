@@ -10,7 +10,6 @@ const REDIRECT_URL_CHAT_INS_BASE = import.meta.env.VITE_REDIRECT_URL_CHAT_INS ||
 
 // Schlüssel für LocalStorage (sollten mit main.ts übereinstimmen)
 const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken'; 
-const SURVEY_CASE_NUMBER_KEY = 'surveyCaseNumber'; // NEU
 
 type Style = 'soc' | 'ins';
 type Role = 'user' | 'assistant';
@@ -37,7 +36,6 @@ let chatFinalCountdownStarted = false;
  */
 function appendSurveyParamsToUrl(baseUrlString: string): string {
     const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY); // caseToken
-    const caseNum = localStorage.getItem(SURVEY_CASE_NUMBER_KEY); // caseNumber
 
     try {
         const url = new URL(baseUrlString);
@@ -45,16 +43,12 @@ function appendSurveyParamsToUrl(baseUrlString: string): string {
         if (token) {
             url.searchParams.append('i', token); // SoSci erwartet den Token oft als 'l'
         }
-        if (caseNum) {
-            url.searchParams.append('sosci_casenumber', caseNum);
-        }
         return url.toString();
     } catch (error) {
         console.error("Error constructing URL with params:", error, "Base URL was:", baseUrlString);
         let fallbackUrl = baseUrlString;
         const params: string[] = [];
         if (token) params.push(`l=${encodeURIComponent(token)}`);
-        if (caseNum) params.push(`sosci_casenumber=${encodeURIComponent(caseNum)}`);
         params.push(`ext_complete=1`);
 
         if (params.length > 0) {
