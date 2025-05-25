@@ -656,6 +656,10 @@ button:disabled {
 
 .hidden { display: none !important; }
 
+.sound-hint {
+    color: var(--cws-green);
+  }
+
 /* Hover-Effekte (Desktop) */
 @media (hover: hover) and (pointer: fine) {
   .tag-wrapper:hover .tag-text-panel {
@@ -1164,6 +1168,10 @@ button:disabled {
   #experiment-complete-banner p { color: white; }
 
   .connecting-overlay { color: var(--grey-9); }
+
+  .sound-hint {
+    color: rgba(var(--cws-neon-rgb),0.7);
+  }
 
    /* Mobile Dark Mode Anpassungen */
    @media (max-width: 480px) {
