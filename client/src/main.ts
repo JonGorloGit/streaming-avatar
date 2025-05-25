@@ -1,3 +1,5 @@
+// main.ts
+
 import './style.css';
 
 type Mode = 'avatar' | 'chat';
@@ -11,37 +13,75 @@ let currentAppMode: Mode | null = null;
 let currentAppStyle: Style | null = null;
 let cleanup: () => Promise<void> | void = async () => {};
 
-// ----- WICHTIG: Diese URLs müssen jetzt auf deine SoSci Survey Instanz zeigen! -----
-// Fallback-URLs, falls VITE-Variablen nicht gesetzt sind.
-const FALLBACK_SOSCI_SURVEY_URL = 'https://www.soscisurvey.de/digital_HR_agents/';
+// ----- SoSci Survey URLs -----
+const FALLBACK_SOSCI_SURVEY_URL = 'https://www.soscisurvey.de/digital_HR_agents/'; // Deine Basis-URL
 
-const REDIRECT_URL_AVATAR_SOC_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC || FALLBACK_SOSCI_SURVEY_URL;
-const REDIRECT_URL_AVATAR_INS_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS || FALLBACK_SOSCI_SURVEY_URL;
-const REDIRECT_URL_CHAT_SOC_MAIN = import.meta.env.VITE_REDIRECT_URL_CHAT_SOC || FALLBACK_SOSCI_SURVEY_URL;
-const REDIRECT_URL_CHAT_INS_MAIN = import.meta.env.VITE_REDIRECT_URL_CHAT_INS || FALLBACK_SOSCI_SURVEY_URL;
+// URLs für normalen Abschluss
+const REDIRECT_URL_AVATAR_SOC_NORMAL_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_AVATAR_INS_NORMAL_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_CHAT_SOC_NORMAL_MAIN   = import.meta.env.VITE_REDIRECT_URL_CHAT_SOC   || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_CHAT_INS_NORMAL_MAIN   = import.meta.env.VITE_REDIRECT_URL_CHAT_INS   || FALLBACK_SOSCI_SURVEY_URL;
+
+// URLs für "Connect to Human" Abschluss (können dieselben SoSci URLs sein, der hc-Parameter macht den Unterschied)
+const REDIRECT_URL_AVATAR_SOC_HUMAN_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC_HUMAN || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_AVATAR_INS_HUMAN_MAIN = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS_HUMAN || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_CHAT_SOC_HUMAN_MAIN   = import.meta.env.VITE_REDIRECT_URL_CHAT_SOC_HUMAN   || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_CHAT_INS_HUMAN_MAIN   = import.meta.env.VITE_REDIRECT_URL_CHAT_INS_HUMAN   || FALLBACK_SOSCI_SURVEY_URL;
 
 // Schlüssel für LocalStorage
-const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken';
+const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken'; // Für 'rid' -> 'i'
+const EXPERIMENT_HUMAN_CONNECT_KEY = 'experimentHumanConnect'; // Für 'hc'
 
 /**
- * Hängt die gespeicherten Survey Parameter (Token und CaseNumber) an eine Basis-URL an.
+ * Hängt die gespeicherten Survey Parameter an eine Basis-URL an.
+ * @param baseUrlString Die Basis-URL zur SoSci Survey.
+ * @param optedForHumanConnect Gibt an, ob der User mit einem Menschen verbunden werden wollte.
  */
-function appendSurveyParamsToUrl(baseUrlString: string): string {
-  const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY);
-  const url = new URL(baseUrlString);
-  if (token) url.searchParams.append('i', token); // ✅ korrekt
-  return url.toString();
+function appendSurveyParamsToUrl(baseUrlString: string, optedForHumanConnect: boolean): string {
+  const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY); // rid (SoSci's caseToken)
+  
+  try {
+    const url = new URL(baseUrlString);
+    if (token) {
+      url.searchParams.append('i', token); // SoSci erwartet den Token oft als 'i' (früher 'l')
+    }
+    // Füge den hc-Parameter hinzu, um die Entscheidung des Benutzers zu übergeben
+    url.searchParams.append('hc', optedForHumanConnect ? '1' : '0');
+    
+    // Du könntest hier noch weitere feste Parameter hinzufügen, die immer gesendet werden sollen
+    // url.searchParams.append('source', 'hr-portal-experiment');
+
+    return url.toString();
+  } catch (error) {
+    console.error("Error constructing URL with params:", error, "Base URL was:", baseUrlString);
+    // Fallback, falls URL-Konstruktion fehlschlägt (sollte nicht passieren mit validen URLs)
+    let fallbackUrl = baseUrlString;
+    const params: string[] = [];
+    if (token) params.push(`i=${encodeURIComponent(token)}`);
+    params.push(`hc=${optedForHumanConnect ? '1' : '0'}`);
+    
+    if (params.length > 0) {
+      fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
+    }
+    return fallbackUrl;
+  }
 }
 
-
-function getRedirectUrlForBanner(mode: Mode, style: Style): string {
-  let baseUrl: string;
+/**
+ * Bestimmt die korrekte Basis-Redirect-URL basierend auf Modus, Stil und ob eine Verbindung zu einem Menschen gewünscht wurde.
+ */
+function getBaseRedirectUrl(mode: Mode, style: Style, connectedToHuman: boolean): string {
   if (mode === 'avatar') {
-    baseUrl = style === 'soc' ? REDIRECT_URL_AVATAR_SOC_MAIN : REDIRECT_URL_AVATAR_INS_MAIN;
+    if (connectedToHuman) {
+      return style === 'soc' ? REDIRECT_URL_AVATAR_SOC_HUMAN_MAIN : REDIRECT_URL_AVATAR_INS_HUMAN_MAIN;
+    }
+    return style === 'soc' ? REDIRECT_URL_AVATAR_SOC_NORMAL_MAIN : REDIRECT_URL_AVATAR_INS_NORMAL_MAIN;
   } else { // mode === 'chat'
-    baseUrl = style === 'soc' ? REDIRECT_URL_CHAT_SOC_MAIN : REDIRECT_URL_CHAT_INS_MAIN;
+    if (connectedToHuman) {
+      return style === 'soc' ? REDIRECT_URL_CHAT_SOC_HUMAN_MAIN : REDIRECT_URL_CHAT_INS_HUMAN_MAIN;
+    }
+    return style === 'soc' ? REDIRECT_URL_CHAT_SOC_NORMAL_MAIN : REDIRECT_URL_CHAT_INS_NORMAL_MAIN;
   }
-  return appendSurveyParamsToUrl(baseUrl);
 }
 
 function showExperimentCompleteOverlayAndSetLink() {
@@ -52,13 +92,15 @@ function showExperimentCompleteOverlayAndSetLink() {
   
   const storedMode = localStorage.getItem('experimentRedirectMode') as Mode | null;
   const storedStyle = localStorage.getItem('experimentRedirectStyle') as Style | null;
+  const optedForHumanConnect = localStorage.getItem(EXPERIMENT_HUMAN_CONNECT_KEY) === 'yes';
 
   if (manualRedirectLink && storedMode && storedStyle) {
-    manualRedirectLink.href = getRedirectUrlForBanner(storedMode, storedStyle);
+    const baseUrl = getBaseRedirectUrl(storedMode, storedStyle, optedForHumanConnect);
+    manualRedirectLink.href = appendSurveyParamsToUrl(baseUrl, optedForHumanConnect);
   } else if (manualRedirectLink) {
     console.warn('Experiment done, but redirect mode/style not found for manualRedirectLink. Using default SoSci URL.');
-    const fallbackSoSciUrl = FALLBACK_SOSCI_SURVEY_URL; 
-    manualRedirectLink.href = appendSurveyParamsToUrl(fallbackSoSciUrl);
+    // Im Falle eines Fehlers leiten wir einfach zur Basis-SoSci-URL mit den bekannten Parametern weiter
+    manualRedirectLink.href = appendSurveyParamsToUrl(FALLBACK_SOSCI_SURVEY_URL, optedForHumanConnect);
   }
   avatarUI.classList.add('hidden');
   chatUI.classList.add('hidden');
@@ -71,31 +113,32 @@ function showExperimentCompleteOverlayAndSetLink() {
 window.addEventListener('DOMContentLoaded', () => {
   const localConsentOverlay = document.getElementById('consent-overlay')!;
   const params = new URLSearchParams(window.location.search);
-  const newUrlInstance = new URL(window.location.href); // Für URL-Bereinigung
+  const newUrlInstance = new URL(window.location.href); 
 
-  // rid (caseToken) aus URL auslesen und speichern
   const redirectTokenFromUrl = params.get('rid');
   if (redirectTokenFromUrl) {
     localStorage.setItem(SURVEY_REDIRECT_TOKEN_KEY, redirectTokenFromUrl);
     console.log('Survey redirect token (rid) stored:', redirectTokenFromUrl);
     newUrlInstance.searchParams.delete('rid');
+    // URL ohne 'rid' aktualisieren, um Re-Storage bei Reload zu verhindern
+    window.history.replaceState({}, document.title, newUrlInstance.toString());
   }
   
-
   if (params.get('reset') === '1') {
     localStorage.removeItem('experimentDone');
     localStorage.removeItem('experimentRedirectMode');
     localStorage.removeItem('experimentRedirectStyle');
-    localStorage.removeItem(SURVEY_REDIRECT_TOKEN_KEY); // Auch Token entfernen beim Reset
-    console.log('Experiment-Status zurückgesetzt');
+    localStorage.removeItem(SURVEY_REDIRECT_TOKEN_KEY);
+    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Auch diesen beim Reset entfernen
+    console.log('Experiment-Status und Survey-Parameter zurückgesetzt');
+    
     const resetUrl = new URL(window.location.href);
     resetUrl.searchParams.delete('reset');
-    // Auch rid und num aus der URL entfernen, falls sie nach dem Reset noch da wären
-    resetUrl.searchParams.delete('rid');
-    resetUrl.searchParams.delete('num');
+    resetUrl.searchParams.delete('rid'); // Sicherstellen, dass rid weg ist
     window.history.replaceState({}, document.title, resetUrl.toString());
   }
 
+  // ... (Rest von DOMContentLoaded bleibt gleich) ...
   if (localStorage.getItem('experimentDone') === 'true') {
     showExperimentCompleteOverlayAndSetLink();
     return;
@@ -268,7 +311,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
-
+// ... (Rest von main.ts bleibt gleich, initApp, setMode, vibrate) ...
 function initApp() {
   const params = new URLSearchParams(location.search);
   const initialMode = (params.get('mode') ?? 'avatar') as Mode;

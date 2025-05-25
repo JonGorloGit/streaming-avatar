@@ -92,6 +92,13 @@
     </div>
     <video id="avatarVideo" autoplay playsinline></video>
     <div id="connecting-overlay" class="connecting-overlay">Verbindung wird hergestellt<span id="dots">.</span><p class="sound-hint">Bitte den Ton einschalten <i class="fa-solid fa-volume-high"></i></p></div>
+    <div id="avatar-human-connect-prompt" class="avatar-human-connect-prompt hidden">
+        <p id="avatar-human-connect-question">Möchten Sie lieber mit einem menschlichen HR-Mitarbeiter verbunden werden?</p>
+        <div class="buttons">
+            <button onclick="vibrate()" id="avatar-human-connect-yes">Ja, verbinden</button>
+            <button onclick="vibrate()" id="avatar-human-connect-no">Nein, danke</button>
+        </div>
+    </div>
     <section role="group">
       <textarea id="userInput" rows="1" placeholder="Nachricht..."></textarea>
       <button onclick="vibrate()" id="speakButton">Sprechen</button>

@@ -6,111 +6,117 @@ import StreamingAvatar, {
 
 let avatar: StreamingAvatar | null = null;
 let isStarting = false;
-let finalCountdownStarted = false;
+let finalCountdownStarted = false; // Bezieht sich auf den normalen Abschluss-Countdown
 let isAvatarSpeaking = false;
 
-const video = document.getElementById('avatarVideo') as HTMLVideoElement;
-const speakBtn = document.getElementById('speakButton') as HTMLButtonElement;
-const input = document.getElementById('userInput') as HTMLTextAreaElement;
-const overlay = document.getElementById('connecting-overlay')!;
-const dotsEl = document.getElementById('dots')!;
+// UI-Elemente (global für dieses Modul)
+const videoEl    = document.getElementById('avatarVideo')      as HTMLVideoElement;
+const speakButtonEl = document.getElementById('speakButton')     as HTMLButtonElement;
+const userInputEl   = document.getElementById('userInput')       as HTMLTextAreaElement;
+const connectingOverlayEl  = document.getElementById('connecting-overlay')!;
+const dotsElSpan   = document.getElementById('dots')!;
+let avatarHumanConnectPromptContainerEl: HTMLElement | null = null; // Wird in startAvatar initialisiert
+let avatarHumanConnectYesButtonEl: HTMLButtonElement | null = null; // Wird in startAvatar initialisiert
+let avatarHumanConnectNoButtonEl: HTMLButtonElement | null = null;  // Wird in startAvatar initialisiert
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
-
-// ----- WICHTIG: Diese URLs müssen jetzt auf deine SoSci Survey Instanz zeigen! -----
+// Konfiguration
+const API_BASE_URL                = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
 const FALLBACK_SOSCI_SURVEY_URL = 'https://www.soscisurvey.de/digital_HR_agents/';
 
-const REDIRECT_URL_AVATAR_SOC_BASE = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC || FALLBACK_SOSCI_SURVEY_URL;
-const REDIRECT_URL_AVATAR_INS_BASE = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS || FALLBACK_SOSCI_SURVEY_URL;
+// URLs für normalen Abschluss
+const REDIRECT_URL_AVATAR_SOC_NORMAL_BASE = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_AVATAR_INS_NORMAL_BASE = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS || FALLBACK_SOSCI_SURVEY_URL;
 
-const MAX_PROGRESS = 5;
-const MAX_RETRIES = 2;
-const SESSION_COOLDOWN_MS = 10000;
+// URLs für "Connect to Human" Abschluss
+const REDIRECT_URL_AVATAR_SOC_HUMAN_BASE   = import.meta.env.VITE_REDIRECT_URL_AVATAR_SOC_HUMAN || FALLBACK_SOSCI_SURVEY_URL;
+const REDIRECT_URL_AVATAR_INS_HUMAN_BASE   = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS_HUMAN || FALLBACK_SOSCI_SURVEY_URL;
 
-let progress = 0;
-let dotInterval: number | null = null;
+const MAX_INTERACTIONS        = 5;
+const HUMAN_CONNECT_PROMPT_THRESHOLD = 3;
+const MAX_API_RETRIES         = 2;
+const SESSION_RETRY_COOLDOWN_MS = 10000;
 
-// Schlüssel für LocalStorage (sollten mit main.ts übereinstimmen)
+// Statusvariablen
+let interactionCount     = 0;
+let dotAnimationIntervalId: number | null = null;
+let currentAvatarStyleInternal: 'soc' | 'ins' = 'soc';
+let avatarHumanConnectPromptShownThisSession = false;
+
+// Schlüssel für LocalStorage
 const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken';
-
+const EXPERIMENT_HUMAN_CONNECT_KEY = 'experimentHumanConnect';
 
 /**
- * Hängt die gespeicherten Survey Parameter (Token und CaseNumber) an eine Basis-URL an.
+ * Hängt die gespeicherten Survey Parameter an eine Basis-URL an.
+ * @param baseUrlString Die Basis-URL zur SoSci Survey.
+ * @param optedForHumanConnect Gibt an, ob der User mit einem Menschen verbunden werden wollte.
  */
-function appendSurveyParamsToUrl(baseUrlString: string): string {
-    const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY); // caseToken
-
-    try {
-        const url = new URL(baseUrlString);
-        if (token) {
-            url.searchParams.append('i', token); // SoSci erwartet den Token oft als 'l'
-        }
-        return url.toString();
-    } catch (error) {
-        console.error("Error constructing URL with params:", error, "Base URL was:", baseUrlString);
-        let fallbackUrl = baseUrlString;
-        const params: string[] = [];
-        if (token) params.push(`l=${encodeURIComponent(token)}`);
-        params.push(`ext_complete=1`);
-
-        if (params.length > 0) {
-            fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
-        }
-        return fallbackUrl;
+function appendSurveyParamsToUrlLocal(baseUrlString: string, optedForHumanConnect: boolean): string {
+  const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY);
+  try {
+    const url = new URL(baseUrlString);
+    if (token) {
+      url.searchParams.append('i', token);
     }
+    url.searchParams.append('hc', optedForHumanConnect ? '1' : '0');
+    return url.toString();
+  } catch (error) {
+    console.error("Error constructing URL with params in avatar.ts:", error, "Base URL was:", baseUrlString);
+    let fallbackUrl = baseUrlString;
+    const params: string[] = [];
+    if (token) params.push(`i=${encodeURIComponent(token)}`);
+    params.push(`hc=${optedForHumanConnect ? '1' : '0'}`);
+    if (params.length > 0) {
+      fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
+    }
+    return fallbackUrl;
+  }
 }
 
-function updateAvatarProgress() {
+function updateAvatarProgressUI() {
   const el = document.getElementById('avatar-progress');
   if (!el) return;
   const circle = el.querySelector('.circle') as SVGPathElement;
-  const text = el.querySelector('.progress-text')!;
-  const percent = (progress / MAX_PROGRESS) * 100;
+  const text   = el.querySelector('.progress-text')!;
+  const percent = (interactionCount / MAX_INTERACTIONS) * 100;
 
-  text.textContent = progress < MAX_PROGRESS ? `${progress}/${MAX_PROGRESS}` : '✓';
+  text.textContent = interactionCount < MAX_INTERACTIONS ? `${interactionCount}/${MAX_INTERACTIONS}` : '✓';
   circle.style.strokeDashoffset = (100 - percent).toString();
 }
 
-function startFinalCountdown(currentStyle: 'soc' | 'ins') {
+function startFinalCountdown() { // Normaler Abschluss-Countdown
   const el = document.getElementById('avatar-progress');
-  if (!el || finalCountdownStarted) return;
+  if (!el || finalCountdownStarted || !speakButtonEl || !userInputEl) return;
+  console.log("AVATAR: MAX_INTERACTIONS erreicht, starte finalen Countdown.");
   finalCountdownStarted = true;
 
   const text = el.querySelector('.progress-text')!;
-  let seconds = 5;
+  let seconds = 10; // Angepasst an Chatbot
   text.textContent = `${seconds}s`;
-  if(speakBtn) speakBtn.disabled = true;
+  speakButtonEl.disabled = true;
+  userInputEl.disabled = true;
 
-  const countdown = setInterval(async () => {
+  const countdownTimerId = setInterval(async () => {
     seconds--;
     text.textContent = seconds > 0 ? `${seconds}s` : '✓';
     if (seconds === 0) {
-      clearInterval(countdown);
-      
+      clearInterval(countdownTimerId);
       localStorage.setItem('experimentRedirectMode', 'avatar');
-      localStorage.setItem('experimentRedirectStyle', currentStyle);
+      localStorage.setItem('experimentRedirectStyle', currentAvatarStyleInternal);
       localStorage.setItem('experimentDone', 'true');
-      
-      const experimentCompleteOverlay = document.getElementById('experiment-complete-overlay');
-      const manualRedirectLink = document.getElementById('manualRedirectLink') as HTMLAnchorElement | null;
-      
-      const baseRedirectUrl = currentStyle === 'soc' ? REDIRECT_URL_AVATAR_SOC_BASE : REDIRECT_URL_AVATAR_INS_BASE;
-      const finalRedirectUrl = appendSurveyParamsToUrl(baseRedirectUrl); // ANPASSUNG
+      localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Normaler Abschluss
 
-      if (experimentCompleteOverlay) {
-        experimentCompleteOverlay.style.display = 'flex';
-        if (manualRedirectLink) {
-          manualRedirectLink.href = finalRedirectUrl;
-        }
-      }
+      const baseRedirectUrl = currentAvatarStyleInternal === 'soc' ? REDIRECT_URL_AVATAR_SOC_NORMAL_BASE : REDIRECT_URL_AVATAR_INS_NORMAL_BASE;
+      const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); // optedForHumanConnect ist false
       
-      await stopAvatar(); 
+      await stopAvatar();
       window.location.href = finalRedirectUrl;
     }
   }, 1000);
 }
 
 export async function stopAvatar() {
+  // ... (Logik bleibt gleich wie in deiner korrigierten Version)
   if (avatar) {
     try {
       await avatar.stopAvatar();
@@ -119,181 +125,275 @@ export async function stopAvatar() {
     }
     avatar = null;
   }
-  if (video && video.srcObject) { // Check if video exists
-    const stream = video.srcObject as MediaStream;
+  if (videoEl && videoEl.srcObject) {
+    const stream = videoEl.srcObject as MediaStream;
     stream.getTracks().forEach(track => track.stop());
-    video.srcObject = null;
+    videoEl.srcObject = null;
   }
   isStarting = false;
   isAvatarSpeaking = false;
-  if (speakBtn) speakBtn.disabled = true;
-  if (dotInterval) {
-    clearInterval(dotInterval);
-    dotInterval = null;
+  if (speakButtonEl) speakButtonEl.disabled = true;
+  if (userInputEl) userInputEl.disabled = true;
+  if (dotAnimationIntervalId) {
+    clearInterval(dotAnimationIntervalId);
+    dotAnimationIntervalId = null;
   }
+  console.log("Avatar-Session durch stopAvatar() beendet.");
 }
 
-export async function startAvatar(style: 'soc' | 'ins' = 'soc') {
-  if (localStorage.getItem('experimentDone') === 'true') {
-    // Potentially call showExperimentCompleteOverlayAndSetLink from main.ts if it's accessible
-    // For now, we assume main.ts handles this on DOMContentLoaded
+export async function startAvatar(style: 'soc' | 'ins') { // Pflichtparameter
+  if (localStorage.getItem('experimentDone') === 'true') return;
+  if (isStarting) {
+    console.warn("Avatar Start ist bereits im Gange.");
     return;
   }
-
-  if (video) video.play().catch(e => console.warn("Video play failed:", e)); // Check if video exists
-  if (isStarting) return;
   isStarting = true;
-  progress = 0;
-  finalCountdownStarted = false; 
-  isAvatarSpeaking = false;
-  updateAvatarProgress();
-  if (speakBtn) speakBtn.disabled = true; 
+  currentAvatarStyleInternal = style;
 
-  if (overlay) overlay.style.display = 'block'; // Check if overlay exists
-  if (dotsEl) dotsEl.textContent = '.'; // Check if dotsEl exists
+  // Referenzen zu Prompt-Elementen holen
+  avatarHumanConnectPromptContainerEl = document.getElementById('avatar-human-connect-prompt');
+  avatarHumanConnectYesButtonEl = document.getElementById('avatar-human-connect-yes') as HTMLButtonElement | null;
+  avatarHumanConnectNoButtonEl = document.getElementById('avatar-human-connect-no') as HTMLButtonElement | null;
+
+  // Globale UI-Elemente prüfen (obwohl sie oben schon geholt wurden, Sicherheit)
+  if (!videoEl || !speakButtonEl || !userInputEl || !connectingOverlayEl || !dotsElSpan || !avatarHumanConnectPromptContainerEl || !avatarHumanConnectYesButtonEl || !avatarHumanConnectNoButtonEl ) {
+      console.error("Einige grundlegende UI-Elemente für Avatar nicht gefunden beim Start!");
+      isStarting = false;
+      return;
+  }
+
+  videoEl.play().catch(e => console.warn("Video play() initial fehlgeschlagen:", e));
+  
+  interactionCount = 0;
+  finalCountdownStarted = false;
+  isAvatarSpeaking = false;
+  avatarHumanConnectPromptShownThisSession = false;
+  avatarHumanConnectPromptContainerEl.classList.add('hidden');
+
+  updateAvatarProgressUI();
+  speakButtonEl.disabled = true;
+  userInputEl.disabled = true;
+
+  connectingOverlayEl.style.display = 'flex';
+  dotsElSpan.textContent = '.';
   let dotState = 1;
-  if (dotInterval) clearInterval(dotInterval);
-  dotInterval = window.setInterval(() => {
+  if (dotAnimationIntervalId) clearInterval(dotAnimationIntervalId);
+  dotAnimationIntervalId = window.setInterval(() => {
     dotState = (dotState % 3) + 1;
-    if (dotsEl) dotsEl.textContent = '.'.repeat(dotState);
+    if (dotsElSpan) dotsElSpan.textContent = '.'.repeat(dotState);
   }, 500);
 
-  if (input) { // Check if input exists
-    input.removeEventListener('input', handleAvatarInputResize);
-    input.addEventListener('input', handleAvatarInputResize);
-    input.removeEventListener('keydown', handleAvatarInputKeydown);
-    input.addEventListener('keydown', handleAvatarInputKeydown);
-    input.removeEventListener('focus', handleAvatarInputFocus);
-    input.addEventListener('focus', handleAvatarInputFocus);
-  }
+  userInputEl.removeEventListener('input', handleAvatarInputResize);
+  userInputEl.addEventListener('input', handleAvatarInputResize);
+  userInputEl.removeEventListener('keydown', handleAvatarInputKeydown);
+  userInputEl.addEventListener('keydown', handleAvatarInputKeydown);
+  userInputEl.removeEventListener('focus', handleAvatarInputFocus);
+  userInputEl.addEventListener('focus', handleAvatarInputFocus);
   
-  if (speakBtn) { // Check if speakBtn exists
-    speakBtn.onclick = null; 
-    speakBtn.onclick = async () => {
-      if (isAvatarSpeaking || speakBtn.disabled || finalCountdownStarted) return;
-      const text = input ? input.value.trim() : ""; // Check if input exists
-      if (!avatar || !text) return;
+  avatarHumanConnectYesButtonEl.onclick = null;
+  avatarHumanConnectYesButtonEl.onclick = () => handleAvatarHumanConnectionChoice(true);
+  avatarHumanConnectNoButtonEl.onclick = null;
+  avatarHumanConnectNoButtonEl.onclick = () => handleAvatarHumanConnectionChoice(false);
 
-      isAvatarSpeaking = true;
-      speakBtn.disabled = true;
-      if (input) { // Check if input exists
-          input.value = '';
-          input.style.height = 'auto'; 
-      }
+  speakButtonEl.onclick = null;
+  speakButtonEl.onclick = async () => {
+    if (!avatar || isAvatarSpeaking || speakButtonEl!.disabled || finalCountdownStarted) {
+        return;
+    }
+    
+    const text = userInputEl!.value.trim();
+    if (!text) return;
 
-      try {
-          await avatar.speak({ text });
-          if (progress < MAX_PROGRESS && !finalCountdownStarted) {
-            progress++;
-            updateAvatarProgress();
-          }
-      } catch (error) {
-          console.error("Fehler bei avatar.speak:", error);
-          isAvatarSpeaking = false;
-          if (!finalCountdownStarted && speakBtn) speakBtn.disabled = false; 
-      }
-    };
-  }
+    isAvatarSpeaking = true;
+    speakButtonEl!.disabled = true;
+
+    try {
+        if (interactionCount < MAX_INTERACTIONS && !finalCountdownStarted) {
+            interactionCount++;
+            updateAvatarProgressUI();
+        }
+        await avatar.speak({ text });
+        userInputEl!.value = '';
+        handleAvatarInputResize();
+    } catch (error) {
+        console.error("Fehler bei avatar.speak:", error);
+        isAvatarSpeaking = false;
+        const promptIsCurrentlyVisible = avatarHumanConnectPromptContainerEl && !avatarHumanConnectPromptContainerEl.classList.contains('hidden');
+        if (!finalCountdownStarted && !promptIsCurrentlyVisible) {
+            speakButtonEl!.disabled = false;
+        }
+    }
+  };
 
   try {
     let { knowledgeBase } = await fetch(
-      `${API_BASE}/api/hr-prompt?style=${style}`
+      `${API_BASE_URL}/api/hr-prompt?style=${currentAvatarStyleInternal}`
     ).then(res => {
         if (!res.ok) throw new Error(`Fehler beim Abrufen von hr-prompt: ${res.status}`);
         return res.json();
     });
 
-    let started = false;
-    for (let attempt = 1; attempt <= MAX_RETRIES && !started; attempt++) {
+    let sessionSuccessfullyStarted = false;
+    for (let attempt = 1; attempt <= MAX_API_RETRIES && !sessionSuccessfullyStarted; attempt++) {
       try {
-        const tokenRes = await fetch(`${API_BASE}/api/get-access-token`);
-        if (!tokenRes.ok) throw new Error(`Fehler beim Abrufen des Tokens: ${tokenRes.status}`);
+        const tokenRes = await fetch(`${API_BASE_URL}/api/get-access-token`);
+        if (!tokenRes.ok) throw new Error(`Fehler beim Abrufen des Tokens: ${tokenRes.status} - ${await tokenRes.text()}`);
         const { token } = await tokenRes.json();
         if (!token) throw new Error('Ungültiger oder fehlender Token');
 
-        if (avatar) await stopAvatar(); 
+        if (avatar) await stopAvatar();
         avatar = new StreamingAvatar({ token });
 
-        avatar.on(StreamingEvents.STREAM_READY, async (e: any) => { 
-          if (video) { // Check if video exists
-            video.srcObject = e.detail as MediaStream;
-            await video.play().catch(err => console.warn("Error playing video on stream_ready:", err));
+        avatar.on(StreamingEvents.STREAM_READY, async (e: any) => { // any für e.detail
+          if (videoEl) {
+            videoEl.srcObject = e.detail as MediaStream;
+            await videoEl.play().catch(err => console.warn("Error playing video on stream_ready:", err));
           }
-          if (overlay) overlay.style.display = 'none';
-          if (dotInterval) {
-            clearInterval(dotInterval);
-            dotInterval = null;
+          if (connectingOverlayEl) connectingOverlayEl.style.display = 'none';
+          if (dotAnimationIntervalId) {
+            clearInterval(dotAnimationIntervalId);
+            dotAnimationIntervalId = null;
           }
-          if (!finalCountdownStarted && speakBtn) speakBtn.disabled = false;
+          const promptIsCurrentlyVisible = avatarHumanConnectPromptContainerEl && !avatarHumanConnectPromptContainerEl.classList.contains('hidden');
+          if (!finalCountdownStarted && !promptIsCurrentlyVisible) {
+             if (speakButtonEl) speakButtonEl.disabled = false;
+             if (userInputEl) userInputEl.disabled = false;
+             if (userInputEl) userInputEl.focus();
+          }
 
-          const greeting = style === 'soc'
+          const greeting = currentAvatarStyleInternal === 'soc'
             ? 'Hallo! Schön, dass du da bist. Ich bin hier um dich zu unterstützen. Was beschäftigt dich gerade am meisten?'
             : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
-          if (avatar) { 
+          if (avatar) {
              await avatar.speak({ text: greeting });
           }
         });
 
         avatar.on(StreamingEvents.AVATAR_START_TALKING, () => {
           isAvatarSpeaking = true;
-          if (speakBtn) speakBtn.disabled = true;
+          if (speakButtonEl) speakButtonEl.disabled = true;
         });
+
         avatar.on(StreamingEvents.AVATAR_STOP_TALKING, () => {
           isAvatarSpeaking = false;
-          if (!finalCountdownStarted && speakBtn) speakBtn.disabled = false;
-          
-          if (progress >= MAX_PROGRESS && !finalCountdownStarted) {
-            startFinalCountdown(style); 
-          }
+          handleAvatarResponseLogic();
         });
         
         knowledgeBase += '\n\nDu bist June, dein Name ist June und du bist ein virtueller HR-Assistent.';
         await avatar.createStartAvatar({
           quality: AvatarQuality.High,
-          avatarName: 'June_HR_public', 
+          avatarName: 'June_HR_public',
           language: 'de-DE',
           knowledgeBase,
         });
-        started = true;
+        sessionSuccessfullyStarted = true;
       } catch (err: any) {
         console.error(`Avatar attempt ${attempt} failed:`, err);
         const status = err?.status || (err instanceof Error && (err as any).status);
-        await stopAvatar(); 
-        if (status === 400 && attempt < MAX_RETRIES) {
-          await new Promise(res => setTimeout(res, SESSION_COOLDOWN_MS));
-        } else if (attempt === MAX_RETRIES) {
+        await stopAvatar();
+        if ((status === 400 || err.message?.includes('400')) && attempt < MAX_API_RETRIES) {
+          await new Promise(res => setTimeout(res, SESSION_RETRY_COOLDOWN_MS));
+        } else if (attempt >= MAX_API_RETRIES) {
             throw err; 
         }
       }
     }
-    if (!started) throw new Error(`Avatar konnte nach ${MAX_RETRIES} Versuchen nicht gestartet werden`);
+    if (!sessionSuccessfullyStarted) throw new Error(`Avatar konnte nach ${MAX_API_RETRIES} Versuchen nicht gestartet werden`);
   } catch (err) {
     console.error('Avatar-Start endgültig fehlgeschlagen:', err);
-    if (dotInterval) clearInterval(dotInterval);
-    if (overlay) { // Check if overlay exists
-        overlay.textContent = '❌ Verbindung fehlgeschlagen – bitte Seite neu laden';
-        overlay.style.display = 'block'; 
+    if (dotAnimationIntervalId) clearInterval(dotAnimationIntervalId);
+    if (connectingOverlayEl) {
+        connectingOverlayEl.textContent = '❌ Verbindung fehlgeschlagen – bitte Seite neu laden';
+        connectingOverlayEl.style.display = 'flex';
     }
-    if (speakBtn) speakBtn.disabled = true;
+    if (speakButtonEl) speakButtonEl.disabled = true;
+    if (userInputEl) userInputEl.disabled = true;
   } finally {
     isStarting = false;
   }
 }
 
+function handleAvatarResponseLogic() {
+    if (finalCountdownStarted) return;
+
+    const promptIsCurrentlyVisible = avatarHumanConnectPromptContainerEl && !avatarHumanConnectPromptContainerEl.classList.contains('hidden');
+    if (promptIsCurrentlyVisible) { // Wenn Prompt gerade aktiv angezeigt wird, keine weitere Logik hier
+        return;
+    }
+
+    if (interactionCount === HUMAN_CONNECT_PROMPT_THRESHOLD && !avatarHumanConnectPromptShownThisSession) {
+        askForHumanConnectionAvatar();
+    } 
+    else if (interactionCount >= MAX_INTERACTIONS) { // Diese Bedingung wird jetzt relevant für den Countdown
+        startFinalCountdown();
+    } 
+    else { // Normaler Fall: Buttons aktivieren, wenn Avatar nicht spricht
+        if (speakButtonEl) speakButtonEl.disabled = isAvatarSpeaking;
+        if (userInputEl) {
+            userInputEl.disabled = isAvatarSpeaking; // Input auch deaktivieren, wenn Avatar spricht
+            if (!isAvatarSpeaking) userInputEl.focus();
+        }
+    }
+}
+
+function askForHumanConnectionAvatar() {
+    if (!avatarHumanConnectPromptContainerEl || avatarHumanConnectPromptShownThisSession || finalCountdownStarted) return;
+    console.log("Zeige Human-Connect-Prompt für Avatar.");
+    avatarHumanConnectPromptShownThisSession = true;
+    if (speakButtonEl) speakButtonEl.disabled = true;
+    if (userInputEl) userInputEl.disabled = true;
+    avatarHumanConnectPromptContainerEl.classList.remove('hidden');
+}
+
+function handleAvatarHumanConnectionChoice(userChoseToConnect: boolean) {
+    if (avatarHumanConnectPromptContainerEl) {
+        avatarHumanConnectPromptContainerEl.classList.add('hidden');
+    }
+
+    if (userChoseToConnect) {
+        localStorage.setItem('experimentRedirectMode', 'avatar');
+        localStorage.setItem('experimentRedirectStyle', currentAvatarStyleInternal);
+        localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes');
+        localStorage.setItem('experimentDone', 'true');
+        const baseRedirectUrl = currentAvatarStyleInternal === 'soc' 
+            ? REDIRECT_URL_AVATAR_SOC_HUMAN_BASE 
+            : REDIRECT_URL_AVATAR_INS_HUMAN_BASE;
+        const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); // optedForHumanConnect ist true
+        
+        stopAvatar().then(() => {
+            window.location.href = finalRedirectUrl;
+        });
+    } else { 
+        console.log("Benutzer (Avatar) möchte nicht mit Mensch verbunden werden. Interaktion geht weiter.");
+        localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Flag entfernen
+        if (!finalCountdownStarted) {
+            if (speakButtonEl) speakButtonEl.disabled = false;
+            if (userInputEl) {
+                userInputEl.disabled = false;
+                userInputEl.focus();
+            }
+        }
+    }
+}
+
+// Hilfsfunktionen (bleiben gleich wie in deiner korrigierten Version)
 const handleAvatarInputResize = () => {
-  if (!input) return; // Check if input exists
-  input.style.height = 'auto';
-  input.style.height = Math.min(input.scrollHeight, window.innerHeight * 0.3) + 'px';
+  if (!userInputEl) return;
+  userInputEl.style.height = 'auto';
+  userInputEl.style.height = Math.min(userInputEl.scrollHeight, window.innerHeight * 0.3) + 'px';
 };
 
 const handleAvatarInputKeydown = (ev: KeyboardEvent) => {
+  if (!speakButtonEl || !userInputEl) return;
   if (ev.key === 'Enter' && !ev.shiftKey) {
     ev.preventDefault();
-    if (speakBtn && !speakBtn.disabled && !finalCountdownStarted) speakBtn.click(); // Check if speakBtn exists
+    if (!speakButtonEl.disabled && !finalCountdownStarted) {
+        speakButtonEl.click();
+    }
   }
 };
 
 const handleAvatarInputFocus = () => {
-  if (!input) return; // Check if input exists
-  setTimeout(() => input.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+  if (!userInputEl) return;
+  setTimeout(() => userInputEl.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
 };
