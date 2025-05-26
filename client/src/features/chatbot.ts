@@ -109,7 +109,7 @@ function updateChatProgress() {
         localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Normaler Abschluss
         
         // NEU: Gesammelte Nachrichten im localStorage speichern
-        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
+        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join(' '));
 
         const baseRedirectUrl = currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_NORMAL_BASE : REDIRECT_URL_CHAT_INS_NORMAL_BASE;
         const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); // optedForHumanConnect ist false
@@ -353,7 +353,7 @@ function handleHumanConnectionChoice(choice: boolean) {
     localStorage.setItem('experimentDone', 'true');
 
     // NEU: Gesammelte Nachrichten im localStorage speichern
-    localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
+    localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join(' '));
 
     const baseRedirectUrl = currentChatbotStyle === 'soc' 
       ? REDIRECT_URL_CHAT_SOC_HUMAN_BASE 

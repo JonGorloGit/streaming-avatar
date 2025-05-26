@@ -114,7 +114,7 @@ function startFinalCountdown() {
       localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
 
       // NEU: Gesammelte Nachrichten im localStorage speichern
-      localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLogAvatar.join('$'));
+      localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLogAvatar.join(' '));
 
       const baseRedirectUrl = currentAvatarStyleInternal === 'soc' ? REDIRECT_URL_AVATAR_SOC_NORMAL_BASE : REDIRECT_URL_AVATAR_INS_NORMAL_BASE;
       const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); 
@@ -368,7 +368,7 @@ function handleAvatarHumanConnectionChoice(userChoseToConnect: boolean) {
         localStorage.setItem('experimentDone', 'true');
 
         // NEU: Gesammelte Nachrichten im localStorage speichern
-        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLogAvatar.join('$'));
+        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLogAvatar.join(' '));
 
         const baseRedirectUrl = currentAvatarStyleInternal === 'soc' 
             ? REDIRECT_URL_AVATAR_SOC_HUMAN_BASE 
