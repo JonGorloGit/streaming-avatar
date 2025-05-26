@@ -31,6 +31,7 @@ const REDIRECT_URL_CHAT_INS_HUMAN_MAIN   = import.meta.env.VITE_REDIRECT_URL_CHA
 // Schlüssel für LocalStorage
 const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken'; // Für 'rid' -> 'i'
 const EXPERIMENT_HUMAN_CONNECT_KEY = 'experimentHumanConnect'; // Für 'hc'
+const USER_MESSAGES_LOG_KEY = 'userMessagesLog'; // NEU: Für gesammelte Nachrichten
 
 /**
  * Hängt die gespeicherten Survey Parameter an eine Basis-URL an.
@@ -39,6 +40,7 @@ const EXPERIMENT_HUMAN_CONNECT_KEY = 'experimentHumanConnect'; // Für 'hc'
  */
 function appendSurveyParamsToUrl(baseUrlString: string, optedForHumanConnect: boolean): string {
   const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY); // rid (SoSci's caseToken)
+  const messages = localStorage.getItem(USER_MESSAGES_LOG_KEY); // NEU
   
   try {
     const url = new URL(baseUrlString);
@@ -48,6 +50,9 @@ function appendSurveyParamsToUrl(baseUrlString: string, optedForHumanConnect: bo
     // Füge den hc-Parameter hinzu, um die Entscheidung des Benutzers zu übergeben
     url.searchParams.append('hc', optedForHumanConnect ? '1' : '0');
     
+    if (messages) { // NEU
+      url.searchParams.append('msgs', messages);
+    }
     // Du könntest hier noch weitere feste Parameter hinzufügen, die immer gesendet werden sollen
     // url.searchParams.append('source', 'hr-portal-experiment');
 
@@ -59,6 +64,7 @@ function appendSurveyParamsToUrl(baseUrlString: string, optedForHumanConnect: bo
     const params: string[] = [];
     if (token) params.push(`i=${encodeURIComponent(token)}`);
     params.push(`hc=${optedForHumanConnect ? '1' : '0'}`);
+    if (messages) params.push(`msgs=${encodeURIComponent(messages)}`); // NEU
     
     if (params.length > 0) {
       fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
@@ -129,8 +135,9 @@ window.addEventListener('DOMContentLoaded', () => {
     localStorage.removeItem('experimentRedirectMode');
     localStorage.removeItem('experimentRedirectStyle');
     localStorage.removeItem(SURVEY_REDIRECT_TOKEN_KEY);
-    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Auch diesen beim Reset entfernen
-    console.log('Experiment-Status und Survey-Parameter zurückgesetzt');
+    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY);
+    localStorage.removeItem(USER_MESSAGES_LOG_KEY); // NEU: Nachrichten-Log zurücksetzen
+    console.log('Experiment-Status, Survey-Parameter und Nachrichten-Log zurückgesetzt');
     
     const resetUrl = new URL(window.location.href);
     resetUrl.searchParams.delete('reset');

@@ -16,6 +16,7 @@ const REDIRECT_URL_CHAT_INS_HUMAN_BASE = import.meta.env.VITE_REDIRECT_URL_CHAT_
 // Schlüssel für LocalStorage (sollten mit main.ts übereinstimmen)
 const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken'; 
 const EXPERIMENT_HUMAN_CONNECT_KEY = 'experimentHumanConnect';
+const USER_MESSAGES_LOG_KEY = 'userMessagesLog'; // NEU: Für gesammelte Nachrichten
 
 type Style = 'soc' | 'ins';
 type Role = 'user' | 'assistant';
@@ -32,6 +33,7 @@ let bodyEl: HTMLElement | null = null;
 
 let currentChatbotStyle: Style;
 let conversation: ChatMsg[] = [];
+let userMessagesLog: string[] = []; // NEU: Array zum Speichern von User-Nachrichten
 
 let progress = 0;
 const MAX_PROGRESS = 5;
@@ -48,12 +50,16 @@ let chatFinalCountdownStarted = false;
  */
 function appendSurveyParamsToUrlLocal(baseUrlString: string, optedForHumanConnect: boolean): string {
   const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY);
+  const messages = localStorage.getItem(USER_MESSAGES_LOG_KEY); // NEU
   try {
     const url = new URL(baseUrlString);
     if (token) {
       url.searchParams.append('i', token);
     }
     url.searchParams.append('hc', optedForHumanConnect ? '1' : '0');
+    if (messages) { // NEU
+      url.searchParams.append('msgs', messages);
+    }
     return url.toString();
   } catch (error) {
     console.error("Error constructing URL with params in chatbot.ts:", error, "Base URL was:", baseUrlString);
@@ -61,6 +67,7 @@ function appendSurveyParamsToUrlLocal(baseUrlString: string, optedForHumanConnec
     const params: string[] = [];
     if (token) params.push(`i=${encodeURIComponent(token)}`);
     params.push(`hc=${optedForHumanConnect ? '1' : '0'}`);
+    if (messages) params.push(`msgs=${encodeURIComponent(messages)}`); // NEU
     if (params.length > 0) {
       fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
     }
@@ -101,12 +108,11 @@ function updateChatProgress() {
         localStorage.setItem('experimentDone', 'true');
         localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Normaler Abschluss
         
+        // NEU: Gesammelte Nachrichten im localStorage speichern
+        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
+
         const baseRedirectUrl = currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_NORMAL_BASE : REDIRECT_URL_CHAT_INS_NORMAL_BASE;
         const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); // optedForHumanConnect ist false
-
-        // Overlay-Aktualisierung ist optional hier, da main.ts es bei Neuladen handhabt
-        // const experimentCompleteOverlay = document.getElementById('experiment-complete-overlay');
-        // if (experimentCompleteOverlay) experimentCompleteOverlay.style.display = 'flex';
         
         window.location.href = finalRedirectUrl;
       }
@@ -115,13 +121,13 @@ function updateChatProgress() {
 }
 
 export function startChatbot(selectedStyle: Style) {
-  // ... (Rest von startChatbot bleibt gleich bis zum Ende)
   if (localStorage.getItem('experimentDone') === 'true') {
     return;
   }
 
   currentChatbotStyle = selectedStyle;
   conversation = [];
+  userMessagesLog = []; // NEU: Nachrichten-Log zurücksetzen
   progress     = 0;
   humanConnectPromptShownThisSession = false;
   chatFinalCountdownStarted = false;
@@ -172,7 +178,6 @@ export function startChatbot(selectedStyle: Style) {
 }
 
 export function stopChatbot() {
-  // ... (bleibt gleich)
   if (sendBtn) {
     sendBtn.onclick = null;
     sendBtn.disabled = true;
@@ -197,7 +202,6 @@ export function stopChatbot() {
 }
 
 function autoResize() {
-  // ... (bleibt gleich)
   if (!inputEl) return;
   requestAnimationFrame(() => {
     inputEl!.style.height = 'auto';
@@ -208,13 +212,11 @@ function autoResize() {
 }
 
 const handleChatInputFocus = () => {
-  // ... (bleibt gleich)
   if (!inputEl) return;
   setTimeout(() => inputEl!.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
 };
 
 function onKeyPress(ev: KeyboardEvent) {
-  // ... (bleibt gleich, wie zuletzt korrigiert)
   if (ev.key === 'Enter' && !ev.shiftKey) {
     ev.preventDefault();
     if (sendBtn && !sendBtn.disabled && !chatFinalCountdownStarted) {
@@ -224,13 +226,14 @@ function onKeyPress(ev: KeyboardEvent) {
 }
 
 async function onSend() {
-  // ... (bleibt gleich, wie zuletzt korrigiert)
   if (!inputEl || !sendBtn || sendBtn.disabled || chatFinalCountdownStarted) {
     return;
   }
 
   const txt = inputEl.value.trim();
   if (!txt) return;
+
+  userMessagesLog.push(txt); // NEU: User-Nachricht zum Log hinzufügen
 
   appendMessage('user', txt);
   inputEl.value = '';
@@ -299,7 +302,6 @@ async function onSend() {
 }
 
 function appendMessage(sender: Role, text: string, isPrompt: boolean = false) {
-  // ... (bleibt gleich, ohne Inline-Styles für Buttons)
   if (!bodyEl) return;
   const el = document.createElement('article');
   el.className = `message ${sender === 'assistant' ? 'bot' : 'user'} ${isPrompt ? 'human-connect-prompt' : ''}`;
@@ -333,7 +335,6 @@ function appendMessage(sender: Role, text: string, isPrompt: boolean = false) {
 }
 
 function askForHumanConnection() {
-  // ... (bleibt gleich)
   if (!bodyEl || humanConnectPromptShownThisSession || chatFinalCountdownStarted) return;
   humanConnectPromptShownThisSession = true;
   appendMessage('assistant', 'Möchten Sie jetzt mit einem menschlichen HR-Mitarbeiter verbunden werden?', true);
@@ -348,8 +349,11 @@ function handleHumanConnectionChoice(choice: boolean) {
   if (choice) { // User chose "Yes"
     localStorage.setItem('experimentRedirectMode', 'chat');
     localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
-    localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes'); // Wichtig: Schlüssel verwenden
+    localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes'); 
     localStorage.setItem('experimentDone', 'true');
+
+    // NEU: Gesammelte Nachrichten im localStorage speichern
+    localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
 
     const baseRedirectUrl = currentChatbotStyle === 'soc' 
       ? REDIRECT_URL_CHAT_SOC_HUMAN_BASE 
@@ -359,7 +363,7 @@ function handleHumanConnectionChoice(choice: boolean) {
     window.location.href = finalRedirectUrl;
 
   } else { // User chose "No"
-    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Sicherstellen, dass Flag entfernt wird, falls es mal gesetzt war
+    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
     if(sendBtn && !chatFinalCountdownStarted) sendBtn.disabled = false;
     if(inputEl && !chatFinalCountdownStarted) {
       inputEl.disabled = false;

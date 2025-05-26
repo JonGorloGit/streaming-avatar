@@ -6,18 +6,18 @@ import StreamingAvatar, {
 
 let avatar: StreamingAvatar | null = null;
 let isStarting = false;
-let finalCountdownStarted = false; // Bezieht sich auf den normalen Abschluss-Countdown
+let finalCountdownStarted = false; 
 let isAvatarSpeaking = false;
 
-// UI-Elemente (global für dieses Modul)
+// UI-Elemente
 const videoEl    = document.getElementById('avatarVideo')      as HTMLVideoElement;
 const speakButtonEl = document.getElementById('speakButton')     as HTMLButtonElement;
 const userInputEl   = document.getElementById('userInput')       as HTMLTextAreaElement;
 const connectingOverlayEl  = document.getElementById('connecting-overlay')!;
 const dotsElSpan   = document.getElementById('dots')!;
-let avatarHumanConnectPromptContainerEl: HTMLElement | null = null; // Wird in startAvatar initialisiert
-let avatarHumanConnectYesButtonEl: HTMLButtonElement | null = null; // Wird in startAvatar initialisiert
-let avatarHumanConnectNoButtonEl: HTMLButtonElement | null = null;  // Wird in startAvatar initialisiert
+let avatarHumanConnectPromptContainerEl: HTMLElement | null = null;
+let avatarHumanConnectYesButtonEl: HTMLButtonElement | null = null;
+let avatarHumanConnectNoButtonEl: HTMLButtonElement | null = null;
 
 // Konfiguration
 const API_BASE_URL                = import.meta.env.VITE_API_BASE || 'http://localhost:3000';
@@ -41,10 +41,12 @@ let interactionCount     = 0;
 let dotAnimationIntervalId: number | null = null;
 let currentAvatarStyleInternal: 'soc' | 'ins' = 'soc';
 let avatarHumanConnectPromptShownThisSession = false;
+let userMessagesLogAvatar: string[] = []; // NEU: Array zum Speichern von User-Nachrichten für Avatar
 
 // Schlüssel für LocalStorage
 const SURVEY_REDIRECT_TOKEN_KEY = 'surveyRedirectToken';
 const EXPERIMENT_HUMAN_CONNECT_KEY = 'experimentHumanConnect';
+const USER_MESSAGES_LOG_KEY = 'userMessagesLog'; // NEU: Für gesammelte Nachrichten
 
 /**
  * Hängt die gespeicherten Survey Parameter an eine Basis-URL an.
@@ -53,12 +55,16 @@ const EXPERIMENT_HUMAN_CONNECT_KEY = 'experimentHumanConnect';
  */
 function appendSurveyParamsToUrlLocal(baseUrlString: string, optedForHumanConnect: boolean): string {
   const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY);
+  const messages = localStorage.getItem(USER_MESSAGES_LOG_KEY); // NEU
   try {
     const url = new URL(baseUrlString);
     if (token) {
       url.searchParams.append('i', token);
     }
     url.searchParams.append('hc', optedForHumanConnect ? '1' : '0');
+    if (messages) { // NEU
+      url.searchParams.append('msgs', messages);
+    }
     return url.toString();
   } catch (error) {
     console.error("Error constructing URL with params in avatar.ts:", error, "Base URL was:", baseUrlString);
@@ -66,6 +72,7 @@ function appendSurveyParamsToUrlLocal(baseUrlString: string, optedForHumanConnec
     const params: string[] = [];
     if (token) params.push(`i=${encodeURIComponent(token)}`);
     params.push(`hc=${optedForHumanConnect ? '1' : '0'}`);
+    if (messages) params.push(`msgs=${encodeURIComponent(messages)}`); // NEU
     if (params.length > 0) {
       fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
     }
@@ -84,14 +91,14 @@ function updateAvatarProgressUI() {
   circle.style.strokeDashoffset = (100 - percent).toString();
 }
 
-function startFinalCountdown() { // Normaler Abschluss-Countdown
+function startFinalCountdown() { 
   const el = document.getElementById('avatar-progress');
   if (!el || finalCountdownStarted || !speakButtonEl || !userInputEl) return;
   console.log("AVATAR: MAX_INTERACTIONS erreicht, starte finalen Countdown.");
   finalCountdownStarted = true;
 
   const text = el.querySelector('.progress-text')!;
-  let seconds = 10; // Angepasst an Chatbot
+  let seconds = 10; 
   text.textContent = `${seconds}s`;
   speakButtonEl.disabled = true;
   userInputEl.disabled = true;
@@ -104,10 +111,13 @@ function startFinalCountdown() { // Normaler Abschluss-Countdown
       localStorage.setItem('experimentRedirectMode', 'avatar');
       localStorage.setItem('experimentRedirectStyle', currentAvatarStyleInternal);
       localStorage.setItem('experimentDone', 'true');
-      localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Normaler Abschluss
+      localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
+
+      // NEU: Gesammelte Nachrichten im localStorage speichern
+      localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLogAvatar.join('$'));
 
       const baseRedirectUrl = currentAvatarStyleInternal === 'soc' ? REDIRECT_URL_AVATAR_SOC_NORMAL_BASE : REDIRECT_URL_AVATAR_INS_NORMAL_BASE;
-      const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); // optedForHumanConnect ist false
+      const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); 
       
       await stopAvatar();
       window.location.href = finalRedirectUrl;
@@ -116,7 +126,6 @@ function startFinalCountdown() { // Normaler Abschluss-Countdown
 }
 
 export async function stopAvatar() {
-  // ... (Logik bleibt gleich wie in deiner korrigierten Version)
   if (avatar) {
     try {
       await avatar.stopAvatar();
@@ -141,7 +150,7 @@ export async function stopAvatar() {
   console.log("Avatar-Session durch stopAvatar() beendet.");
 }
 
-export async function startAvatar(style: 'soc' | 'ins') { // Pflichtparameter
+export async function startAvatar(style: 'soc' | 'ins') { 
   if (localStorage.getItem('experimentDone') === 'true') return;
   if (isStarting) {
     console.warn("Avatar Start ist bereits im Gange.");
@@ -149,13 +158,13 @@ export async function startAvatar(style: 'soc' | 'ins') { // Pflichtparameter
   }
   isStarting = true;
   currentAvatarStyleInternal = style;
+  userMessagesLogAvatar = []; // NEU: Nachrichten-Log für Avatar zurücksetzen
 
-  // Referenzen zu Prompt-Elementen holen
+
   avatarHumanConnectPromptContainerEl = document.getElementById('avatar-human-connect-prompt');
   avatarHumanConnectYesButtonEl = document.getElementById('avatar-human-connect-yes') as HTMLButtonElement | null;
   avatarHumanConnectNoButtonEl = document.getElementById('avatar-human-connect-no') as HTMLButtonElement | null;
 
-  // Globale UI-Elemente prüfen (obwohl sie oben schon geholt wurden, Sicherheit)
   if (!videoEl || !speakButtonEl || !userInputEl || !connectingOverlayEl || !dotsElSpan || !avatarHumanConnectPromptContainerEl || !avatarHumanConnectYesButtonEl || !avatarHumanConnectNoButtonEl ) {
       console.error("Einige grundlegende UI-Elemente für Avatar nicht gefunden beim Start!");
       isStarting = false;
@@ -204,6 +213,8 @@ export async function startAvatar(style: 'soc' | 'ins') { // Pflichtparameter
     const text = userInputEl!.value.trim();
     if (!text) return;
 
+    userMessagesLogAvatar.push(text); // NEU: User-Nachricht zum Avatar-Log hinzufügen
+
     isAvatarSpeaking = true;
     speakButtonEl!.disabled = true;
 
@@ -244,7 +255,7 @@ export async function startAvatar(style: 'soc' | 'ins') { // Pflichtparameter
         if (avatar) await stopAvatar();
         avatar = new StreamingAvatar({ token });
 
-        avatar.on(StreamingEvents.STREAM_READY, async (e: any) => { // any für e.detail
+        avatar.on(StreamingEvents.STREAM_READY, async (e: any) => { 
           if (videoEl) {
             videoEl.srcObject = e.detail as MediaStream;
             await videoEl.play().catch(err => console.warn("Error playing video on stream_ready:", err));
@@ -317,20 +328,20 @@ function handleAvatarResponseLogic() {
     if (finalCountdownStarted) return;
 
     const promptIsCurrentlyVisible = avatarHumanConnectPromptContainerEl && !avatarHumanConnectPromptContainerEl.classList.contains('hidden');
-    if (promptIsCurrentlyVisible) { // Wenn Prompt gerade aktiv angezeigt wird, keine weitere Logik hier
+    if (promptIsCurrentlyVisible) { 
         return;
     }
 
     if (interactionCount === HUMAN_CONNECT_PROMPT_THRESHOLD && !avatarHumanConnectPromptShownThisSession) {
         askForHumanConnectionAvatar();
     } 
-    else if (interactionCount >= MAX_INTERACTIONS) { // Diese Bedingung wird jetzt relevant für den Countdown
+    else if (interactionCount >= MAX_INTERACTIONS) { 
         startFinalCountdown();
     } 
-    else { // Normaler Fall: Buttons aktivieren, wenn Avatar nicht spricht
+    else { 
         if (speakButtonEl) speakButtonEl.disabled = isAvatarSpeaking;
         if (userInputEl) {
-            userInputEl.disabled = isAvatarSpeaking; // Input auch deaktivieren, wenn Avatar spricht
+            userInputEl.disabled = isAvatarSpeaking; 
             if (!isAvatarSpeaking) userInputEl.focus();
         }
     }
@@ -355,17 +366,21 @@ function handleAvatarHumanConnectionChoice(userChoseToConnect: boolean) {
         localStorage.setItem('experimentRedirectStyle', currentAvatarStyleInternal);
         localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes');
         localStorage.setItem('experimentDone', 'true');
+
+        // NEU: Gesammelte Nachrichten im localStorage speichern
+        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLogAvatar.join('$'));
+
         const baseRedirectUrl = currentAvatarStyleInternal === 'soc' 
             ? REDIRECT_URL_AVATAR_SOC_HUMAN_BASE 
             : REDIRECT_URL_AVATAR_INS_HUMAN_BASE;
-        const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); // optedForHumanConnect ist true
+        const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); 
         
         stopAvatar().then(() => {
             window.location.href = finalRedirectUrl;
         });
     } else { 
         console.log("Benutzer (Avatar) möchte nicht mit Mensch verbunden werden. Interaktion geht weiter.");
-        localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Flag entfernen
+        localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
         if (!finalCountdownStarted) {
             if (speakButtonEl) speakButtonEl.disabled = false;
             if (userInputEl) {
@@ -376,7 +391,6 @@ function handleAvatarHumanConnectionChoice(userChoseToConnect: boolean) {
     }
 }
 
-// Hilfsfunktionen (bleiben gleich wie in deiner korrigierten Version)
 const handleAvatarInputResize = () => {
   if (!userInputEl) return;
   userInputEl.style.height = 'auto';
