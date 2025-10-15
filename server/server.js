@@ -21,6 +21,7 @@ const allowed = (process.env.CORS_ORIGIN ?? '')
   .split(',')
   .map(o => o.trim())
   .filter(Boolean);
+console.log('Erlaubte CORS-Origns:', allowed);
 
 app.use(cors({
   origin: (origin, cb) => {
@@ -31,15 +32,6 @@ app.use(cors({
 }));
 
 app.use(express.json());
-
-/* ---- CORS Test ---- */
-const allowed = (process.env.CORS_ORIGIN ?? '')
-  .split(',')
-  .map(o => o.trim())
-  .filter(Boolean);
- 
-console.log('✅ Erlaubte CORS-Origns:', allowed);
-/* ---- Test ---- */
 
 /* ---- OpenAI ---- */
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
