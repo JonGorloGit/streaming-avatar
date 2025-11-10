@@ -761,6 +761,40 @@ button:disabled {
   }
 }
 
+/* ───────────────────────── Instruction Box ───────────────────────── */
+/* Instruction Box für HR Beratungscenter */
+.instruction-box {
+  background: linear-gradient(180deg, rgba(0,39,59,0.95) 0%, rgba(0,56,90,0.95) 100%); /* dunkles Blau-Gradient */
+  color: #ffffff;
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  margin-bottom: 1rem; /* Abstand zur HR-Box darunter */
+  max-width: 920px;
+  width: 100%;
+  display: block;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+/* Optional: leichte Icon‑Linksausrichtung */
+.instruction-box .instruction-title {
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+  color: var(--cws-neon); /* Hervorhebung */
+}
+
+/* Kleinere Bildschirme: text kleiner und Padding reduziert */
+@media (max-width: 480px) {
+  .instruction-box {
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    margin-bottom: 0.75rem;
+  }
+}
+
 /* ───────────────────────── Media Queries (Responsiveness) ───────────────────────── */
 @media (min-width: 481px) {
   /* Responsive adjustments for buttons in prompts */
