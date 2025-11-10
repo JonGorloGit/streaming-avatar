@@ -22,9 +22,9 @@ type Style = 'soc' | 'ins';
 type Role = 'user' | 'assistant';
 
 interface ChatMsg {
-  role: Role;
-  content: string;
-  isHumanConnectPrompt?: boolean;
+role: Role;
+content: string;
+isHumanConnectPrompt?: boolean;
 }
 
 let sendBtn: HTMLButtonElement | null = null;
@@ -36,9 +36,8 @@ let conversation: ChatMsg[] = [];
 let userMessagesLog: string[] = []; // NEU: Array zum Speichern von User-Nachrichten
 
 let progress = 0;
-// Max. erlaubte Interaktionen insgesamt:
+const MAX_PROGRESS = 3.1;
 const MAX_PROGRESS = 3;
-// Zeigt die "Mit Mensch verbinden?"-Box nach X Interaktionen (hier: 3).
 const HUMAN_CONNECT_PROMPT_THRESHOLD = 3;
 let humanConnectPromptShownThisSession = false;
 
@@ -46,391 +45,365 @@ let chatCountdownInterval: number | null = null;
 let chatFinalCountdownStarted = false;
 
 /**
- * Hängt die gespeicherten Survey Parameter an eine Basis-URL an.
- * @param baseUrlString Die Basis-URL zur SoSci Survey.
- * @param optedForHumanConnect Gibt an, ob der User mit einem Menschen verbunden werden wollte.
- */
+* Hängt die gespeicherten Survey Parameter an eine Basis-URL an.
+* @param baseUrlString Die Basis-URL zur SoSci Survey.
+* @param optedForHumanConnect Gibt an, ob der User mit einem Menschen verbunden werden wollte.
+*/
 function appendSurveyParamsToUrlLocal(baseUrlString: string, optedForHumanConnect: boolean): string {
-  const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY);
-  const messages = localStorage.getItem(USER_MESSAGES_LOG_KEY); // NEU
-  try {
-    const url = new URL(baseUrlString);
-    if (token) {
-      url.searchParams.append('i', token);
-    }
-    url.searchParams.append('hc', optedForHumanConnect ? '1' : '0');
-    if (messages) { // NEU
-      url.searchParams.append('msgs', messages);
-    }
-    return url.toString();
-  } catch (error) {
-    console.error("Error constructing URL with params in chatbot.ts:", error, "Base URL was:", baseUrlString);
-    let fallbackUrl = baseUrlString;
-    const params: string[] = [];
-    if (token) params.push(`i=${encodeURIComponent(token)}`);
-    params.push(`hc=${optedForHumanConnect ? '1' : '0'}`);
-    if (messages) params.push(`msgs=${encodeURIComponent(messages)}`); // NEU
-    if (params.length > 0) {
-      fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
-    }
-    return fallbackUrl;
-  }
+const token = localStorage.getItem(SURVEY_REDIRECT_TOKEN_KEY);
+const messages = localStorage.getItem(USER_MESSAGES_LOG_KEY); // NEU
+try {
+const url = new URL(baseUrlString);
+if (token) {
+url.searchParams.append('i', token);
+}
+url.searchParams.append('hc', optedForHumanConnect ? '1' : '0');
+if (messages) { // NEU
+url.searchParams.append('msgs', messages);
+}
+return url.toString();
+} catch (error) {
+console.error("Error constructing URL with params in chatbot.ts:", error, "Base URL was:", baseUrlString);
+let fallbackUrl = baseUrlString;
+const params: string[] = [];
+if (token) params.push(`i=${encodeURIComponent(token)}`);
+params.push(`hc=${optedForHumanConnect ? '1' : '0'}`);
+if (messages) params.push(`msgs=${encodeURIComponent(messages)}`); // NEU
+if (params.length > 0) {
+fallbackUrl += (fallbackUrl.includes('?') ? '&' : '?') + params.join('&');
+}
+return fallbackUrl;
+}
 }
 
 function updateChatProgress() {
-  const el = document.getElementById('chat-progress');
-  if (!el) return;
-  const circle = el.querySelector('.circle') as SVGPathElement;
-  const text = el.querySelector('.progress-text')!;
+const el = document.getElementById('chat-progress');
+if (!el) return;
+const circle = el.querySelector('.circle') as SVGPathElement;
+const text = el.querySelector('.progress-text')!;
 
-  const percent = (progress / MAX_PROGRESS) * 100;
-  text.textContent = progress < MAX_PROGRESS ? `${progress}/${MAX_PROGRESS}` : '✓';
-  circle.style.strokeDashoffset = (100 - percent).toString();
+const percent = (progress / MAX_PROGRESS) * 100;
+text.textContent = progress < MAX_PROGRESS ? `${progress}/${MAX_PROGRESS}` : '✓';
+circle.style.strokeDashoffset = (100 - percent).toString();
 
-  // Wichtig: Wenn MAX_PROGRESS == HUMAN_CONNECT_PROMPT_THRESHOLD, dann
-  // dürfen wir nicht sofort die finale Countdown-Phase starten, weil
-  // zuerst die Human-Connect-Prompt angezeigt werden soll.
-  if (progress >= MAX_PROGRESS && !chatFinalCountdownStarted) {
-    const shouldDeferFinalCountdown = (MAX_PROGRESS === HUMAN_CONNECT_PROMPT_THRESHOLD)
-      // Wenn Prompt noch nicht gezeigt wurde, defer starten
-      && !humanConnectPromptShownThisSession;
+if (progress >= MAX_PROGRESS && !chatFinalCountdownStarted) {
+console.log("CHAT: MAX_PROGRESS erreicht, starte finalen Countdown.");
+chatFinalCountdownStarted = true;
+if (sendBtn) sendBtn.disabled = true;
+if (inputEl) inputEl.disabled = true;
 
-    if (shouldDeferFinalCountdown) {
-      console.log("CHAT: MAX_PROGRESS erreicht, aber Prompt noch nicht gezeigt — Countdown wird vorerst nicht gestartet.");
-      return;
-    }
+let seconds = 10;
+text.textContent = `${seconds}s`;
 
-    // Wenn die Prompt bereits gezeigt wurde und nicht geklickt wurde,
-    // starten wir den finalen Countdown automatisch (wie vorher).
-    console.log("CHAT: MAX_PROGRESS erreicht, starte finalen Countdown.");
-    startFinalCountdown(false); // false bedeutet: normaler (kein Human-Connect) Abschluss
-  }
+if (chatCountdownInterval) clearInterval(chatCountdownInterval);
+
+chatCountdownInterval = window.setInterval(async () => {
+seconds--;
+text.textContent = seconds > 0 ? `${seconds}s` : '✓';
+
+if (seconds === 0) {
+if (chatCountdownInterval) clearInterval(chatCountdownInterval);
+
+localStorage.setItem('experimentRedirectMode', 'chat');
+localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
+localStorage.setItem('experimentDone', 'true');
+localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Normaler Abschluss
+
+// NEU: Gesammelte Nachrichten im localStorage speichern
+localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
+
+const baseRedirectUrl = currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_NORMAL_BASE : REDIRECT_URL_CHAT_INS_NORMAL_BASE;
+const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); // optedForHumanConnect ist false
+
+window.location.href = finalRedirectUrl;
 }
-
-/**
- * Startet den finalen Countdown, deaktiviert Eingaben und leitet nach Ablauf weiter.
- * Wenn optedForHumanConnect true ist, wird zur Human-Connect-URL geleitet,
- * sonst zur normalen Abschluss-URL.
- */
-function startFinalCountdown(optedForHumanConnect: boolean) {
-  if (chatFinalCountdownStarted) return;
-  chatFinalCountdownStarted = true;
-
-  if (sendBtn) sendBtn.disabled = true;
-  if (inputEl) inputEl.disabled = true;
-
-  // Set/clear EXPERIMENT_HUMAN_CONNECT_KEY entsprechend der Wahl,
-  // aber markiere experimentDone erst beim tatsächlichen Redirect.
-  if (optedForHumanConnect) {
-    localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes');
-  } else {
-    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY);
-  }
-
-  // Falls du möchtest, dass experimentRedirectMode/-Style jetzt gesetzt werden,
-  // kannst du das hier tun — es ist aber ausreichend, es beim Redirect zu setzen.
-  // Wir setzen redirect mode/style jetzt, damit andere Seiten wissen, was geplant ist.
-  localStorage.setItem('experimentRedirectMode', 'chat');
-  localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
-
-  const el = document.getElementById('chat-progress');
-  const text = el ? el.querySelector('.progress-text') : null;
-
-  let seconds = 10;
-  if (text) text.textContent = `${seconds}s`;
-
-  if (chatCountdownInterval) {
-    clearInterval(chatCountdownInterval);
-    chatCountdownInterval = null;
-  }
-
-  chatCountdownInterval = window.setInterval(async () => {
-    seconds--;
-    if (text) text.textContent = seconds > 0 ? `${seconds}s` : '✓';
-
-    if (seconds === 0) {
-      if (chatCountdownInterval) clearInterval(chatCountdownInterval);
-      chatCountdownInterval = null;
-
-      // Markiere Experiment als beendet
-      localStorage.setItem('experimentDone', 'true');
-
-      // NEU: Gesammelte Nachrichten im localStorage speichern
-      localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
-
-      // Entscheide Ziel-URL nach optedForHumanConnect
-      const baseRedirectUrl = optedForHumanConnect
-        ? (currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_HUMAN_BASE : REDIRECT_URL_CHAT_INS_HUMAN_BASE)
-        : (currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_NORMAL_BASE : REDIRECT_URL_CHAT_INS_NORMAL_BASE);
-
-      const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, optedForHumanConnect);
-      window.location.href = finalRedirectUrl;
-    }
-  }, 1000);
+}, 1000);
+}
 }
 
 export function startChatbot(selectedStyle: Style) {
-  if (localStorage.getItem('experimentDone') === 'true') {
-    return;
-  }
+if (localStorage.getItem('experimentDone') === 'true') {
+return;
+}
 
-  currentChatbotStyle = selectedStyle;
-  conversation = [];
-  userMessagesLog = []; // NEU: Nachrichten-Log zurücksetzen
-  progress     = 0;
-  humanConnectPromptShownThisSession = false;
-  chatFinalCountdownStarted = false;
+currentChatbotStyle = selectedStyle;
+conversation = [];
+userMessagesLog = []; // NEU: Nachrichten-Log zurücksetzen
+progress     = 0;
+humanConnectPromptShownThisSession = false;
+chatFinalCountdownStarted = false;
 
-  if (chatCountdownInterval) {
-    clearInterval(chatCountdownInterval);
-    chatCountdownInterval = null;
-  }
-  updateChatProgress();
+if (chatCountdownInterval) {
+clearInterval(chatCountdownInterval);
+chatCountdownInterval = null;
+}
+updateChatProgress();
 
-  sendBtn = document.getElementById('chat-send')  as HTMLButtonElement;
-  inputEl = document.getElementById('chat-input') as HTMLTextAreaElement;
-  bodyEl  = document.getElementById('chatbot-body')!;
+sendBtn = document.getElementById('chat-send')  as HTMLButtonElement;
+inputEl = document.getElementById('chat-input') as HTMLTextAreaElement;
+bodyEl  = document.getElementById('chatbot-body')!;
 
-  if (!sendBtn || !inputEl || !bodyEl) {
-    console.error("Chatbot UI elements not found!");
-    return;
-  }
-  bodyEl.innerHTML = '';
+if (!sendBtn || !inputEl || !bodyEl) {
+console.error("Chatbot UI elements not found!");
+return;
+}
+bodyEl.innerHTML = '';
 
-  ['input','keyup','change'].forEach(evtType => {
-    inputEl!.removeEventListener(evtType, autoResize);
-    inputEl!.addEventListener(evtType, autoResize);
-  });
-  inputEl.removeEventListener('keydown', onKeyPress);
-  inputEl.addEventListener('keydown', onKeyPress);
-  inputEl.removeEventListener('focus', handleChatInputFocus);
-  inputEl.addEventListener('focus', handleChatInputFocus);
-  
-  window.removeEventListener('resize', autoResize);
-  window.addEventListener('resize', autoResize);
-  window.removeEventListener('orientationchange', autoResize);
-  window.addEventListener('orientationchange', autoResize);
-  
-  sendBtn.onclick = null;
-  sendBtn.onclick = onSend;
+['input','keyup','change'].forEach(evtType => {
+inputEl!.removeEventListener(evtType, autoResize);
+inputEl!.addEventListener(evtType, autoResize);
+});
+inputEl.removeEventListener('keydown', onKeyPress);
+inputEl.addEventListener('keydown', onKeyPress);
+inputEl.removeEventListener('focus', handleChatInputFocus);
+inputEl.addEventListener('focus', handleChatInputFocus);
 
-  inputEl.disabled = false;
-  sendBtn.disabled = false;
-  autoResize();
+window.removeEventListener('resize', autoResize);
+window.addEventListener('resize', autoResize);
+window.removeEventListener('orientationchange', autoResize);
+window.addEventListener('orientationchange', autoResize);
 
-  const welcomeMessage = currentChatbotStyle === 'soc'
-    ? 'Hallo, es freut mich, dass du hier bist. Ich nehme wahr, dass dich die aktuellen Veränderungen bei den Regelungen zu Elternzeit, Teilzeit oder dem Rückkehrprozess nach einer Auszeit beschäft[...]'
-    : 'Willkommen, ich stehe gerne für Fragen zu Ansprüchen auf Elternzeit, Teilzeit oder zum Rückkehrprozess nach einer Auszeit zur Verfügung. Bitte gib dein Anliegen ein.';
+sendBtn.onclick = null;
+sendBtn.onclick = onSend;
 
-  showTypingMessage(welcomeMessage, 1000);
-  conversation.push({ role: 'assistant', content: welcomeMessage });
+inputEl.disabled = false;
+sendBtn.disabled = false;
+autoResize();
+
+const welcomeMessage = currentChatbotStyle === 'soc'
+? 'Hallo, es freut mich, dass du hier bist. Ich nehme wahr, dass dich die aktuellen Veränderungen bei den Regelungen zu Elternzeit, Teilzeit oder dem Rückkehrprozess nach einer Auszeit beschäftigen. Das ist vollkommen verständlich – solche Anpassungen können viele Fragen aufwerfen. Was beschäftigt dich im Moment am meisten?'
+: 'Willkommen, ich stehe gerne für Fragen zu Ansprüchen auf Elternzeit, Teilzeit oder zum Rückkehrprozess nach einer Auszeit zur Verfügung. Bitte gib dein Anliegen ein.';
+
+showTypingMessage(welcomeMessage, 1000);
+conversation.push({ role: 'assistant', content: welcomeMessage });
 }
 
 export function stopChatbot() {
-  if (sendBtn) {
-    sendBtn.onclick = null;
-    sendBtn.disabled = true;
-  }
-  if (inputEl) {
-    inputEl.value = '';
-    ['input','keyup','change'].forEach(evtType => inputEl!.removeEventListener(evtType, autoResize));
-    inputEl.removeEventListener('keydown', onKeyPress);
-    inputEl.removeEventListener('focus', handleChatInputFocus);
-    inputEl.disabled = true;
-  }
-  window.removeEventListener('resize', autoResize);
-  window.removeEventListener('orientationchange', autoResize);
+if (sendBtn) {
+sendBtn.onclick = null;
+sendBtn.disabled = true;
+}
+if (inputEl) {
+inputEl.value = '';
+['input','keyup','change'].forEach(evtType => inputEl!.removeEventListener(evtType, autoResize));
+inputEl.removeEventListener('keydown', onKeyPress);
+inputEl.removeEventListener('focus', handleChatInputFocus);
+inputEl.disabled = true;
+}
+window.removeEventListener('resize', autoResize);
+window.removeEventListener('orientationchange', autoResize);
 
-  if (chatCountdownInterval) {
-    clearInterval(chatCountdownInterval);
-    chatCountdownInterval = null;
-  }
-  const humanConnectPromptEl = document.getElementById('chat-human-connect-prompt-container');
-  if (humanConnectPromptEl) humanConnectPromptEl.remove();
-  console.log("Chatbot stopped");
+if (chatCountdownInterval) {
+clearInterval(chatCountdownInterval);
+chatCountdownInterval = null;
+}
+const humanConnectPromptEl = document.getElementById('chat-human-connect-prompt-container');
+if (humanConnectPromptEl) humanConnectPromptEl.remove();
+console.log("Chatbot stopped");
 }
 
 function autoResize() {
-  if (!inputEl) return;
-  requestAnimationFrame(() => {
-    inputEl!.style.height = 'auto';
-    const maxH = Math.min(window.innerHeight, document.documentElement.clientHeight) * 0.3;
-    const newH = Math.min(inputEl!.scrollHeight, maxH);
-    inputEl!.style.height = `${newH}px`;
-  });
+if (!inputEl) return;
+requestAnimationFrame(() => {
+inputEl!.style.height = 'auto';
+const maxH = Math.min(window.innerHeight, document.documentElement.clientHeight) * 0.3;
+const newH = Math.min(inputEl!.scrollHeight, maxH);
+inputEl!.style.height = `${newH}px`;
+});
 }
 
 const handleChatInputFocus = () => {
-  if (!inputEl) return;
-  setTimeout(() => inputEl!.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+if (!inputEl) return;
+setTimeout(() => inputEl!.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
 };
 
 function onKeyPress(ev: KeyboardEvent) {
-  if (ev.key === 'Enter' && !ev.shiftKey) {
-    ev.preventDefault();
-    if (sendBtn && !sendBtn.disabled && !chatFinalCountdownStarted) {
-      sendBtn.click();
-    }
-  }
+if (ev.key === 'Enter' && !ev.shiftKey) {
+ev.preventDefault();
+if (sendBtn && !sendBtn.disabled && !chatFinalCountdownStarted) {
+sendBtn.click();
+}
+}
 }
 
 async function onSend() {
-  if (!inputEl || !sendBtn || sendBtn.disabled || chatFinalCountdownStarted) {
-    return;
-  }
+if (!inputEl || !sendBtn || sendBtn.disabled || chatFinalCountdownStarted) {
+return;
+}
 
-  const txt = inputEl.value.trim();
-  if (!txt) return;
+const txt = inputEl.value.trim();
+if (!txt) return;
 
-  userMessagesLog.push(txt); // NEU: User-Nachricht zum Log hinzufügen
+userMessagesLog.push(txt); // NEU: User-Nachricht zum Log hinzufügen
 
-  appendMessage('user', txt);
-  inputEl.value = '';
-  autoResize();
-  
-  sendBtn.disabled = true;
-  if(inputEl) inputEl.disabled = true;
+appendMessage('user', txt);
+inputEl.value = '';
+autoResize();
 
-  const [typingEl, stopTyping] = startTypingAnimation();
-  const minDelay = new Promise(res => setTimeout(res, 1000));
+sendBtn.disabled = true;
+if(inputEl) inputEl.disabled = true;
 
-  try {
-    const response = await Promise.all([
-      fetch(`${API_BASE}/api/message`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ message: txt, history: conversation, style: currentChatbotStyle }),
-      }).then(r => {
-        if (!r.ok) throw new Error(`Server responded with ${r.status}`);
-        return r.json();
-      }).then(r => r.response),
-      minDelay,
-    ]).then(results => results[0]);
+const [typingEl, stopTyping] = startTypingAnimation();
+const minDelay = new Promise(res => setTimeout(res, 1000));
 
-    stopTyping();
-    stopTypingAnimation(typingEl, response);
+try {
+const response = await Promise.all([
+fetch(`${API_BASE}/api/message`, {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+credentials: 'include',
+body: JSON.stringify({ message: txt, history: conversation, style: currentChatbotStyle }),
+}).then(r => {
+if (!r.ok) throw new Error(`Server responded with ${r.status}`);
+return r.json();
+}).then(r => r.response),
+minDelay,
+]).then(results => results[0]);
 
-    conversation.push({ role: 'user', content: txt });
-    conversation.push({ role: 'assistant', content: response });
+stopTyping();
+stopTypingAnimation(typingEl, response);
 
-    if (progress < MAX_PROGRESS && !chatFinalCountdownStarted) {
-      progress++;
-      updateChatProgress();
-    }
-    
-    const promptContainerIsActive = !!document.getElementById('chat-human-connect-prompt-container');
+conversation.push({ role: 'user', content: txt });
+conversation.push({ role: 'assistant', content: response });
 
-    if (progress === HUMAN_CONNECT_PROMPT_THRESHOLD && !humanConnectPromptShownThisSession && !chatFinalCountdownStarted) {
-      askForHumanConnection(); 
-    } else if (!chatFinalCountdownStarted && !promptContainerIsActive) {
-      if(sendBtn) sendBtn.disabled = false;
-      if(inputEl) {
-        inputEl.disabled = false;
-        inputEl.focus();
-      }
-    }
+if (progress < MAX_PROGRESS && !chatFinalCountdownStarted) {
+progress++;
+updateChatProgress();
+}
 
-    if (conversation.length > 20) {
-      conversation.splice(0, conversation.length - 20);
-    }
-  } catch (err) {
-    console.error("Error sending message or processing response:", err);
-    stopTyping();
-    stopTypingAnimation(typingEl, '⚠️ Entschuldigung, ein Fehler ist aufgetreten.');
-    
-    const promptContainerIsActive = !!document.getElementById('chat-human-connect-prompt-container');
-    if (!chatFinalCountdownStarted && !promptContainerIsActive) {
-      if(sendBtn) sendBtn.disabled = false;
-      if(inputEl) {
-        inputEl.disabled = false;
-        inputEl.focus();
-      }
-    }
-  }
+const promptContainerIsActive = !!document.getElementById('chat-human-connect-prompt-container');
+
+if (progress === HUMAN_CONNECT_PROMPT_THRESHOLD && !humanConnectPromptShownThisSession && !chatFinalCountdownStarted) {
+askForHumanConnection(); 
+} else if (!chatFinalCountdownStarted && !promptContainerIsActive) {
+if(sendBtn) sendBtn.disabled = false;
+if(inputEl) {
+inputEl.disabled = false;
+inputEl.focus();
+}
+}
+
+if (conversation.length > 20) {
+conversation.splice(0, conversation.length - 20);
+}
+} catch (err) {
+console.error("Error sending message or processing response:", err);
+stopTyping();
+stopTypingAnimation(typingEl, '⚠️ Entschuldigung, ein Fehler ist aufgetreten.');
+
+const promptContainerIsActive = !!document.getElementById('chat-human-connect-prompt-container');
+if (!chatFinalCountdownStarted && !promptContainerIsActive) {
+if(sendBtn) sendBtn.disabled = false;
+if(inputEl) {
+inputEl.disabled = false;
+inputEl.focus();
+}
+}
+}
 }
 
 function appendMessage(sender: Role, text: string, isPrompt: boolean = false) {
-  if (!bodyEl) return;
-  const el = document.createElement('article');
-  el.className = `message ${sender === 'assistant' ? 'bot' : 'user'} ${isPrompt ? 'human-connect-prompt' : ''}`;
-  
-  if (isPrompt) {
-    el.id = 'chat-human-connect-prompt-container';
-    const questionP = document.createElement('p');
-    questionP.textContent = text;
-    el.appendChild(questionP);
+if (!bodyEl) return;
+const el = document.createElement('article');
+el.className = `message ${sender === 'assistant' ? 'bot' : 'user'} ${isPrompt ? 'human-connect-prompt' : ''}`;
 
-    const buttonDiv = document.createElement('div');
-    buttonDiv.className = 'buttons';
+if (isPrompt) {
+el.id = 'chat-human-connect-prompt-container';
+const questionP = document.createElement('p');
+questionP.textContent = text;
+el.appendChild(questionP);
 
-    const yesButton = document.createElement('button');
-    yesButton.textContent = 'Ja, ich möchte mit einem menschlichen HR-Mitarbeiter verbunden werden';
-    yesButton.onclick = () => handleHumanConnectionChoice(true);
-    
-    const noButton = document.createElement('button');
-    noButton.textContent = 'Nein, danke';
-    noButton.onclick = () => handleHumanConnectionChoice(false);
-    
-    buttonDiv.appendChild(yesButton);
-    buttonDiv.appendChild(noButton);
-    el.appendChild(buttonDiv);
-  } else {
-    el.textContent = text;
-  }
-  
-  bodyEl.appendChild(el);
-  bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
+const buttonDiv = document.createElement('div');
+buttonDiv.className = 'buttons';
+
+const yesButton = document.createElement('button');
+yesButton.textContent = 'Ja, ich möchte mit einem menschlichen HR-Mitarbeiter verbunden werden';
+yesButton.onclick = () => handleHumanConnectionChoice(true);
+
+const noButton = document.createElement('button');
+noButton.textContent = 'Nein, danke';
+noButton.onclick = () => handleHumanConnectionChoice(false);
+
+buttonDiv.appendChild(yesButton);
+buttonDiv.appendChild(noButton);
+el.appendChild(buttonDiv);
+} else {
+el.textContent = text;
+}
+
+bodyEl.appendChild(el);
+bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 }
 
 function askForHumanConnection() {
-  if (!bodyEl || humanConnectPromptShownThisSession || chatFinalCountdownStarted) return;
-  humanConnectPromptShownThisSession = true;
-  appendMessage('assistant', 'Möchten Sie jetzt mit einem menschlichen HR-Mitarbeiter verbunden werden?', true);
+if (!bodyEl || humanConnectPromptShownThisSession || chatFinalCountdownStarted) return;
+humanConnectPromptShownThisSession = true;
+appendMessage('assistant', 'Möchten Sie jetzt mit einem menschlichen HR-Mitarbeiter verbunden werden?', true);
 }
 
 function handleHumanConnectionChoice(choice: boolean) {
-  const promptContainer = document.getElementById('chat-human-connect-prompt-container');
-  if (promptContainer) {
-    promptContainer.remove();
-  }
+const promptContainer = document.getElementById('chat-human-connect-prompt-container');
+if (promptContainer) {
+promptContainer.remove();
+}
 
-  // Startet in beiden Fällen den finalen Countdown (wie bei MAX_PROGRESS),
-  // leitet nach Ablauf weiter (bei "Ja" zur Human-Connect-URL, bei "Nein" zur normalen URL).
-  startFinalCountdown(choice);
+if (choice) { // User chose "Yes"
+localStorage.setItem('experimentRedirectMode', 'chat');
+localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
+localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes'); 
+localStorage.setItem('experimentDone', 'true');
+
+// NEU: Gesammelte Nachrichten im localStorage speichern
+localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
+
+const baseRedirectUrl = currentChatbotStyle === 'soc' 
+? REDIRECT_URL_CHAT_SOC_HUMAN_BASE 
+: REDIRECT_URL_CHAT_INS_HUMAN_BASE;
+const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); // optedForHumanConnect ist true
+
+window.location.href = finalRedirectUrl;
+
+} else { // User chose "No"
+localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
+if(sendBtn && !chatFinalCountdownStarted) sendBtn.disabled = false;
+if(inputEl && !chatFinalCountdownStarted) {
+inputEl.disabled = false;
+inputEl.focus();
+}
+}
 }
 
 // ... (startTypingAnimation, stopTypingAnimation, showTypingMessage bleiben gleich) ...
 function startTypingAnimation(): [HTMLElement, () => void] {
-  if (!bodyEl) {
-      const dummyEl = document.createElement('article');
-      return [dummyEl, () => {}];
-  }
-  const el = document.createElement('article');
-  el.className = 'message bot typing';
-  el.textContent = '•';
-  bodyEl.appendChild(el);
-  bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
-  const symbols = ['•  ', '•• ', '•••'];
-  let i = 0;
-  const intervalId = setInterval(() => {
-    el.innerHTML = symbols[i++ % symbols.length];
-  }, 300);
-  return [el, () => clearInterval(intervalId)];
+if (!bodyEl) {
+const dummyEl = document.createElement('article');
+return [dummyEl, () => {}];
+}
+const el = document.createElement('article');
+el.className = 'message bot typing';
+el.textContent = '•';
+bodyEl.appendChild(el);
+bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
+const symbols = ['•  ', '•• ', '•••'];
+let i = 0;
+const intervalId = setInterval(() => {
+el.innerHTML = symbols[i++ % symbols.length];
+}, 300);
+return [el, () => clearInterval(intervalId)];
 }
 
 function stopTypingAnimation(el: HTMLElement, finalText: string) {
-  if (!el) return;
-  el.classList.remove('typing');
-  el.textContent = finalText;
-  el.classList.add('fade-in');
-  if (bodyEl) bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
+if (!el) return;
+el.classList.remove('typing');
+el.textContent = finalText;
+el.classList.add('fade-in');
+if (bodyEl) bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 }
 
 function showTypingMessage(finalText: string, delay = 1500) {
-  const [el, stopTyping] = startTypingAnimation();
-  setTimeout(() => {
-    stopTyping();
-    stopTypingAnimation(el, finalText);
-  }, delay);
+const [el, stopTyping] = startTypingAnimation();
+setTimeout(() => {
+stopTyping();
+stopTypingAnimation(el, finalText);
+}, delay);
 }
