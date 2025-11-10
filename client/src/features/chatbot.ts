@@ -37,7 +37,7 @@ let userMessagesLog: string[] = []; // NEU: Array zum Speichern von User-Nachric
 
 let progress = 0;
 const MAX_PROGRESS = 3;
-const HUMAN_CONNECT_PROMPT_THRESHOLD = 3;
+const HUMAN_CONNECT_PROMPT_THRESHOLD = 4;
 let humanConnectPromptShownThisSession = false;
 
 let chatCountdownInterval: number | null = null;
@@ -265,14 +265,14 @@ stopTypingAnimation(typingEl, response);
 conversation.push({ role: 'user', content: txt });
 conversation.push({ role: 'assistant', content: response });
 
-if (progress < MAX_PROGRESS && !chatFinalCountdownStarted) {
+if (progress < HUMAN_CONNECT_PROMPT_THRESHOLD && !chatFinalCountdownStarted) {
 progress++;
 updateChatProgress();
 }
 
 const promptContainerIsActive = !!document.getElementById('chat-human-connect-prompt-container');
 
-if (progress === HUMAN_CONNECT_PROMPT_THRESHOLD && !humanConnectPromptShownThisSession && !chatFinalCountdownStarted) {
+if (progress === MAX_PROGRESS && !humanConnectPromptShownThisSession && !chatFinalCountdownStarted) {
 askForHumanConnection(); 
 } else if (!chatFinalCountdownStarted && !promptContainerIsActive) {
 if(sendBtn) sendBtn.disabled = false;
