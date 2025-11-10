@@ -761,14 +761,19 @@ button:disabled {
   }
 }
 
-/* ───────────────────────── Instruction Box ───────────────────────── */
-/* Instruction Box für HR Beratungscenter */
+/* ───────────────────────── Instruction Box (Green Theme) ───────────────────────── */
 .instruction-box {
-  background: linear-gradient(180deg, rgba(0,39,59,0.95) 0%, rgba(0,56,90,0.95) 100%); /* dunkles Blau-Gradient */
+  /* vorher: dunkelblauer Gradient */
+  background: linear-gradient(
+    180deg,
+    rgba(var(--cws-green-rgb), 0.95) 0%,
+    rgba(var(--cws-green-rgb), 0.85) 100%
+  );
   color: #ffffff;
   padding: 1rem 1.25rem;
   border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.06);
+  /* zarter Rand in Grün statt Weiß */
+  border: 1px solid rgba(var(--cws-green-rgb), 0.25);
   box-shadow: 0 6px 18px rgba(0,0,0,0.25);
   margin-bottom: 1rem;
   max-width: 920px;
@@ -779,14 +784,14 @@ button:disabled {
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* ────────────── Collapsible Section ────────────── */
+/* Collapsible Container */
 .instruction-details {
   background: transparent;
   border: none;
   color: inherit;
 }
 
-/* Zusammenfassungszeile */
+/* Summary-Zeile */
 .instruction-summary {
   cursor: pointer;
   font-weight: 600;
@@ -798,34 +803,36 @@ button:disabled {
   transition: color 0.3s ease;
 }
 
-/* Hover-Effekt */
+/* Hover in Grün, nicht mehr Neon/Blau */
 .instruction-summary:hover {
-  color: var(--cws-neon, #00c6ff); /* Neonblauer Akzent oder Fallback */
+  color: var(--cws-green);
 }
 
-/* Entfernt den Standard-Marker */
-.instruction-summary::marker {
-  display: none;
-}
+/* Standard-Marker aus */
+.instruction-summary::marker { display: none; }
 
-/* Pfeil-Icon */
+/* Pfeil in Grün */
 .instruction-summary::before {
   content: "▶";
   font-size: 0.85em;
-  color: var(--cws-neon, #00c6ff);
+  color: var(--cws-green);
   margin-right: 8px;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Pfeil dreht sich beim Öffnen */
+/* Pfeil dreht & wird minimal heller */
 details[open] .instruction-summary::before {
   transform: rotate(90deg);
-  color: #00e0ff;
+  color: rgba(var(--cws-green-rgb), 0.9);
 }
 
-/* Der Text im Summary */
-.summary-text {
-  user-select: none;
+/* Summary-Text + Zusatz "(mehr anzeigen)" */
+.summary-text { user-select: none; }
+.summary-sub {
+  font-size: 0.8em;
+  font-style: italic;
+  opacity: 0.9;
+  margin-left: 6px;
 }
 
 /* Inhalt */
@@ -835,11 +842,11 @@ details[open] .instruction-summary::before {
   color: #ffffff;
 }
 
+/* Überschriftenzeilen (em) dezent grünlich, ohne zusätzliche Leerzeile */
 .instruction-body em {
-  display: block;
+  display: inline;               /* <<< lässt die Leerzeile verschwinden */
   font-style: italic;
-  color: #b6e2ff;
-  margin-bottom: 0.2em;
+  color: rgba(var(--cws-green-rgb), 0.85);
 }
 
 .instruction-body strong {
@@ -851,12 +858,9 @@ details[open] .instruction-summary::before {
   padding-left: 1.5em;
   margin-top: 0.4em;
 }
+.instruction-body li { margin-bottom: 0.5em; }
 
-.instruction-body li {
-  margin-bottom: 0.5em;
-}
-
-/* Kleinere Bildschirme */
+/* Mobile */
 @media (max-width: 480px) {
   .instruction-box {
     padding: 0.8rem 1rem;
@@ -864,11 +868,8 @@ details[open] .instruction-summary::before {
     border-radius: 10px;
     margin-bottom: 0.75rem;
   }
-  .instruction-summary {
-    font-size: 1rem;
-  }
+  .instruction-summary { font-size: 1rem; }
 }
-
 
 /* ───────────────────────── Media Queries (Responsiveness) ───────────────────────── */
 @media (min-width: 481px) {
