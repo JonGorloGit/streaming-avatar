@@ -36,7 +36,6 @@ let conversation: ChatMsg[] = [];
 let userMessagesLog: string[] = []; // NEU: Array zum Speichern von User-Nachrichten
 
 let progress = 0;
-const MAX_PROGRESS = 3.1;
 const MAX_PROGRESS = 3;
 const HUMAN_CONNECT_PROMPT_THRESHOLD = 3;
 let humanConnectPromptShownThisSession = false;
