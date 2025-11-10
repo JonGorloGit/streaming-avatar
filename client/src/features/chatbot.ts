@@ -363,12 +363,20 @@ const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); //
 window.location.href = finalRedirectUrl;
 
 } else { // User chose "No"
-localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
-if(sendBtn && !chatFinalCountdownStarted) sendBtn.disabled = false;
-if(inputEl && !chatFinalCountdownStarted) {
-inputEl.disabled = false;
-inputEl.focus();
-}
+localStorage.setItem('experimentRedirectMode', 'chat');
+localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
+localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'no'); 
+localStorage.setItem('experimentDone', 'true');
+
+// NEU: Gesammelte Nachrichten im localStorage speichern
+localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
+
+const baseRedirectUrl = currentChatbotStyle === 'soc' 
+? REDIRECT_URL_CHAT_SOC_HUMAN_BASE 
+: REDIRECT_URL_CHAT_INS_HUMAN_BASE;
+const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); // optedForHumanConnect ist true
+
+window.location.href = finalRedirectUrl;
 }
 }
 
