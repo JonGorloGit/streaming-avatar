@@ -838,10 +838,17 @@ details[open] .instruction-summary::before {
   color: #ffffff;
 }
 
+/* kontrollierter Abstand nach "Zum Einstieg:" */
 .instruction-body em {
-  display: inline;
+  display: block;           /* eigene Zeile */
+  margin-bottom: 0.35rem;   /* kleine Leerzeile */
   font-style: italic;
-  color: #b6e2ff;
+  color: rgba(var(--cws-green-rgb), 0.85);
+}
+
+/* optional: minimal engerer Zeilenabstand in diesem Block, falls gewünscht */
+.instruction-body {
+  line-height: 1.45;
 }
 
 .instruction-body strong {
