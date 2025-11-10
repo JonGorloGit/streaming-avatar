@@ -80,15 +80,23 @@
 
 <!-- Instruction Box (über dem HR Beratungscenter für Avatar) -->
   <section class="instruction-box" role="note" aria-label="Anleitung zur Nutzung des Beratungscenters">
-    <div class="instruction-title">Wichtige Hinweise</div>
-    <div class="instruction-body">
-      Bitte lesen Sie die folgenden Hinweise, bevor Sie das Beratungscenter nutzen:
-      <ul>
-        <li>Öffnungszeiten: Mo–Fr, 09:00–17:00</li>
-        <li>Halten Sie Ihre Personalnummer bereit.</li>
-        <li>Bei technischen Problemen kontaktieren Sie bitte den Support.</li>
-      </ul>
-    </div>
+    <!-- Zusammenklappbarer Titel "Beispielfragen" -->
+    <details class="instruction-details" open>
+      <summary class="instruction-summary" aria-expanded="false">Beispielfragen</summary>
+
+      <div class="instruction-body">
+        <p><strong>Zum Einstieg:</strong><br>
+        „Ich mache mir Sorgen wegen der tariflichen Änderung. Ich möchte mehr erfahren, was sich für mich ändert.“</p>
+
+        <p><strong>Als Anschlussfragen:</strong></p>
+        <ol>
+          <li>„Ich bin besorgt, wie sich die tariflichen Änderungen auf mein Gehalt auswirken.“</li>
+          <li>„Ich bin verunsichert, ob ich nach meinem Urlaub wieder auf meine Stelle zurückkommen kann?“</li>
+        </ol>
+
+        <p><em>Bitte stelle 3 Fragen, danach kehrst du automatisch zur Umfrage zurück.</em></p>
+      </div>
+    </details>
   </section>
 
   <!-- ───────────── AVATAR UI ───────────── -->
