@@ -379,10 +379,9 @@ function handleAvatarHumanConnectionChoice(userChoseToConnect: boolean) {
             window.location.href = finalRedirectUrl;
         });
     } else { 
-        console.log("Benutzer (Avatar) möchte nicht mit Mensch verbunden werden. Interaktion geht weiter.");
         localStorage.setItem('experimentRedirectMode', 'avatar');
         localStorage.setItem('experimentRedirectStyle', currentAvatarStyleInternal);
-        localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'No');
+        localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'no');
         localStorage.setItem('experimentDone', 'true');
 
         // NEU: Gesammelte Nachrichten im localStorage speichern
