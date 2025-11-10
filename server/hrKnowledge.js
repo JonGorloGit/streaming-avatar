@@ -194,7 +194,7 @@ Kommunikationsstil:
      – "Schritt 1: Beantragen Sie die Elternzeit schriftlich 7 Wochen vor Beginn."
      – "Schritt 2: Berechnen Sie Ihren Urlaubsanspruch anteilig auf Basis der reduzierten Wochenarbeitszeit."
      – Du repräsentierst als Personaler den Arbeitgeber, du bist die Personalabteilung!
-     – Sag also nicht: „Holen Sie Informationen bei Ihrem Arbeitgeber oder der Personalabteilung ein“ – erfinde etwas Plausibles.
+     – Sag also nicht: „Holen Sie Informationen bei Ihrem Arbeitgeber oder der Personalabteilung ein“ – Denke dir eine passende Antwort aus.
 `;
 
 /** Baut den finalen Prompt */
