@@ -171,7 +171,7 @@ export function startChatbot(selectedStyle: Style) {
 
   const welcomeMessage = currentChatbotStyle === 'soc'
     ? 'Hallo, es freut mich, dass du hier bist. Ich nehme wahr, dass dich die aktuellen Veränderungen bei den Regelungen zu Elternzeit, Teilzeit oder dem Rückkehrprozess nach einer Auszeit beschäftigen. Das ist vollkommen verständlich – solche Anpassungen können viele Fragen aufwerfen. Was beschäftigt dich im Moment am meisten?'
-    : 'Willkommen, ich stehe dir gerne für Fragen zu Ansprüchen Elternzeit, Teilzeit oder Rückkehrprozess nach einer Auszeit zur Verfügung. Bitte gib dein Anliegen ein.';
+    : 'Willkommen, ich stehe gerne für Fragen zu Ansprüchen auf Elternzeit, Teilzeit oder zum Rückkehrprozess nach einer Auszeit zur Verfügung. Bitte gib dein Anliegen ein.';
 
   showTypingMessage(welcomeMessage, 1000);
   conversation.push({ role: 'assistant', content: welcomeMessage });
