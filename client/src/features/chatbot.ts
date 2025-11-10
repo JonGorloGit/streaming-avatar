@@ -36,7 +36,9 @@ let conversation: ChatMsg[] = [];
 let userMessagesLog: string[] = []; // NEU: Array zum Speichern von User-Nachrichten
 
 let progress = 0;
+// Max. erlaubte Interaktionen insgesamt:
 const MAX_PROGRESS = 3;
+// Zeigt die "Mit Mensch verbinden?"-Box nach X Interaktionen (hier: 3).
 const HUMAN_CONNECT_PROMPT_THRESHOLD = 3;
 let humanConnectPromptShownThisSession = false;
 
@@ -85,39 +87,86 @@ function updateChatProgress() {
   text.textContent = progress < MAX_PROGRESS ? `${progress}/${MAX_PROGRESS}` : '✓';
   circle.style.strokeDashoffset = (100 - percent).toString();
 
+  // Wichtig: Wenn MAX_PROGRESS == HUMAN_CONNECT_PROMPT_THRESHOLD, dann
+  // dürfen wir nicht sofort die finale Countdown-Phase starten, weil
+  // zuerst die Human-Connect-Prompt angezeigt werden soll.
   if (progress >= MAX_PROGRESS && !chatFinalCountdownStarted) {
+    const shouldDeferFinalCountdown = (MAX_PROGRESS === HUMAN_CONNECT_PROMPT_THRESHOLD)
+      // Wenn Prompt noch nicht gezeigt wurde, defer starten
+      && !humanConnectPromptShownThisSession;
+
+    if (shouldDeferFinalCountdown) {
+      console.log("CHAT: MAX_PROGRESS erreicht, aber Prompt noch nicht gezeigt — Countdown wird vorerst nicht gestartet.");
+      return;
+    }
+
+    // Wenn die Prompt bereits gezeigt wurde und nicht geklickt wurde,
+    // starten wir den finalen Countdown automatisch (wie vorher).
     console.log("CHAT: MAX_PROGRESS erreicht, starte finalen Countdown.");
-    chatFinalCountdownStarted = true;
-    if (sendBtn) sendBtn.disabled = true;
-    if (inputEl) inputEl.disabled = true;
-
-    let seconds = 10;
-    text.textContent = `${seconds}s`;
-
-    if (chatCountdownInterval) clearInterval(chatCountdownInterval);
-
-    chatCountdownInterval = window.setInterval(async () => {
-      seconds--;
-      text.textContent = seconds > 0 ? `${seconds}s` : '✓';
-
-      if (seconds === 0) {
-        if (chatCountdownInterval) clearInterval(chatCountdownInterval);
-        
-        localStorage.setItem('experimentRedirectMode', 'chat');
-        localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
-        localStorage.setItem('experimentDone', 'true');
-        localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); // Normaler Abschluss
-        
-        // NEU: Gesammelte Nachrichten im localStorage speichern
-        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
-
-        const baseRedirectUrl = currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_NORMAL_BASE : REDIRECT_URL_CHAT_INS_NORMAL_BASE;
-        const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); // optedForHumanConnect ist false
-        
-        window.location.href = finalRedirectUrl;
-      }
-    }, 1000);
+    startFinalCountdown(false); // false bedeutet: normaler (kein Human-Connect) Abschluss
   }
+}
+
+/**
+ * Startet den finalen Countdown, deaktiviert Eingaben und leitet nach Ablauf weiter.
+ * Wenn optedForHumanConnect true ist, wird zur Human-Connect-URL geleitet,
+ * sonst zur normalen Abschluss-URL.
+ */
+function startFinalCountdown(optedForHumanConnect: boolean) {
+  if (chatFinalCountdownStarted) return;
+  chatFinalCountdownStarted = true;
+
+  if (sendBtn) sendBtn.disabled = true;
+  if (inputEl) inputEl.disabled = true;
+
+  // Set/clear EXPERIMENT_HUMAN_CONNECT_KEY entsprechend der Wahl,
+  // aber markiere experimentDone erst beim tatsächlichen Redirect.
+  if (optedForHumanConnect) {
+    localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes');
+  } else {
+    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY);
+  }
+
+  // Falls du möchtest, dass experimentRedirectMode/-Style jetzt gesetzt werden,
+  // kannst du das hier tun — es ist aber ausreichend, es beim Redirect zu setzen.
+  // Wir setzen redirect mode/style jetzt, damit andere Seiten wissen, was geplant ist.
+  localStorage.setItem('experimentRedirectMode', 'chat');
+  localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
+
+  const el = document.getElementById('chat-progress');
+  const text = el ? el.querySelector('.progress-text') : null;
+
+  let seconds = 10;
+  if (text) text.textContent = `${seconds}s`;
+
+  if (chatCountdownInterval) {
+    clearInterval(chatCountdownInterval);
+    chatCountdownInterval = null;
+  }
+
+  chatCountdownInterval = window.setInterval(async () => {
+    seconds--;
+    if (text) text.textContent = seconds > 0 ? `${seconds}s` : '✓';
+
+    if (seconds === 0) {
+      if (chatCountdownInterval) clearInterval(chatCountdownInterval);
+      chatCountdownInterval = null;
+
+      // Markiere Experiment als beendet
+      localStorage.setItem('experimentDone', 'true');
+
+      // NEU: Gesammelte Nachrichten im localStorage speichern
+      localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
+
+      // Entscheide Ziel-URL nach optedForHumanConnect
+      const baseRedirectUrl = optedForHumanConnect
+        ? (currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_HUMAN_BASE : REDIRECT_URL_CHAT_INS_HUMAN_BASE)
+        : (currentChatbotStyle === 'soc' ? REDIRECT_URL_CHAT_SOC_NORMAL_BASE : REDIRECT_URL_CHAT_INS_NORMAL_BASE);
+
+      const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, optedForHumanConnect);
+      window.location.href = finalRedirectUrl;
+    }
+  }, 1000);
 }
 
 export function startChatbot(selectedStyle: Style) {
@@ -170,7 +219,7 @@ export function startChatbot(selectedStyle: Style) {
   autoResize();
 
   const welcomeMessage = currentChatbotStyle === 'soc'
-    ? 'Hallo, es freut mich, dass du hier bist. Ich nehme wahr, dass dich die aktuellen Veränderungen bei den Regelungen zu Elternzeit, Teilzeit oder dem Rückkehrprozess nach einer Auszeit beschäftigen. Das ist vollkommen verständlich – solche Anpassungen können viele Fragen aufwerfen. Was beschäftigt dich im Moment am meisten?'
+    ? 'Hallo, es freut mich, dass du hier bist. Ich nehme wahr, dass dich die aktuellen Veränderungen bei den Regelungen zu Elternzeit, Teilzeit oder dem Rückkehrprozess nach einer Auszeit beschäft[...]'
     : 'Willkommen, ich stehe gerne für Fragen zu Ansprüchen auf Elternzeit, Teilzeit oder zum Rückkehrprozess nach einer Auszeit zur Verfügung. Bitte gib dein Anliegen ein.';
 
   showTypingMessage(welcomeMessage, 1000);
@@ -346,30 +395,9 @@ function handleHumanConnectionChoice(choice: boolean) {
     promptContainer.remove();
   }
 
-  if (choice) { // User chose "Yes"
-    localStorage.setItem('experimentRedirectMode', 'chat');
-    localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
-    localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'yes'); 
-    localStorage.setItem('experimentDone', 'true');
-
-    // NEU: Gesammelte Nachrichten im localStorage speichern
-    localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
-
-    const baseRedirectUrl = currentChatbotStyle === 'soc' 
-      ? REDIRECT_URL_CHAT_SOC_HUMAN_BASE 
-      : REDIRECT_URL_CHAT_INS_HUMAN_BASE;
-    const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); // optedForHumanConnect ist true
-    
-    window.location.href = finalRedirectUrl;
-
-  } else { // User chose "No"
-    localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
-    if(sendBtn && !chatFinalCountdownStarted) sendBtn.disabled = false;
-    if(inputEl && !chatFinalCountdownStarted) {
-      inputEl.disabled = false;
-      inputEl.focus();
-    }
-  }
+  // Startet in beiden Fällen den finalen Countdown (wie bei MAX_PROGRESS),
+  // leitet nach Ablauf weiter (bei "Ja" zur Human-Connect-URL, bei "Nein" zur normalen URL).
+  startFinalCountdown(choice);
 }
 
 // ... (startTypingAnimation, stopTypingAnimation, showTypingMessage bleiben gleich) ...
