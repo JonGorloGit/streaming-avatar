@@ -85,7 +85,7 @@ const percent = (progress / MAX_PROGRESS) * 100;
 text.textContent = progress < MAX_PROGRESS ? `${progress}/${MAX_PROGRESS}` : '✓';
 circle.style.strokeDashoffset = (100 - percent).toString();
 
-if (progress >= MAX_PROGRESS && !chatFinalCountdownStarted) {
+if (progress >= HUMAN_CONNECT_PROMPT_THRESHOLD && !chatFinalCountdownStarted) {
 console.log("CHAT: MAX_PROGRESS erreicht, starte finalen Countdown.");
 chatFinalCountdownStarted = true;
 if (sendBtn) sendBtn.disabled = true;
