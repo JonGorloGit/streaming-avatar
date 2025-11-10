@@ -170,8 +170,8 @@ export function startChatbot(selectedStyle: Style) {
   autoResize();
 
   const welcomeMessage = currentChatbotStyle === 'soc'
-    ? 'Hallo! Schön, dass du da bist. Ich bin hier um dich zu unterstützen. Was beschäftigt dich gerade am meisten?'
-    : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
+    ? 'Hallo, es freut mich, dass du hier bist. Ich nehme wahr, dass dich die aktuellen Veränderungen bei den Regelungen zu Elternzeit, Teilzeit oder dem Rückkehrprozess nach einer Auszeit beschäftigen. Das ist vollkommen verständlich – solche Anpassungen können viele Fragen aufwerfen. Was beschäftigt dich im Moment am meisten?'
+    : 'Willkommen, ich stehe dir gerne für Fragen zu Ansprüchen Elternzeit, Teilzeit oder Rückkehrprozess nach einer Auszeit zur Verfügung. Bitte gib dein Anliegen ein.';
 
   showTypingMessage(welcomeMessage, 1000);
   conversation.push({ role: 'assistant', content: welcomeMessage });
