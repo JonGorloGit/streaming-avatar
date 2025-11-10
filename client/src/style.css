@@ -761,19 +761,14 @@ button:disabled {
   }
 }
 
-/* ───────────────────────── Instruction Box (Green Theme) ───────────────────────── */
+/* ───────────────────────── Instruction Box ───────────────────────── */
+/* Instruction Box für HR Beratungscenter */
 .instruction-box {
-  /* vorher: dunkelblauer Gradient */
-  background: linear-gradient(
-    180deg,
-    rgba(var(--cws-green-rgb), 0.95) 0%,
-    rgba(var(--cws-green-rgb), 0.85) 100%
-  );
+  background: linear-gradient(180deg, rgba(0,39,59,0.95) 0%, rgba(0,56,90,0.95) 100%);
   color: #ffffff;
   padding: 1rem 1.25rem;
   border-radius: 12px;
-  /* zarter Rand in Grün statt Weiß */
-  border: 1px solid rgba(var(--cws-green-rgb), 0.25);
+  border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 6px 18px rgba(0,0,0,0.25);
   margin-bottom: 1rem;
   max-width: 920px;
@@ -784,14 +779,13 @@ button:disabled {
   font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* Collapsible Container */
+/* ────────────── Collapsible Section ────────────── */
 .instruction-details {
   background: transparent;
   border: none;
   color: inherit;
 }
 
-/* Summary-Zeile */
 .instruction-summary {
   cursor: pointer;
   font-weight: 600;
@@ -803,35 +797,37 @@ button:disabled {
   transition: color 0.3s ease;
 }
 
-/* Hover in Grün, nicht mehr Neon/Blau */
 .instruction-summary:hover {
-  color: var(--cws-green);
+  color: var(--cws-neon, #00c6ff);
 }
 
-/* Standard-Marker aus */
-.instruction-summary::marker { display: none; }
+.instruction-summary::marker {
+  display: none;
+}
 
-/* Pfeil in Grün */
+/* Pfeil-Icon */
 .instruction-summary::before {
   content: "▶";
   font-size: 0.85em;
-  color: var(--cws-green);
+  color: var(--cws-neon, #00c6ff);
   margin-right: 8px;
   transition: transform 0.3s ease, color 0.3s ease;
 }
 
-/* Pfeil dreht & wird minimal heller */
 details[open] .instruction-summary::before {
   transform: rotate(90deg);
-  color: rgba(var(--cws-green-rgb), 0.9);
+  color: #00e0ff;
 }
 
-/* Summary-Text + Zusatz "(mehr anzeigen)" */
-.summary-text { user-select: none; }
+/* Text im Summary */
+.summary-text {
+  user-select: none;
+}
+
 .summary-sub {
   font-size: 0.8em;
   font-style: italic;
-  opacity: 0.9;
+  opacity: 0.8;
   margin-left: 6px;
 }
 
@@ -842,11 +838,10 @@ details[open] .instruction-summary::before {
   color: #ffffff;
 }
 
-/* Überschriftenzeilen (em) dezent grünlich, ohne zusätzliche Leerzeile */
 .instruction-body em {
-  display: inline;               /* <<< lässt die Leerzeile verschwinden */
+  display: inline;
   font-style: italic;
-  color: rgba(var(--cws-green-rgb), 0.85);
+  color: #b6e2ff;
 }
 
 .instruction-body strong {
@@ -858,9 +853,12 @@ details[open] .instruction-summary::before {
   padding-left: 1.5em;
   margin-top: 0.4em;
 }
-.instruction-body li { margin-bottom: 0.5em; }
 
-/* Mobile */
+.instruction-body li {
+  margin-bottom: 0.5em;
+}
+
+/* Kleinere Bildschirme */
 @media (max-width: 480px) {
   .instruction-box {
     padding: 0.8rem 1rem;
@@ -868,7 +866,9 @@ details[open] .instruction-summary::before {
     border-radius: 10px;
     margin-bottom: 0.75rem;
   }
-  .instruction-summary { font-size: 1rem; }
+  .instruction-summary {
+    font-size: 1rem;
+  }
 }
 
 /* ───────────────────────── Media Queries (Responsiveness) ───────────────────────── */
