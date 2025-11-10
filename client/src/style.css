@@ -770,22 +770,93 @@ button:disabled {
   border-radius: 12px;
   border: 1px solid rgba(255,255,255,0.06);
   box-shadow: 0 6px 18px rgba(0,0,0,0.25);
-  margin-bottom: 1rem; /* Abstand zur HR-Box darunter */
+  margin-bottom: 1rem;
   max-width: 920px;
   width: 100%;
   display: block;
   font-size: 0.95rem;
-  line-height: 1.4;
+  line-height: 1.5;
+  font-family: "Segoe UI", Arial, sans-serif;
 }
 
-/* Optional: leichte Icon‑Linksausrichtung */
-.instruction-box .instruction-title {
+/* ────────────── Collapsible Section ────────────── */
+.instruction-details {
+  background: transparent;
+  border: none;
+  color: inherit;
+}
+
+/* Zusammenfassungszeile */
+.instruction-summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  list-style: none;
+  transition: color 0.3s ease;
+}
+
+/* Hover-Effekt */
+.instruction-summary:hover {
+  color: var(--cws-neon, #00c6ff); /* Neonblauer Akzent oder Fallback */
+}
+
+/* Entfernt den Standard-Marker */
+.instruction-summary::marker {
+  display: none;
+}
+
+/* Pfeil-Icon */
+.instruction-summary::before {
+  content: "▶";
+  font-size: 0.85em;
+  color: var(--cws-neon, #00c6ff);
+  margin-right: 8px;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+/* Pfeil dreht sich beim Öffnen */
+details[open] .instruction-summary::before {
+  transform: rotate(90deg);
+  color: #00e0ff;
+}
+
+/* Der Text im Summary */
+.summary-text {
+  user-select: none;
+}
+
+/* Inhalt */
+.instruction-body {
+  margin-top: 0.8em;
+  padding-left: 0.5em;
+  color: #ffffff;
+}
+
+.instruction-body em {
+  display: block;
+  font-style: italic;
+  color: #b6e2ff;
+  margin-bottom: 0.2em;
+}
+
+.instruction-body strong {
   font-weight: 700;
-  margin-bottom: 0.35rem;
-  color: var(--cws-neon); /* Hervorhebung */
+  color: #ffffff;
 }
 
-/* Kleinere Bildschirme: text kleiner und Padding reduziert */
+.instruction-body ol {
+  padding-left: 1.5em;
+  margin-top: 0.4em;
+}
+
+.instruction-body li {
+  margin-bottom: 0.5em;
+}
+
+/* Kleinere Bildschirme */
 @media (max-width: 480px) {
   .instruction-box {
     padding: 0.8rem 1rem;
@@ -793,7 +864,11 @@ button:disabled {
     border-radius: 10px;
     margin-bottom: 0.75rem;
   }
+  .instruction-summary {
+    font-size: 1rem;
+  }
 }
+
 
 /* ───────────────────────── Media Queries (Responsiveness) ───────────────────────── */
 @media (min-width: 481px) {
