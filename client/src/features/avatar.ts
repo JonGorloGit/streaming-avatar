@@ -32,7 +32,7 @@ const REDIRECT_URL_AVATAR_SOC_HUMAN_BASE   = import.meta.env.VITE_REDIRECT_URL_A
 const REDIRECT_URL_AVATAR_INS_HUMAN_BASE   = import.meta.env.VITE_REDIRECT_URL_AVATAR_INS_HUMAN || FALLBACK_SOSCI_SURVEY_URL;
 
 const MAX_INTERACTIONS        = 3;
-const HUMAN_CONNECT_PROMPT_THRESHOLD = 3;
+const HUMAN_CONNECT_PROMPT_THRESHOLD = 4;
 const MAX_API_RETRIES         = 2;
 const SESSION_RETRY_COOLDOWN_MS = 10000;
 
@@ -332,10 +332,10 @@ function handleAvatarResponseLogic() {
         return;
     }
 
-    if (interactionCount === HUMAN_CONNECT_PROMPT_THRESHOLD && !avatarHumanConnectPromptShownThisSession) {
+    if (interactionCount === MAX_INTERACTIONS && !avatarHumanConnectPromptShownThisSession) {
         askForHumanConnectionAvatar();
     } 
-    else if (interactionCount >= MAX_INTERACTIONS) { 
+    else if (interactionCount >= HUMAN_CONNECT_PROMPT_THRESHOLD) { 
         startFinalCountdown();
     } 
     else { 
@@ -380,14 +380,22 @@ function handleAvatarHumanConnectionChoice(userChoseToConnect: boolean) {
         });
     } else { 
         console.log("Benutzer (Avatar) möchte nicht mit Mensch verbunden werden. Interaktion geht weiter.");
-        localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
-        if (!finalCountdownStarted) {
-            if (speakButtonEl) speakButtonEl.disabled = false;
-            if (userInputEl) {
-                userInputEl.disabled = false;
-                userInputEl.focus();
-            }
-        }
+        localStorage.setItem('experimentRedirectMode', 'avatar');
+        localStorage.setItem('experimentRedirectStyle', currentAvatarStyleInternal);
+        localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'No');
+        localStorage.setItem('experimentDone', 'true');
+
+        // NEU: Gesammelte Nachrichten im localStorage speichern
+        localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLogAvatar.join('$'));
+
+        const baseRedirectUrl = currentAvatarStyleInternal === 'soc' 
+            ? REDIRECT_URL_AVATAR_SOC_HUMAN_BASE 
+            : REDIRECT_URL_AVATAR_INS_HUMAN_BASE;
+        const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); 
+        
+        stopAvatar().then(() => {
+            window.location.href = finalRedirectUrl;
+        });
     }
 }
 
