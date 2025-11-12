@@ -273,8 +273,8 @@ export async function startAvatar(style: 'soc' | 'ins') {
           }
 
           const greeting = currentAvatarStyleInternal === 'soc'
-            ? 'Hallo! Schön, dass du da bist. Ich bin hier um dich zu unterstützen. Was beschäftigt dich gerade am meisten?'
-            : 'Willkommen. Bitte geben Sie Ihr Anliegen ein.';
+            ? 'Hallo, es freut mich, dass du hier bist. Ich gehe davon aus, dass dich die aktuellen Veränderungen beschäftigen. Das ist vollkommen verständlich – solche Anpassungen können viele Fragen aufwerfen. Was beschäftigt dich im Moment am meisten?'
+            : 'Willkommen. Bitte gib dein Anliegen ein.';
           if (avatar) {
              await avatar.speak({ text: greeting });
           }
