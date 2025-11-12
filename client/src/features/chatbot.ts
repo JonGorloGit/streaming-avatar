@@ -171,7 +171,7 @@ autoResize();
 
 const welcomeMessage = currentChatbotStyle === 'soc'
 ? 'Hallo Alex, es freut mich, dass du hier bist. Ich gehe davon aus, dass dich etwas beschäftigt. Wie kann ich dir helfen?'
-: 'Hallo Alex. Wie kann ich dir helfen?';
+: 'Hallo Alex. Bitte gib dein Anliegen ein.';
 
 showTypingMessage(welcomeMessage, 1000);
 conversation.push({ role: 'assistant', content: welcomeMessage });
