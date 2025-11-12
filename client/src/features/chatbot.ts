@@ -316,7 +316,7 @@ const buttonDiv = document.createElement('div');
 buttonDiv.className = 'buttons';
 
 const yesButton = document.createElement('button');
-yesButton.textContent = 'Ja, ich möchte mit einem menschlichen HR-Mitarbeiter verbunden werden';
+yesButton.textContent = 'Ja, ich möchte mit einem menschlichen HR Mitarbeiter verbunden werden';
 yesButton.onclick = () => handleHumanConnectionChoice(true);
 
 const noButton = document.createElement('button');
