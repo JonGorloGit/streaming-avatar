@@ -171,7 +171,7 @@ autoResize();
 
 const welcomeMessage = currentChatbotStyle === 'soc'
 ? 'Hallo, es freut mich, dass du hier bist. Ich gehe davon aus, dass dich die aktuellen Veränderungen beschäftigen. Das ist vollkommen verständlich – solche Anpassungen können viele Fragen aufwerfen. Was beschäftigt dich im Moment am meisten?'
-: 'Willkommen, ich stehe gerne für Fragen zu Ansprüchen auf Elternzeit, Teilzeit oder zum Rückkehrprozess nach einer Auszeit zur Verfügung. Bitte gib dein Anliegen ein.';
+: 'Willkommen. Bitte gib dein Anliegen ein.';
 
 showTypingMessage(welcomeMessage, 1000);
 conversation.push({ role: 'assistant', content: welcomeMessage });
@@ -337,7 +337,7 @@ bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 function askForHumanConnection() {
 if (!bodyEl || humanConnectPromptShownThisSession || chatFinalCountdownStarted) return;
 humanConnectPromptShownThisSession = true;
-appendMessage('assistant', 'Möchten Sie jetzt mit einem menschlichen HR-Mitarbeiter verbunden werden?', true);
+appendMessage('assistant', 'Möchten Sie jetzt mit einem menschlichen HR Mitarbeiter verbunden werden?', true);
 }
 
 function handleHumanConnectionChoice(choice: boolean) {
