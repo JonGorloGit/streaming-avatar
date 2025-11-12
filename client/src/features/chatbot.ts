@@ -170,8 +170,8 @@ sendBtn.disabled = false;
 autoResize();
 
 const welcomeMessage = currentChatbotStyle === 'soc'
-? 'Hallo, es freut mich, dass du hier bist. Ich gehe davon aus, dass dich die aktuellen Veränderungen beschäftigen. Das ist vollkommen verständlich – solche Anpassungen können viele Fragen aufwerfen. Was beschäftigt dich im Moment am meisten?'
-: 'Willkommen. Bitte gib dein Anliegen ein.';
+? 'Hallo Alex, es freut mich, dass du hier bist. Ich gehe davon aus, dass dich etwas beschäftigt. Wie kann ich dir helfen?'
+: 'Hallo Alex. Wie kann ich dir helfen?';
 
 showTypingMessage(welcomeMessage, 1000);
 conversation.push({ role: 'assistant', content: welcomeMessage });
