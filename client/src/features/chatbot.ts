@@ -316,11 +316,11 @@ const buttonDiv = document.createElement('div');
 buttonDiv.className = 'buttons';
 
 const yesButton = document.createElement('button');
-yesButton.textContent = 'Ja, wechseln';
+yesButton.textContent = 'Wechseln';
 yesButton.onclick = () => handleHumanConnectionChoice(true);
 
 const noButton = document.createElement('button');
-noButton.textContent = 'Nein, hier bleiben';
+noButton.textContent = 'Hier bleiben';
 noButton.onclick = () => handleHumanConnectionChoice(false);
 
 buttonDiv.appendChild(yesButton);
@@ -337,7 +337,7 @@ bodyEl.scrollTo({ top: bodyEl.scrollHeight, behavior: 'smooth' });
 function askForHumanConnection() {
 if (!bodyEl || humanConnectPromptShownThisSession || chatFinalCountdownStarted) return;
 humanConnectPromptShownThisSession = true;
-appendMessage('assistant', 'Du kannst jetzt entscheiden, ob du menschliche Unterstützung möchtest oder beim digitalen HR-Agenten bleiben willst.', true);
+appendMessage('assistant', 'Möchtest du das Gespräch mit einer Person aus HR fortführen oder dich weiter mit dem digitalen HR Agenten unterhalten?', true);
 }
 
 function handleHumanConnectionChoice(choice: boolean) {
