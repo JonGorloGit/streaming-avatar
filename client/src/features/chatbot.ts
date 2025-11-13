@@ -374,7 +374,7 @@ localStorage.setItem(USER_MESSAGES_LOG_KEY, userMessagesLog.join('$'));
 const baseRedirectUrl = currentChatbotStyle === 'soc' 
 ? REDIRECT_URL_CHAT_SOC_HUMAN_BASE 
 : REDIRECT_URL_CHAT_INS_HUMAN_BASE;
-const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, true); // optedForHumanConnect ist true
+const finalRedirectUrl = appendSurveyParamsToUrlLocal(baseRedirectUrl, false); // optedForHumanConnect ist true
 
 window.location.href = finalRedirectUrl;
 }
