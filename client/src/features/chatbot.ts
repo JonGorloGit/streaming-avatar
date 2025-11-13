@@ -365,7 +365,7 @@ window.location.href = finalRedirectUrl;
 } else { // User chose "No"
 localStorage.setItem('experimentRedirectMode', 'chat');
 localStorage.setItem('experimentRedirectStyle', currentChatbotStyle);
-localStorage.removeItem(EXPERIMENT_HUMAN_CONNECT_KEY); 
+localStorage.setItem(EXPERIMENT_HUMAN_CONNECT_KEY, 'no'); 
 localStorage.setItem('experimentDone', 'true');
 
 // NEU: Gesammelte Nachrichten im localStorage speichern
