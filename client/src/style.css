@@ -858,6 +858,7 @@ details[open] .instruction-summary::before {
   margin-bottom: 0.5em; 
 }
 
+
 /* Kleinere Bildschirme */
 @media (max-width: 480px) {
   .instruction-box {
