@@ -849,20 +849,14 @@ details[open] .instruction-summary::before {
   color: #ffffff;
 }
 
-.instruction-body ol {
-  list-style: decimal;
-  padding-left: 1.5em;
-  margin-top: 0.4em;
+.instruction-body ol { 
+  padding-left: 1.5em; 
+  margin-top: 0.4em; 
 }
 
-.instruction-body li {
-  display: list-item;          /* falls global auf inline/block gesetzt */
-  color: #ffffff;              /* falls Farbe überschrieben wird */
-  margin-bottom: 0.5em;
-  white-space: normal;         /* falls irgendwo nowrap aktiv ist */
-  word-break: break-word;      /* falls lange Sätze abgeschnitten werden */
+.instruction-body li { 
+  margin-bottom: 0.5em; 
 }
-
 
 /* Kleinere Bildschirme */
 @media (max-width: 480px) {
